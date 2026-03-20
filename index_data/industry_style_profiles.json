@@ -1,0 +1,801 @@
+{
+  "version": "1.0",
+  "run_id": "imported_from_sa",
+  "industry_groups": {
+    "finance_group": [
+      "finance",
+      "fintech",
+      "insurance",
+      "banking",
+      "crypto_web3",
+      "defi"
+    ],
+    "health_group": [
+      "health",
+      "fitness_wellness",
+      "mental_health"
+    ],
+    "tech_group": [
+      "technology",
+      "saas",
+      "ai_ml",
+      "developer_tools",
+      "devops",
+      "security"
+    ],
+    "ecommerce_group": [
+      "ecommerce",
+      "fashion",
+      "beauty",
+      "food_beverage",
+      "restaurant"
+    ],
+    "media_group": [
+      "media",
+      "news",
+      "podcast",
+      "entertainment",
+      "sports"
+    ],
+    "education_group": [
+      "education",
+      "edtech"
+    ],
+    "creative_group": [
+      "creative_agency",
+      "design_studio"
+    ],
+    "real_estate_group": [
+      "real_estate",
+      "proptech"
+    ],
+    "travel_group": [
+      "travel",
+      "hospitality"
+    ],
+    "gaming_group": [
+      "gaming",
+      "esports"
+    ]
+  },
+  "profiles": {
+    "fintech_dark_minimal": {
+      "key": "fintech_dark_minimal",
+      "industries": [
+        "fintech",
+        "banking",
+        "defi",
+        "crypto_web3"
+      ],
+      "visual_styles": [
+        "minimal dark",
+        "dark gradient",
+        "glassmorphism",
+        "dark minimal"
+      ],
+      "color_modes": [
+        "dark"
+      ],
+      "description": "Premium dark UI, high trust signal, data-forward. Stripe, Linear aesthetic.",
+      "cluster_count": 0,
+      "example_domains": [],
+      "avg_quality": null,
+      "observed_visual_styles": [],
+      "observed_color_modes": [],
+      "observed_business_models": [],
+      "observed_brand_tiers": []
+    },
+    "fintech_light_clean": {
+      "key": "fintech_light_clean",
+      "industries": [
+        "fintech",
+        "banking",
+        "insurance",
+        "finance"
+      ],
+      "visual_styles": [
+        "minimal light",
+        "corporate clean",
+        "clean light"
+      ],
+      "color_modes": [
+        "light"
+      ],
+      "description": "Light, trustworthy fintech. Approachable but professional.",
+      "cluster_count": 2,
+      "example_domains": [
+        "oxc-project.github.io",
+        "enroute.health",
+        "loicstr.github.io",
+        "adamkozel.com",
+        "ozone.pro",
+        "anygood.app",
+        "oakstudios.github.io",
+        "itempire.com",
+        "klarna.com",
+        "ploteumadvisors.com"
+      ],
+      "avg_quality": 3.5,
+      "observed_visual_styles": [
+        "hero centered",
+        "minimal clean"
+      ],
+      "observed_color_modes": [
+        "light"
+      ],
+      "observed_business_models": [
+        "b2c_consumer"
+      ],
+      "observed_brand_tiers": [
+        "startup_modern"
+      ]
+    },
+    "health_light_clean": {
+      "key": "health_light_clean",
+      "industries": [
+        "health",
+        "fitness_wellness",
+        "mental_health"
+      ],
+      "visual_styles": [
+        "minimal light",
+        "soft pastel",
+        "clean clinical",
+        "light clean"
+      ],
+      "color_modes": [
+        "light"
+      ],
+      "description": "Approachable health/wellness. White space dominant, clinical trust.",
+      "cluster_count": 0,
+      "example_domains": [],
+      "avg_quality": null,
+      "observed_visual_styles": [],
+      "observed_color_modes": [],
+      "observed_business_models": [],
+      "observed_brand_tiers": []
+    },
+    "saas_dark_modern": {
+      "key": "saas_dark_modern",
+      "industries": [
+        "saas",
+        "ai_ml",
+        "technology"
+      ],
+      "visual_styles": [
+        "dark gradient",
+        "glassmorphism",
+        "minimal dark",
+        "dark modern"
+      ],
+      "color_modes": [
+        "dark"
+      ],
+      "description": "Modern SaaS dark theme. Often gradient hero, feature cards, clean nav.",
+      "cluster_count": 1,
+      "example_domains": [
+        "codesandbox.io",
+        "bazel.build",
+        "buildium.com",
+        "stigg.io",
+        "rust-lang.org",
+        "naka.com",
+        "nationex.com",
+        "apspayroll.com",
+        "solaax.com",
+        "everest-systems.com"
+      ],
+      "avg_quality": 4.0,
+      "observed_visual_styles": [
+        "dark gradients"
+      ],
+      "observed_color_modes": [
+        "dark"
+      ],
+      "observed_business_models": [
+        "b2b_saas"
+      ],
+      "observed_brand_tiers": [
+        "startup_modern"
+      ]
+    },
+    "saas_light_minimal": {
+      "key": "saas_light_minimal",
+      "industries": [
+        "saas",
+        "ai_ml",
+        "technology",
+        "developer_tools"
+      ],
+      "visual_styles": [
+        "minimal light",
+        "clean light",
+        "light clean",
+        "corporate clean"
+      ],
+      "color_modes": [
+        "light"
+      ],
+      "description": "Clean minimal SaaS. Lots of white space, product screenshots, clear CTAs.",
+      "cluster_count": 8,
+      "example_domains": [
+        "obsesd.dk",
+        "vkz.studio",
+        "60.belangersalach.ca",
+        "quierodeleito.com",
+        "shuttle.zip",
+        "brand.ledger.com",
+        "vantage.ava-case.com",
+        "volta.net",
+        "airbnb.com",
+        "nextjs.org"
+      ],
+      "avg_quality": 3.88,
+      "observed_visual_styles": [
+        "minimal light",
+        "modern hero",
+        "corporate clean",
+        "modal overlays",
+        "clean modern",
+        "minimal clean",
+        "minimal hero"
+      ],
+      "observed_color_modes": [
+        "light"
+      ],
+      "observed_business_models": [
+        "b2b_saas",
+        "developer_tool",
+        "b2c_consumer"
+      ],
+      "observed_brand_tiers": [
+        "enterprise_trusted",
+        "startup_modern"
+      ]
+    },
+    "developer_tools_mono": {
+      "key": "developer_tools_mono",
+      "industries": [
+        "developer_tools",
+        "devops",
+        "security",
+        "open_source"
+      ],
+      "visual_styles": [
+        "monospace dark",
+        "minimal dark",
+        "dark technical",
+        "terminal style"
+      ],
+      "color_modes": [
+        "dark"
+      ],
+      "description": "Developer-first tooling. Terminal/code aesthetics, dark mode, functional UI.",
+      "cluster_count": 4,
+      "example_domains": [
+        "weights.gg",
+        "oura.com",
+        "replit.com",
+        "character.ai",
+        "2025.uaepavilionexpo.com",
+        "sotf.com",
+        "maybefinance.com",
+        "ada.cx",
+        "welovenocode.com",
+        "sloshseltzer.com"
+      ],
+      "avg_quality": 3.75,
+      "observed_visual_styles": [
+        "dark minimal",
+        "dark gradient",
+        "dark tech",
+        "minimal security"
+      ],
+      "observed_color_modes": [
+        "dark",
+        "light"
+      ],
+      "observed_business_models": [
+        "b2b_saas",
+        "developer_tool"
+      ],
+      "observed_brand_tiers": [
+        "enterprise_trusted",
+        "startup_modern",
+        "developer_focused"
+      ]
+    },
+    "ecommerce_bold_colorful": {
+      "key": "ecommerce_bold_colorful",
+      "industries": [
+        "ecommerce",
+        "fashion",
+        "beauty"
+      ],
+      "visual_styles": [
+        "vibrant illustrated",
+        "bold colorful",
+        "colorful modern"
+      ],
+      "color_modes": [
+        "colorful",
+        "mixed"
+      ],
+      "description": "Bold consumer ecommerce. High-contrast products, vibrant photography.",
+      "cluster_count": 1,
+      "example_domains": [
+        "natureofthings.com",
+        "edpcollection.drvranjes.com",
+        "sohoskin.com",
+        "thejuly.com",
+        "escape.cafe",
+        "fancypeasant.com"
+      ],
+      "avg_quality": 4.0,
+      "observed_visual_styles": [
+        "overlay modal"
+      ],
+      "observed_color_modes": [
+        "mixed"
+      ],
+      "observed_business_models": [
+        "ecommerce_store"
+      ],
+      "observed_brand_tiers": [
+        "luxury_premium"
+      ]
+    },
+    "ecommerce_minimal_premium": {
+      "key": "ecommerce_minimal_premium",
+      "industries": [
+        "ecommerce",
+        "fashion",
+        "beauty",
+        "luxury_premium"
+      ],
+      "visual_styles": [
+        "minimal light",
+        "luxury minimal",
+        "editorial clean"
+      ],
+      "color_modes": [
+        "light",
+        "monochrome"
+      ],
+      "description": "Premium/luxury e-commerce. Restrained palette, large product imagery.",
+      "cluster_count": 0,
+      "example_domains": [],
+      "avg_quality": null,
+      "observed_visual_styles": [],
+      "observed_color_modes": [],
+      "observed_business_models": [],
+      "observed_brand_tiers": []
+    },
+    "creative_agency_bold": {
+      "key": "creative_agency_bold",
+      "industries": [
+        "creative_agency",
+        "design_studio"
+      ],
+      "visual_styles": [
+        "neo-brutalist",
+        "bold typographic",
+        "creative experimental",
+        "bold modern"
+      ],
+      "color_modes": [
+        "colorful",
+        "mixed",
+        "dark"
+      ],
+      "description": "Agency portfolio. Experimental layouts, strong typography, creative risk-taking.",
+      "cluster_count": 35,
+      "example_domains": [
+        "savelife.in.ua",
+        "zagravastudios.com",
+        "univision.mn",
+        "ai.diia.gov.ua",
+        "wftutor.school",
+        "homin.tech",
+        "espanium.com",
+        "stop-microplastic.tilda.ws",
+        "tattoofest.com.ua",
+        "noneofyourbusiness.tilda.ws"
+      ],
+      "avg_quality": 3.97,
+      "observed_visual_styles": [
+        "bold typographic",
+        "dark creative",
+        "minimal typographic",
+        "editorial grid",
+        "creative experimental",
+        "dark minimal",
+        "cinematic fullscreen",
+        "dark dramatic",
+        "dark scientific",
+        "bold fullscreen",
+        "artistic experimental",
+        "isometric illustrated",
+        "minimal dark",
+        "minimal japanese",
+        "immersive sci-fi",
+        "clean hero",
+        "dark cinematic",
+        "dark typographic"
+      ],
+      "observed_color_modes": [
+        "colorful",
+        "mixed",
+        "dark",
+        "light"
+      ],
+      "observed_business_models": [
+        "agency_studio"
+      ],
+      "observed_brand_tiers": [
+        "creative_bold",
+        "startup_modern"
+      ]
+    },
+    "edtech_light_approachable": {
+      "key": "edtech_light_approachable",
+      "industries": [
+        "education",
+        "edtech"
+      ],
+      "visual_styles": [
+        "minimal light",
+        "colorful friendly",
+        "vibrant illustrated"
+      ],
+      "color_modes": [
+        "light",
+        "colorful"
+      ],
+      "description": "Educational platform. Friendly, approachable, often illustrated.",
+      "cluster_count": 1,
+      "example_domains": [
+        "teachable.com",
+        "procore.com",
+        "lionheart-education.com",
+        "hiss.sydney",
+        "egn.university",
+        "eduphoria.com"
+      ],
+      "avg_quality": 4.0,
+      "observed_visual_styles": [
+        "bold typographic"
+      ],
+      "observed_color_modes": [
+        "light"
+      ],
+      "observed_business_models": [
+        "b2b_saas"
+      ],
+      "observed_brand_tiers": [
+        "startup_modern"
+      ]
+    },
+    "media_editorial": {
+      "key": "media_editorial",
+      "industries": [
+        "media",
+        "news",
+        "podcast"
+      ],
+      "visual_styles": [
+        "serif editorial",
+        "editorial clean",
+        "editorial scroll"
+      ],
+      "color_modes": [
+        "light",
+        "dark"
+      ],
+      "description": "Content-first editorial. Strong typography, article-centric layout.",
+      "cluster_count": 2,
+      "example_domains": [
+        "aquamaremarine.com",
+        "ceylonaero.webflow.io",
+        "bytetown.webflow.io",
+        "work.outloud.co",
+        "rangerak.org",
+        "kreatix.webflow.io",
+        "hodpurehealth.com",
+        "aexlab.com",
+        "the-shirt.bymatthew.com",
+        "antrfx.fr"
+      ],
+      "avg_quality": 3.5,
+      "observed_visual_styles": [
+        "dark immersive",
+        "minimal clean"
+      ],
+      "observed_color_modes": [
+        "dark",
+        "light"
+      ],
+      "observed_business_models": [
+        "media_content"
+      ],
+      "observed_brand_tiers": [
+        "creative_bold",
+        "consumer_playful"
+      ]
+    },
+    "gaming_dark_immersive": {
+      "key": "gaming_dark_immersive",
+      "industries": [
+        "gaming",
+        "esports"
+      ],
+      "visual_styles": [
+        "dark gradient",
+        "immersive dark",
+        "futuristic dark"
+      ],
+      "color_modes": [
+        "dark"
+      ],
+      "description": "Gaming/esports dark UI. Immersive, action-forward, dramatic visuals.",
+      "cluster_count": 1,
+      "example_domains": [
+        "blur.io",
+        "flashback.playvalorant.com",
+        "inkgames.com",
+        "mypethooligangame.com",
+        "gamingonavax.com",
+        "monsterjamvideogame.com",
+        "breachbunny.com",
+        "homerun.today",
+        "irys.xyz",
+        "railway.app"
+      ],
+      "avg_quality": 4.0,
+      "observed_visual_styles": [
+        "bold typographic"
+      ],
+      "observed_color_modes": [
+        "dark"
+      ],
+      "observed_business_models": [
+        "platform"
+      ],
+      "observed_brand_tiers": [
+        "community_driven"
+      ]
+    },
+    "travel_rich_visual": {
+      "key": "travel_rich_visual",
+      "industries": [
+        "travel",
+        "hospitality",
+        "real_estate"
+      ],
+      "visual_styles": [
+        "fullscreen media",
+        "rich visual",
+        "photography forward"
+      ],
+      "color_modes": [
+        "mixed",
+        "light"
+      ],
+      "description": "Visual-first travel/hospitality. Full-bleed photography, hero-driven.",
+      "cluster_count": 8,
+      "example_domains": [
+        "weareapertus.fr",
+        "dimemtl.com",
+        "jacques-cie.com",
+        "anima-cc.com",
+        "lecampquebec.com",
+        "eddie.eco",
+        "magram.fr",
+        "augerdubord.com",
+        "tourschanteclerc.com",
+        "beintech.fr"
+      ],
+      "avg_quality": 3.75,
+      "observed_visual_styles": [
+        "fullscreen atmospheric",
+        "cinematic fullscreen",
+        "hero overlay",
+        "modal overlays",
+        "luxury minimalist",
+        "minimal clean",
+        "hero fullscreen",
+        "luxury hospitality"
+      ],
+      "observed_color_modes": [
+        "mixed",
+        "light"
+      ],
+      "observed_business_models": [
+        "b2b_saas",
+        "b2c_consumer"
+      ],
+      "observed_brand_tiers": [
+        "enterprise_trusted",
+        "luxury_premium",
+        "minimal_premium",
+        "consumer_playful"
+      ]
+    },
+    "startup_modern_gradient": {
+      "key": "startup_modern_gradient",
+      "industries": [
+        "saas",
+        "ai_ml",
+        "technology",
+        "fintech"
+      ],
+      "visual_styles": [
+        "gradient modern",
+        "colorful gradient",
+        "vibrant gradient"
+      ],
+      "color_modes": [
+        "colorful",
+        "mixed"
+      ],
+      "description": "Modern startup with gradient branding. Bold color, energetic, growth-stage feel.",
+      "cluster_count": 7,
+      "example_domains": [
+        "thecamelfabricgame.maxmara.com",
+        "aurorashouse.webflow.io",
+        "playground.it",
+        "improvs.com",
+        "arcreal.com",
+        "rise2.studio",
+        "dovetailapp.com",
+        "flora.ai",
+        "5-million-devs.netlify.com",
+        "popup.larosee-cosmetiques.com"
+      ],
+      "avg_quality": 3.71,
+      "observed_visual_styles": [
+        "minimal centered",
+        "vibrant illustrated",
+        "gradient hero",
+        "minimal modal",
+        "immersive experiential",
+        "modern fintech",
+        "minimal hero"
+      ],
+      "observed_color_modes": [
+        "colorful",
+        "mixed"
+      ],
+      "observed_business_models": [
+        "b2b_saas",
+        "developer_tool"
+      ],
+      "observed_brand_tiers": [
+        "startup_modern",
+        "developer_focused"
+      ]
+    },
+    "enterprise_corporate": {
+      "key": "enterprise_corporate",
+      "industries": [
+        "technology",
+        "saas",
+        "finance",
+        "insurance",
+        "logistics",
+        "hr_recruiting"
+      ],
+      "visual_styles": [
+        "corporate clean",
+        "classic corporate",
+        "minimal corporate"
+      ],
+      "color_modes": [
+        "light"
+      ],
+      "description": "Enterprise B2B. Professional, trustworthy, conservative layout.",
+      "cluster_count": 2,
+      "example_domains": [
+        "actbe.co.jp",
+        "olhalazarieva.com",
+        "pictoric.com.ua",
+        "louisansa.com",
+        "carlosguijarro.com",
+        "internationalsupply.com.co",
+        "yourwave.nl",
+        "solflare.com",
+        "pxloom.com",
+        "lever.co"
+      ],
+      "avg_quality": 3.0,
+      "observed_visual_styles": [
+        "clean minimal",
+        "minimal clean"
+      ],
+      "observed_color_modes": [
+        "light"
+      ],
+      "observed_business_models": [
+        "b2b_saas"
+      ],
+      "observed_brand_tiers": [
+        "enterprise_trusted",
+        "startup_modern"
+      ]
+    },
+    "nonprofit_warm": {
+      "key": "nonprofit_warm",
+      "industries": [
+        "nonprofit",
+        "health",
+        "education"
+      ],
+      "visual_styles": [
+        "warm minimal",
+        "soft colorful",
+        "illustrated friendly"
+      ],
+      "color_modes": [
+        "light",
+        "colorful"
+      ],
+      "description": "Mission-driven nonprofit. Warm, human-centered, community-focused.",
+      "cluster_count": 2,
+      "example_domains": [
+        "cerebral.com",
+        "whoop.com",
+        "withings.com",
+        "keeps.com",
+        "arzoumanian.fr",
+        "docshield.com",
+        "quantumbody.io",
+        "showcasemd.io",
+        "pomegranate.health",
+        "myhealthprac.com"
+      ],
+      "avg_quality": 4.0,
+      "observed_visual_styles": [
+        "bold typographic",
+        "hero photography"
+      ],
+      "observed_color_modes": [
+        "colorful",
+        "light"
+      ],
+      "observed_business_models": [
+        "b2c_consumer"
+      ],
+      "observed_brand_tiers": [
+        "startup_modern",
+        "consumer_playful"
+      ]
+    },
+    "food_vibrant": {
+      "key": "food_vibrant",
+      "industries": [
+        "food_beverage",
+        "restaurant"
+      ],
+      "visual_styles": [
+        "rich photography",
+        "warm editorial",
+        "vibrant illustrated"
+      ],
+      "color_modes": [
+        "colorful",
+        "mixed"
+      ],
+      "description": "Food & beverage. Appetite-inducing photography, warm tones, editorial layout.",
+      "cluster_count": 0,
+      "example_domains": [],
+      "avg_quality": null,
+      "observed_visual_styles": [],
+      "observed_color_modes": [],
+      "observed_business_models": [],
+      "observed_brand_tiers": []
+    }
+  },
+  "total_profiles": 17,
+  "populated_profiles": 13,
+  "unmatched_clusters": 17
+}

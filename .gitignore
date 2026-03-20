@@ -1,0 +1,11 @@
+.env
+.mcp.json
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/
+preview/
+output.tsx
+*.next/
