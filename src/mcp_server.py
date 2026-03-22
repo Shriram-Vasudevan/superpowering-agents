@@ -23,6 +23,8 @@ from starlette.responses import Response
 from src.pipeline import (
     build_context_system_prompt,
     build_reference_images_for_remote,
+    build_reference_surface_analysis,
+    get_dom_summaries_for_domains,
     intent_to_info,
     run_diverse_retrieval,
     run_retrieval,
@@ -34,6 +36,7 @@ from src.layout_checker import check_layout, _is_local_url
 from src.primitives import (
     build_manual_primitive_bundle,
     build_primitive_prompt_addendum,
+    find_provider,
     get_discovery_highlights,
     list_providers,
     load_primitive_registry,
@@ -64,6 +67,80 @@ mcp = FastMCP(
     transport_security=_transport_security,
     stateless_http=True,
 )
+
+
+# ── Workflow state tracking ──────────────────────────────────────────────
+# Tracks which steps have been completed in the mandatory workflow sequence.
+# This prevents the agent from skipping steps (e.g. jumping straight to
+# code without selecting primitives or running design review).
+
+class _WorkflowState:
+    """Tracks completed workflow steps per session."""
+
+    def __init__(self) -> None:
+        self.reset()
+
+    def reset(self) -> None:
+        self.context_called: bool = False
+        self.context_domains: list[str] = []
+        self.catalog_browsed: bool = False
+        self.primitives_selected: bool = False
+        self.selected_primitive_ids: list[str] = []
+        self.design_reviewed: bool = False
+        self.design_review_passed: bool = False
+        self.images_called: int = 0
+
+    def check_prerequisite(self, step: str) -> str | None:
+        """Return an error message if prerequisites for a step aren't met, else None."""
+        if step == "primitive_catalog":
+            if not self.context_called:
+                return (
+                    "WORKFLOW ERROR: You must call superpower_context (or superpower_retrieve) "
+                    "BEFORE browsing the primitive catalog. The context provides reference images "
+                    "and DOM analysis that should inform your primitive selection. "
+                    "Call superpower_context first."
+                )
+        elif step == "primitive_select":
+            if not self.catalog_browsed:
+                return (
+                    "WORKFLOW ERROR: You must call superpower_primitive_catalog BEFORE selecting "
+                    "primitives. Browse the full catalog (including discovery_spotlight) to make "
+                    "informed selections. Call superpower_primitive_catalog first."
+                )
+        elif step == "design_review":
+            if not self.primitives_selected:
+                return (
+                    "WORKFLOW ERROR: You must call superpower_primitive_select BEFORE running "
+                    "design review. Select your primitives first so the review can check if "
+                    "your section descriptions mention using them. "
+                    "Call superpower_primitive_select first."
+                )
+        elif step == "build":
+            # This check is advisory — returned in the images/check_layout tools
+            missing: list[str] = []
+            if not self.context_called:
+                missing.append("superpower_context (retrieve design references)")
+            if not self.catalog_browsed:
+                missing.append("superpower_primitive_catalog (browse primitives)")
+            if not self.primitives_selected:
+                missing.append("superpower_primitive_select (select primitives)")
+            if not self.design_reviewed:
+                missing.append("superpower_design_review (validate design plan)")
+            elif not self.design_review_passed:
+                missing.append("superpower_design_review PASSING (your last review did not pass)")
+            if self.images_called < 2:
+                missing.append(f"superpower_images (called {self.images_called}x, need 2+ calls)")
+            if missing:
+                return (
+                    "WORKFLOW WARNING: You are building/checking before completing the full "
+                    "workflow. Missing steps:\n" +
+                    "\n".join(f"  - {m}" for m in missing) +
+                    "\n\nGo back and complete these steps for higher quality output."
+                )
+        return None
+
+
+_workflow = _WorkflowState()
 
 
 @mcp.tool(structured_output=False)
@@ -121,84 +198,32 @@ def superpower_context(
     varied layouts, real images everywhere, framer-motion on every element, realistic
     content throughout. Generic template output is failure.
     """
+    # Reset workflow for new context call (new project)
+    _workflow.reset()
+
     intent, results = run_retrieval(prompt, page_type, industry, business_model, brand_tier, top_k, no_vector)
     if style_profile:
         intent.industry_style_profile = style_profile
     corpus_coverage = get_corpus_coverage(intent)
+
+    # Track workflow state
+    _workflow.context_called = True
+    _workflow.context_domains = [r.domain for r in results]
     system_prompt = ""
     primitive_bundle = None
     if auto_primitives:
         system_prompt, primitive_bundle = build_context_system_prompt(prompt, intent, results)
 
     instructions = (
-        "━━━ MANDATORY EXECUTION SEQUENCE — follow exactly, no shortcuts ━━━\n\n"
-        "STEP 1 — STUDY EVERY REFERENCE IMAGE NOW:\n"
-        "Before anything else, examine each reference image carefully. Identify: exact "
-        "spacing rhythm, typography size scale (headings are often text-7xl+), color "
-        "palette (usually very limited), border treatment (often sharp, 0px radius), "
-        "layout structure, and what specific choices make each site feel premium. "
-        "Write a comment block: 'From ref 1: [specific element]. From ref 2: [specific "
-        "element].' Cannot write this = have not studied the images = go back and look.\n\n"
-        "STEP 2 — BROWSE THEN SELECT PRIMITIVES (TWO CALLS REQUIRED):\n"
-        "2a. Call superpower_primitive_catalog with no args to see all ~60 primitives.\n"
-        "2b. Call superpower_primitive_select with chosen IDs from 6+ categories. "
-        "Required categories: layout, surface, text-effects, background, animation/scroll, "
-        "buttons. The primitives you select become NON-NEGOTIABLE — you MUST implement "
-        "every single selected primitive. Pick boldly — unexpected combos = unique output.\n\n"
-        "STEP 3 — GET REAL IMAGES (CALL MULTIPLE TIMES):\n"
-        "Call superpower_images at least 3 times with different specific queries. "
-        "Examples: 'dark cinematic architectural interior', 'professional team diverse "
-        "office', 'abstract texture minimal dark'. Use url_full for hero backgrounds, "
-        "url for section images. Every image slot needs a real URL — zero placeholders.\n\n"
-        "STEP 4 — BUILD THE FULL MULTI-PAGE SITE:\n"
-        "Files required: app/layout.tsx (Navbar + Footer + AnimatePresence), "
-        "app/page.tsx (HOME — minimum 8 visually distinct sections), "
-        "app/about/page.tsx (full about page), app/services/page.tsx or similar.\n\n"
-        "SECTION REQUIREMENTS:\n"
-        "• Every section must look DIFFERENT from adjacent sections (varied layout, "
-        "background, typography scale, content type)\n"
-        "• Section padding: py-24 or py-32 minimum\n"
-        "• Content containers: max-w-7xl mx-auto px-6\n"
-        "• Hero heading: lg:text-8xl or lg:text-9xl — never smaller than lg:text-6xl\n\n"
-        "ANIMATION REQUIREMENTS (every element, no exceptions):\n"
-        "• useInView + variants + staggered children on EVERY section\n"
-        "• useScroll + useTransform parallax on at least 2 hero/image sections\n"
-        "• whileHover on every card, button, link, and interactive element\n"
-        "• AnimatePresence on route transitions in layout.tsx\n"
-        "• Import: motion, useScroll, useTransform, useInView, AnimatePresence\n\n"
-        "IMAGE REQUIREMENTS:\n"
-        "• next/image for all images with real Unsplash URLs\n"
-        "• Hero backgrounds: use fill + object-cover inside a relative container\n"
-        "• Card images: explicit width/height with object-cover\n"
-        "• No images cut off — set explicit heights on image containers\n\n"
-        "CONTENT REQUIREMENTS:\n"
-        "• Invent a real-sounding company name and product\n"
-        "• 3+ testimonials with full name, job title, company, detailed quote\n"
-        "• Stats section with real numbers (10,000+ users, $2.4M saved, 99.97% uptime)\n"
-        "• Pricing with real tiers and real prices\n"
-        "• Zero placeholder text anywhere\n\n"
-        "FINAL CHECK before outputting:\n"
-        "[ ] 8+ sections on home page, all visually distinct\n"
-        "[ ] Every primitive from superpower_primitive_select is implemented\n"
-        "[ ] Real Unsplash images in every image slot (no placeholders)\n"
-        "[ ] framer-motion on every section and interactive element\n"
-        "[ ] Multi-page structure (home + about + one more page)\n"
-        "[ ] All content is realistic (no Lorem ipsum, no 'Company Name')\n"
-        "[ ] Content is properly centered and padded\n"
-        "If any box is unchecked — fix it before outputting."
+        "Follow the system_prompt. The server enforces workflow order — it will "
+        "block you if you skip steps. Study reference_surface_analysis to match "
+        "the visual richness of your references. Install and use the actual npm "
+        "packages from your primitive selection."
     )
 
-    catalog_payload = None
-    if include_catalog or True:
-        registry = load_primitive_registry()
-        catalog_payload = {
-            "version": registry.get("version"),
-            "providers": registry.get("providers", []),
-            "font_pairs": registry.get("font_pairs", []),
-            "motion_primitives": registry.get("motion_primitives", []),
-            "variation_archetypes": registry.get("variation_archetypes", []),
-            "policy": registry.get("default_policy", {}),
-        }
+    # Build aggregate DOM surface analysis for all references
+    ref_domains = [r.domain for r in results]
+    surface_analysis = build_reference_surface_analysis(ref_domains)
 
     if _remote_mode:
         references, image_bytes_list = build_reference_images_for_remote(results)
@@ -208,29 +233,26 @@ def superpower_context(
             "corpus_coverage": corpus_coverage,
             "num_references": len(references),
             "references": references,
+            "reference_surface_analysis": surface_analysis,
             "primitives": primitive_bundle,
             "instructions": instructions,
         }
-        if catalog_payload is not None:
-            payload["primitive_catalog"] = catalog_payload
         content: list = [json.dumps(payload)]
         for img_bytes in image_bytes_list:
             content.append(Image(data=img_bytes, format="jpeg"))
         return content
 
     references = save_reference_images(results)
-    payload = {
+    return {
         "system_prompt": system_prompt,
         "intent": intent_to_info(intent).model_dump(),
         "corpus_coverage": corpus_coverage,
         "num_references": len(references),
         "references": references,
+        "reference_surface_analysis": surface_analysis,
         "primitives": primitive_bundle,
         "instructions": instructions,
     }
-    if catalog_payload is not None:
-        payload["primitive_catalog"] = catalog_payload
-    return payload
 
 
 @mcp.tool(structured_output=False)
@@ -260,6 +282,10 @@ def superpower_retrieve(
     if style_profile:
         intent.industry_style_profile = style_profile
     corpus_coverage = get_corpus_coverage(intent)
+
+    # Track workflow — retrieve counts as context for workflow purposes
+    _workflow.context_called = True
+    _workflow.context_domains.extend([r.domain for r in results])
 
     if _remote_mode:
         references, image_bytes_list = build_reference_images_for_remote(results)
@@ -332,9 +358,62 @@ def superpower_primitive_catalog(category: str | None = None) -> dict:
 
     After reviewing discovery_spotlight, browse all_providers for the full selection.
     Then call superpower_primitive_select with your chosen IDs.
+
+    NOTE: This returns lean summaries (id, name, category, score, traits) to keep
+    the payload small. Full variant details and implementation recipes are returned
+    by superpower_primitive_select for the primitives you actually choose.
     """
+    # Workflow enforcement
+    prereq_error = _workflow.check_prerequisite("primitive_catalog")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
+
+    _workflow.catalog_browsed = True
+
     registry = load_primitive_registry()
     discovery = get_discovery_highlights(registry) if not category else []
+
+    # Return lean provider summaries — strip full variant dicts to keep payload small
+    # Full details are returned by superpower_primitive_select for selected primitives
+    lean_providers = []
+    for p in list_providers(category):
+        lean = {
+            "id": p.get("id"),
+            "category": p.get("category"),
+            "name": p.get("name"),
+            "package": p.get("package", ""),
+            "score": p.get("score", 0),
+            "when_to_use": p.get("when_to_use", []),
+            "traits": p.get("traits", []),
+        }
+        # Include usage_rule if present (one-liner guidance)
+        variants = p.get("variants", {})
+        if isinstance(variants, dict):
+            for key in ("usage_rule", "anti_slop_rule", "anti_slop_note", "anti_template_note", "enforcement_rule"):
+                if key in variants:
+                    lean["key_rule"] = variants[key]
+                    break
+        lean_providers.append(lean)
+
+    # Lean font pairs — just id, display, body, tone
+    lean_fonts = [
+        {"id": fp.get("id"), "display": fp.get("display"), "body": fp.get("body"), "tone": fp.get("tone", [])}
+        for fp in registry.get("font_pairs", [])
+    ]
+
+    # Lean motion primitives — just id, type, description (no code_snippet)
+    lean_motions = [
+        {"id": m.get("id"), "type": m.get("type"), "description": m.get("description", "")[:120]}
+        for m in registry.get("motion_primitives", [])
+    ]
+
+    # Lean archetypes — just id and key fields
+    lean_archetypes = [
+        {"id": a.get("id"), "layout": a.get("layout"), "hero": a.get("hero"),
+         "section_rhythm": a.get("section_rhythm"), "signature_moves": a.get("signature_moves", [])}
+        for a in registry.get("variation_archetypes", [])
+    ]
+
     return {
         "version": registry.get("version"),
         "category": category,
@@ -344,11 +423,10 @@ def superpower_primitive_catalog(category: str | None = None) -> dict:
             "Pick at least 2-3 from discovery_spotlight alongside your standard choices. "
             "They are what separate template-looking output from custom-feeling output."
         ) if discovery else None,
-        "providers": list_providers(category),
-        "font_pairs": registry.get("font_pairs", []),
-        "motion_primitives": registry.get("motion_primitives", []),
-        "variation_archetypes": registry.get("variation_archetypes", []),
-        "policy": registry.get("default_policy", {}),
+        "providers": lean_providers,
+        "font_pairs": lean_fonts,
+        "motion_primitives": lean_motions,
+        "variation_archetypes": lean_archetypes,
     }
 
 
@@ -359,8 +437,24 @@ def superpower_primitive_select(
     motion_ids: list[str] | None = None,
     archetype_id: str | None = None,
     tags: list[str] | None = None,
+    reference_domains: list[str] | None = None,
 ) -> dict:
-    """Build a primitive bundle from explicit primitive IDs chosen by the client LLM."""
+    """Build a primitive bundle from explicit primitive IDs chosen by the client LLM.
+
+    If reference_domains is provided (list of domains from superpower_context),
+    this tool will compare your selection against what those references actually
+    use in their DOM and warn you about high-frequency techniques you're missing.
+    This prevents under-designing relative to your references.
+    """
+    # Workflow enforcement
+    prereq_error = _workflow.check_prerequisite("primitive_select")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
+
+    # Auto-fill reference_domains from context if not provided
+    if not reference_domains and _workflow.context_domains:
+        reference_domains = _workflow.context_domains
+
     bundle = build_manual_primitive_bundle(
         provider_ids=provider_ids,
         font_pair_id=font_pair_id,
@@ -369,13 +463,320 @@ def superpower_primitive_select(
         tags=tags,
     )
     addendum = build_primitive_prompt_addendum(bundle)
-    return {
+
+    # Track workflow state
+    _workflow.primitives_selected = True
+    _workflow.selected_primitive_ids = list(provider_ids)
+
+    result: dict = {
         "primitives": bundle,
         "prompt_addendum": addendum,
         "selected_provider_ids": provider_ids,
         "selected_motion_ids": motion_ids or [],
         "selected_font_pair_id": font_pair_id,
         "selected_archetype_id": archetype_id,
+    }
+
+    # Score selection against reference DOM data
+    if reference_domains:
+        surface_analysis = build_reference_surface_analysis(reference_domains)
+        technique_freq = surface_analysis.get("technique_frequency", {})
+        primitive_freq = surface_analysis.get("primitive_frequency", {})
+        n_refs = len(surface_analysis.get("per_reference", {})) or 1
+
+        # Check which high-frequency reference techniques are NOT covered
+        # by the selected providers
+        selected_categories = set()
+        selected_ids_set = set(provider_ids)
+        for pid in provider_ids:
+            provider = find_provider(pid)
+            if provider:
+                selected_categories.add(provider.get("category", ""))
+
+        warnings: list[str] = []
+        # Map surface techniques to primitive categories
+        technique_to_category = {
+            "glassmorphism": "surface.glassmorphism",
+            "mesh-gradient": "background.mesh-gradient",
+            "aurora-gradient": "background.aurora-gradient",
+            "noise-grain": "background.noise-texture",
+            "dot-grid": "background.dot-grid",
+            "outlined-text": "text-effects.outlined-text",
+            "image-filters": "image-effects.css-svg-filters",
+            "oklch-colors": "theming.oklch-palette",
+        }
+        for technique, count in technique_freq.items():
+            ratio = count / n_refs
+            if ratio < 0.4:
+                continue
+            mapped_id = technique_to_category.get(technique)
+            if mapped_id and mapped_id not in selected_ids_set:
+                warnings.append(
+                    f"MISSING: {count}/{n_refs} of your references use {technique}, "
+                    f"but you haven't selected '{mapped_id}'. This is a significant "
+                    f"gap — your output will look less polished than the references."
+                )
+
+        # Check for high-frequency detected primitives not selected
+        skip_prims = {"tailwind", "bootstrap", "webflow", "wordpress", "shopify"}
+        for prim, count in primitive_freq.items():
+            if prim in skip_prims:
+                continue
+            ratio = count / n_refs
+            if ratio < 0.4:
+                continue
+            if prim not in selected_ids_set:
+                warnings.append(
+                    f"GAP: {count}/{n_refs} references use '{prim}' but it's not in your selection."
+                )
+
+        if warnings:
+            result["coverage_warnings"] = warnings
+            result["coverage_note"] = (
+                f"Your selection is missing {len(warnings)} technique(s) that your references "
+                f"commonly use. Award-winning sites layer 3-5 surface techniques simultaneously. "
+                f"Consider adding the missing primitives to match your references' visual richness."
+            )
+        else:
+            result["coverage_note"] = "Good coverage — your selection aligns well with reference techniques."
+
+    return result
+
+
+@mcp.tool()
+def superpower_design_review(
+    sections: list[str],
+    reference_domains: list[str] | None = None,
+    selected_primitives: list[str] | None = None,
+) -> dict:
+    """Pre-build visual quality gate — call this BEFORE writing any code.
+
+    Describe each planned section's visual treatment in natural language, and
+    this tool will score whether your plan is ambitious enough relative to your
+    references. This prevents the most common failure mode: planning a "clean"
+    design that's actually just empty and template-grade.
+
+    WHAT TO DESCRIBE FOR EACH SECTION:
+    - Background treatment (gradient, texture, color, image, pattern)
+    - Typography choices (scale, weight, contrast, effects)
+    - Surface depth (shadows, glassmorphism, spotlight, borders)
+    - Layout approach (asymmetric, bento, full-bleed, split, overlapping)
+    - Animation intent (parallax, reveal, hover effects)
+    - Image treatment (grain, filters, duotone, overlay)
+
+    BAD example:  "Hero section with headline and CTA button"
+    GOOD example: "Full-viewport hero with mesh gradient background transitioning
+    from deep teal to warm amber, oversized display text at text-9xl with
+    text-reveal-clip animation, glassmorphic floating product card with
+    spotlight hover effect, noise texture overlay at 4% opacity"
+
+    Args:
+        sections: List of natural-language descriptions of each section's visual plan.
+        reference_domains: Domains from superpower_context (for comparison scoring).
+        selected_primitives: Provider IDs from superpower_primitive_select.
+    """
+    # Template-grade indicators — things that signal lazy/safe design
+    TEMPLATE_SIGNALS = [
+        "white background", "light background", "simple", "clean layout",
+        "basic", "standard", "normal", "bordered card", "rounded card",
+        "left-aligned text", "text and button", "headline and subheadline",
+        "centered text", "three columns", "three cards", "icon grid",
+    ]
+
+    # Workflow enforcement
+    prereq_error = _workflow.check_prerequisite("design_review")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
+
+    # Auto-fill from workflow state if not provided
+    if not reference_domains and _workflow.context_domains:
+        reference_domains = _workflow.context_domains
+    if not selected_primitives and _workflow.selected_primitive_ids:
+        selected_primitives = _workflow.selected_primitive_ids
+
+    # Visual richness indicators — things that signal ambitious design
+    RICHNESS_SIGNALS = [
+        "gradient", "mesh", "aurora", "glassmorphism", "glassmorphic",
+        "blur", "noise", "grain", "texture", "parallax", "spotlight",
+        "oversized", "full-bleed", "full-viewport", "overlapping",
+        "asymmetric", "bento", "split-screen", "duotone", "film",
+        "radial", "mask", "clip-path", "reveal", "stagger",
+        "floating", "layered", "depth", "3d", "perspective",
+        "animated", "typewriter", "counter", "marquee", "ticker",
+        "outlined", "stroke", "decorative numeral",
+        "frosted", "backdrop-blur", "mix-blend", "compositing",
+        "inner glow", "inset shadow", "filtered gradient", "sand texture",
+        "feturbulence", "contrast(", "saturate(",
+        "color shift", "color morph", "tilt",
+        "highlight", "weight contrast", "accent word",
+        "offset", "negative margin", "break out",
+        "rhythm", "alternating", "dark section",
+        "blob", "organic",
+    ]
+
+    section_scores: list[dict] = []
+    total_richness = 0
+    total_template = 0
+
+    for i, desc in enumerate(sections, 1):
+        desc_lower = desc.lower()
+        words = len(desc.split())
+
+        # Count richness and template signals
+        richness_found = [s for s in RICHNESS_SIGNALS if s in desc_lower]
+        template_found = [s for s in TEMPLATE_SIGNALS if s in desc_lower]
+
+        richness_score = len(richness_found)
+        template_score = len(template_found)
+
+        # Penalize very short descriptions — they indicate under-thinking
+        if words < 15:
+            template_score += 2
+
+        # Determine verdict
+        if richness_score >= 3 and template_score == 0:
+            verdict = "STRONG"
+            note = "This section sounds visually ambitious."
+        elif richness_score >= 1 and template_score <= 1:
+            verdict = "ADEQUATE"
+            note = "Acceptable, but could be pushed further."
+        else:
+            verdict = "TEMPLATE-GRADE"
+            note = (
+                "This section sounds generic. Add specific visual treatments: "
+                "background technique (gradient/noise/texture), surface depth "
+                "(glassmorphism/spotlight), text effects (oversized/reveal), "
+                "or layout ambition (asymmetric/overlapping/full-bleed)."
+            )
+
+        total_richness += richness_score
+        total_template += template_score
+
+        section_scores.append({
+            "section": i,
+            "description_preview": desc[:120] + ("..." if len(desc) > 120 else ""),
+            "word_count": words,
+            "verdict": verdict,
+            "richness_signals": richness_found,
+            "template_signals": template_found,
+            "note": note,
+        })
+
+    # Check primitive coverage
+    primitive_notes: list[str] = []
+    if selected_primitives:
+        # Check if the section descriptions actually mention using the primitives
+        all_descs = " ".join(sections).lower()
+        primitive_keywords = {
+            "glassmorphism": ["glass", "blur", "frosted", "translucent"],
+            "mesh-gradient": ["mesh", "gradient mesh", "multi-color gradient"],
+            "noise-texture": ["noise", "grain", "texture overlay"],
+            "dot-grid": ["dot grid", "dot pattern", "grid pattern"],
+            "spotlight": ["spotlight", "cursor follow", "radial glow"],
+            "typewriter": ["typewriter", "typing", "character reveal"],
+            "oversized-numerals": ["oversized", "large number", "decorative number", "counter"],
+            "marquee": ["marquee", "ticker", "infinite scroll", "logo scroll"],
+            "bento": ["bento", "asymmetric grid", "varied tiles"],
+            "recharts": ["chart", "graph", "area chart", "visualization"],
+            "filtered-gradient": ["filtered gradient", "grain overlay", "textured gradient", "feturbulence", "sand texture", "pixelat"],
+            "frosted-panel": ["frosted", "backdrop-blur", "frost", "frosted panel", "frosted nav", "frosted card"],
+            "mix-blend-compositing": ["mix-blend", "blend mode", "multiply", "screen blend", "difference", "compositing"],
+            "gradient-blur-blobs": ["blur blob", "blurred blob", "color blob", "gradient blob", "soft blob"],
+            "card-with-inner-glow": ["inner glow", "inset shadow", "inner light", "inset glow"],
+            "gradient-text": ["gradient text", "text gradient", "gradient word"],
+            "overlap-offset": ["overlap", "offset", "breaking grid", "break out", "negative margin", "overlapping"],
+            "color-shift-scroll": ["color shift", "color morph", "theme shift", "bg shift", "scroll color"],
+            "split-highlight": ["highlight", "highlighted", "weight contrast", "accent word", "split word", "emphasis word"],
+            "alternating-rhythm": ["rhythm", "alternating", "section background", "dark section", "background variation"],
+        }
+        for prim_id in selected_primitives:
+            prim_short = prim_id.split(".")[-1] if "." in prim_id else prim_id
+            keywords = primitive_keywords.get(prim_short, [prim_short.replace("-", " ")])
+            mentioned = any(kw in all_descs for kw in keywords)
+            if not mentioned:
+                primitive_notes.append(
+                    f"You selected '{prim_id}' but none of your section descriptions "
+                    f"mention using it. Make sure every selected primitive has a visible "
+                    f"home in your design."
+                )
+
+    # Compare against reference DOM data
+    reference_gap_notes: list[str] = []
+    if reference_domains:
+        surface_analysis = build_reference_surface_analysis(reference_domains)
+        technique_freq = surface_analysis.get("technique_frequency", {})
+        n_refs = len(surface_analysis.get("per_reference", {})) or 1
+
+        all_descs_lower = " ".join(sections).lower()
+        technique_keywords = {
+            "glassmorphism": ["glass", "blur", "frosted", "translucent", "backdrop"],
+            "mesh-gradient": ["mesh gradient", "gradient", "aurora"],
+            "noise-grain": ["noise", "grain", "texture"],
+            "dot-grid": ["dot", "grid pattern"],
+            "image-filters": ["filter", "grain", "duotone", "sepia", "grayscale"],
+            "outlined-text": ["outlined", "stroke text", "hollow text"],
+        }
+        for technique, count in technique_freq.items():
+            ratio = count / n_refs
+            if ratio < 0.4:
+                continue
+            keywords = technique_keywords.get(technique, [technique])
+            mentioned = any(kw in all_descs_lower for kw in keywords)
+            if not mentioned:
+                reference_gap_notes.append(
+                    f"{count}/{n_refs} of your references use '{technique}' but your section "
+                    f"descriptions don't mention it. You're under-designing relative to "
+                    f"your references."
+                )
+
+    # Overall assessment
+    template_sections = [s for s in section_scores if s["verdict"] == "TEMPLATE-GRADE"]
+    strong_sections = [s for s in section_scores if s["verdict"] == "STRONG"]
+
+    if len(template_sections) >= len(sections) * 0.5:
+        overall = "FAIL"
+        overall_note = (
+            f"{len(template_sections)}/{len(sections)} sections are template-grade. "
+            f"This will produce generic output. Go back and add specific visual "
+            f"treatments to each section — background techniques, surface depth, "
+            f"typography effects, and layout ambition. Study your reference images "
+            f"and DOM analysis data for inspiration."
+        )
+    elif len(template_sections) >= 2:
+        overall = "NEEDS WORK"
+        overall_note = (
+            f"{len(template_sections)} section(s) still template-grade. Fix these "
+            f"before writing code. {len(strong_sections)}/{len(sections)} sections "
+            f"are visually ambitious — bring the weak ones up to the same standard."
+        )
+    elif len(strong_sections) >= len(sections) * 0.6:
+        overall = "PASS"
+        overall_note = (
+            f"{len(strong_sections)}/{len(sections)} sections are visually ambitious. "
+            f"This plan should produce output that matches the reference quality."
+        )
+    else:
+        overall = "PASS (MARGINAL)"
+        overall_note = "Adequate but not exceptional. Consider pushing further on 1-2 sections."
+
+    # Track workflow state
+    _workflow.design_reviewed = True
+    _workflow.design_review_passed = overall in ("PASS", "PASS (MARGINAL)")
+
+    return {
+        "overall_verdict": overall,
+        "overall_note": overall_note,
+        "sections": section_scores,
+        "primitive_coverage_gaps": primitive_notes if primitive_notes else None,
+        "reference_technique_gaps": reference_gap_notes if reference_gap_notes else None,
+        "total_richness_signals": total_richness,
+        "total_template_signals": total_template,
+        "instructions": (
+            "If overall_verdict is FAIL or NEEDS WORK, revise your section descriptions "
+            "to add more visual ambition, then call this tool again. Do NOT start writing "
+            "code until this tool returns PASS. Template-grade sections produce template-grade "
+            "output — the references show what 'good' looks like, match them."
+        ),
     }
 
 
@@ -520,6 +921,8 @@ def superpower_images(
         count: Number of images to return (default 8, max 30)
         orientation: "landscape" for hero/wide images, "portrait" for cards, "squarish" for avatars
     """
+    _workflow.images_called += 1
+
     results = search_images(query, count=count, orientation=orientation)
     return {
         "images": results,
@@ -533,21 +936,29 @@ def superpower_images(
 
 
 @mcp.tool(structured_output=False)
-def superpower_check_layout(
+async def superpower_check_layout(
     url: str,
     viewport_width: int = 1440,
     mobile: bool = False,
 ) -> list | dict:
-    """Detect visual layout issues on a rendered page. Run this after building a site.
+    """Detect visual layout issues AND visual richness problems on a rendered page.
 
-    Launches a headless Chromium browser, navigates to the URL, injects a DOM
-    inspection script, and finds real rendering problems: overlapping elements,
-    content overflow, collapsed containers, and off-viewport content.
+    Launches a headless Chromium browser, navigates to the URL, and runs TWO
+    detection passes:
+
+    1. LAYOUT DETECTION — finds rendering problems: overlapping elements,
+       content overflow, collapsed containers, and off-viewport content.
+
+    2. VISUAL RICHNESS DETECTION — finds template-grade sections: sections
+       without background treatments, missing surface depth (no glassmorphism,
+       shadows, or spotlight effects), small typography, lack of animation
+       attributes, and overall page monotony. Sections scoring 2/10 or below
+       on richness are flagged as needing more visual ambition.
 
     Each issue gets a numbered colored box in the screenshot:
-      RED   = high severity (likely a real bug — e.g. two static siblings overlapping)
-      ORANGE = medium severity (possibly intentional — e.g. absolute-positioned overlap)
-      YELLOW = low severity (probably intentional — e.g. z-indexed stacking)
+      RED   = high severity (layout bug OR severely template-grade section)
+      ORANGE = medium severity (possible layout issue OR mildly under-designed)
+      YELLOW = low severity (probably intentional design choice)
 
     YOU decide whether to fix each issue based on:
       - intentionality_score: 0.0 = definitely a bug, 1.0 = definitely intentional
@@ -572,6 +983,9 @@ def superpower_check_layout(
     """
     if mobile:
         viewport_width = 390
+
+    # Check if the full workflow was completed before building
+    build_warning = _workflow.check_prerequisite("build")
 
     instructions = (
         "READ THE SCREENSHOT FIRST using your Read tool (it has vision). "
@@ -611,7 +1025,8 @@ def superpower_check_layout(
             "bash_command": bash_cmd,
         }
 
-    result = check_layout(url=url, viewport_width=viewport_width)
+    import asyncio
+    result = await asyncio.to_thread(check_layout, url=url, viewport_width=viewport_width)
 
     if "error" in result:
         return result
@@ -636,6 +1051,7 @@ def superpower_check_layout(
         "issues": result["issues"],
         "screenshot_path": result["screenshot_path"],
         "instructions": instructions,
+        "workflow_warning": build_warning,
     }
 
 
