@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-06-v3",
+  "version": "2026-03-21-v7",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -14,7 +14,10 @@
     "require_form_validation": true,
     "prefer_oklch_colors": true,
     "max_chart_libraries": 1,
-    "prefer_native_css_first": true
+    "prefer_native_css_first": true,
+    "require_section_rhythm_variation": true,
+    "require_filtered_gradients": true,
+    "max_plain_white_sections": 2
   },
   "providers": [
     {
@@ -24,9 +27,20 @@
       "url": "https://tabler.io/icons",
       "package": "@tabler/icons-react",
       "score": 9.5,
-      "when_to_use": ["default", "editorial", "saas", "developer_tools"],
-      "avoid_when": ["filled-icon-heavy-brands"],
-      "traits": ["consistent-stroke", "large-set", "react-ready"]
+      "when_to_use": [
+        "default",
+        "editorial",
+        "saas",
+        "developer_tools"
+      ],
+      "avoid_when": [
+        "filled-icon-heavy-brands"
+      ],
+      "traits": [
+        "consistent-stroke",
+        "large-set",
+        "react-ready"
+      ]
     },
     {
       "id": "icons.remix",
@@ -34,10 +48,20 @@
       "name": "Remix Icon",
       "url": "https://remixicon.com",
       "package": "remixicon",
-      "score": 9.0,
-      "when_to_use": ["marketing", "brand-heavy", "mixed-outline-fill"],
-      "avoid_when": ["strictly-outline-system"],
-      "traits": ["outline-and-fill", "broad-coverage"]
+      "score": 7.0,
+      "when_to_use": [
+        "marketing",
+        "brand-heavy",
+        "mixed-outline-fill"
+      ],
+      "avoid_when": [
+        "strictly-outline-system",
+        "when-system-prompt-requires-tabler-exclusively"
+      ],
+      "traits": [
+        "outline-and-fill",
+        "broad-coverage"
+      ]
     },
     {
       "id": "ui.radix",
@@ -46,9 +70,19 @@
       "url": "https://www.radix-ui.com/primitives",
       "package": "@radix-ui/*",
       "score": 9.5,
-      "when_to_use": ["default", "production", "complex-overlays"],
-      "avoid_when": ["minimal-dependencies"],
-      "traits": ["accessible", "battle-tested", "unstyled"]
+      "when_to_use": [
+        "default",
+        "production",
+        "complex-overlays"
+      ],
+      "avoid_when": [
+        "minimal-dependencies"
+      ],
+      "traits": [
+        "accessible",
+        "battle-tested",
+        "unstyled"
+      ]
     },
     {
       "id": "ui.react-aria",
@@ -57,9 +91,18 @@
       "url": "https://react-spectrum.adobe.com/react-aria/",
       "package": "react-aria-components",
       "score": 9.3,
-      "when_to_use": ["a11y-critical", "complex-inputs", "enterprise"],
-      "avoid_when": ["tiny-mvp"],
-      "traits": ["a11y-first", "stateful-primitives"]
+      "when_to_use": [
+        "a11y-critical",
+        "complex-inputs",
+        "enterprise"
+      ],
+      "avoid_when": [
+        "tiny-mvp"
+      ],
+      "traits": [
+        "a11y-first",
+        "stateful-primitives"
+      ]
     },
     {
       "id": "motion.framer-motion",
@@ -68,15 +111,54 @@
       "url": "https://motion.dev/docs/react",
       "package": "framer-motion",
       "score": 9.6,
-      "when_to_use": ["default", "entrance-animations", "scroll-linked"],
-      "avoid_when": ["zero-js-animation"],
-      "traits": ["react-native-api", "layout-animations", "variants"],
+      "when_to_use": [
+        "default",
+        "entrance-animations",
+        "scroll-linked"
+      ],
+      "avoid_when": [
+        "zero-js-animation"
+      ],
+      "traits": [
+        "react-native-api",
+        "layout-animations",
+        "variants"
+      ],
       "variants": {
-        "entrance": ["fade-up", "fade-in", "slide-in-x", "slide-in-y", "scale-up", "blur-in", "clip-reveal"],
-        "scroll": ["useScroll+useTransform", "useInView-trigger", "parallax-y", "parallax-scale", "horizontal-progress"],
-        "hover": ["scale", "lift-shadow", "border-glow", "background-fill", "magnetic-pull"],
-        "exit": ["fade-out", "slide-out", "scale-down"],
-        "orchestration": ["stagger-children", "delay-cascade", "viewport-once", "while-in-view"]
+        "entrance": [
+          "fade-up",
+          "fade-in",
+          "slide-in-x",
+          "slide-in-y",
+          "scale-up",
+          "blur-in",
+          "clip-reveal"
+        ],
+        "scroll": [
+          "useScroll+useTransform",
+          "useInView-trigger",
+          "parallax-y",
+          "parallax-scale",
+          "horizontal-progress"
+        ],
+        "hover": [
+          "scale",
+          "lift-shadow",
+          "border-glow",
+          "background-fill",
+          "magnetic-pull"
+        ],
+        "exit": [
+          "fade-out",
+          "slide-out",
+          "scale-down"
+        ],
+        "orchestration": [
+          "stagger-children",
+          "delay-cascade",
+          "viewport-once",
+          "while-in-view"
+        ]
       }
     },
     {
@@ -86,12 +168,31 @@
       "url": "https://gsap.com",
       "package": "gsap",
       "score": 9.1,
-      "when_to_use": ["cinematic", "timeline-heavy", "storytelling-scroll"],
-      "avoid_when": ["simple-marketing-page"],
-      "traits": ["timeline-control", "pro-grade"],
+      "when_to_use": [
+        "cinematic",
+        "timeline-heavy",
+        "storytelling-scroll"
+      ],
+      "avoid_when": [
+        "simple-marketing-page"
+      ],
+      "traits": [
+        "timeline-control",
+        "pro-grade"
+      ],
       "variants": {
-        "plugins": ["ScrollTrigger", "TextPlugin", "DrawSVGPlugin", "MorphSVGPlugin"],
-        "patterns": ["scrub-timeline", "pin-section", "batch-reveal", "text-split-animate"]
+        "plugins": [
+          "ScrollTrigger",
+          "TextPlugin",
+          "DrawSVGPlugin",
+          "MorphSVGPlugin"
+        ],
+        "patterns": [
+          "scrub-timeline",
+          "pin-section",
+          "batch-reveal",
+          "text-split-animate"
+        ]
       }
     },
     {
@@ -101,12 +202,32 @@
       "url": "https://react-spring.dev",
       "package": "@react-spring/web",
       "score": 8.8,
-      "when_to_use": ["physics-interactions", "micro-interactions", "drag-and-drop"],
-      "avoid_when": ["timeline-driven-sequences"],
-      "traits": ["physics-based", "interaction-focused"],
+      "when_to_use": [
+        "physics-interactions",
+        "micro-interactions",
+        "drag-and-drop"
+      ],
+      "avoid_when": [
+        "timeline-driven-sequences"
+      ],
+      "traits": [
+        "physics-based",
+        "interaction-focused"
+      ],
       "variants": {
-        "hooks": ["useSpring", "useSprings", "useTrail", "useTransition", "useChain"],
-        "patterns": ["elastic-bounce", "inertia-drag", "fluid-reveal", "physics-hover"]
+        "hooks": [
+          "useSpring",
+          "useSprings",
+          "useTrail",
+          "useTransition",
+          "useChain"
+        ],
+        "patterns": [
+          "elastic-bounce",
+          "inertia-drag",
+          "fluid-reveal",
+          "physics-hover"
+        ]
       }
     },
     {
@@ -116,9 +237,15 @@
       "url": "https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API",
       "package": "native",
       "score": 9.2,
-      "when_to_use": ["lightweight", "performance-sensitive"],
+      "when_to_use": [
+        "lightweight",
+        "performance-sensitive"
+      ],
       "avoid_when": [],
-      "traits": ["native-api", "low-overhead"]
+      "traits": [
+        "native-api",
+        "low-overhead"
+      ]
     },
     {
       "id": "scroll.lenis",
@@ -127,13 +254,43 @@
       "url": "https://github.com/darkroomengineering/lenis",
       "package": "lenis",
       "score": 9.3,
-      "when_to_use": ["default", "immersive", "high-polish-brand-sites", "luxury", "cinematic", "storytelling-scroll", "animated"],
-      "avoid_when": ["content-heavy-docs", "strict-a11y-risk"],
-      "traits": ["smooth-scroll", "momentum-easing", "experience-layer", "pairs-with-framer-motion"],
+      "when_to_use": [
+        "default",
+        "immersive",
+        "high-polish-brand-sites",
+        "luxury",
+        "cinematic",
+        "storytelling-scroll",
+        "animated"
+      ],
+      "avoid_when": [
+        "content-heavy-docs",
+        "strict-a11y-risk"
+      ],
+      "traits": [
+        "smooth-scroll",
+        "momentum-easing",
+        "experience-layer",
+        "pairs-with-framer-motion"
+      ],
       "variants": {
-        "easing": ["linear", "easeInOutCubic", "easeOutQuart"],
-        "duration": [0.8, 1.0, 1.2, 1.5],
-        "options": ["syncTouch", "wheelMultiplier", "infinite-scroll-loop", "lerp-override"]
+        "easing": [
+          "linear",
+          "easeInOutCubic",
+          "easeOutQuart"
+        ],
+        "duration": [
+          0.8,
+          1.0,
+          1.2,
+          1.5
+        ],
+        "options": [
+          "syncTouch",
+          "wheelMultiplier",
+          "infinite-scroll-loop",
+          "lerp-override"
+        ]
       }
     },
     {
@@ -143,12 +300,33 @@
       "url": "https://react-scroll-parallax.damnthat.tv",
       "package": "react-scroll-parallax",
       "score": 8.9,
-      "when_to_use": ["multi-layer-depth", "hero-parallax", "section-backgrounds"],
-      "avoid_when": ["performance-critical-mobile"],
-      "traits": ["declarative-parallax", "multi-axis", "scale-and-rotate-support"],
+      "when_to_use": [
+        "multi-layer-depth",
+        "hero-parallax",
+        "section-backgrounds"
+      ],
+      "avoid_when": [
+        "performance-critical-mobile"
+      ],
+      "traits": [
+        "declarative-parallax",
+        "multi-axis",
+        "scale-and-rotate-support"
+      ],
       "variants": {
-        "axes": ["translateY", "translateX", "scale", "rotate", "opacity"],
-        "patterns": ["hero-depth-stack", "section-background-drift", "floating-element-layers", "scroll-reveal-sequence"]
+        "axes": [
+          "translateY",
+          "translateX",
+          "scale",
+          "rotate",
+          "opacity"
+        ],
+        "patterns": [
+          "hero-depth-stack",
+          "section-background-drift",
+          "floating-element-layers",
+          "scroll-reveal-sequence"
+        ]
       }
     },
     {
@@ -158,9 +336,18 @@
       "url": "https://nextjs.org/docs/app/getting-started/fonts",
       "package": "next",
       "score": 9.5,
-      "when_to_use": ["nextjs", "default"],
-      "avoid_when": ["non-next-framework"],
-      "traits": ["self-hosted", "performance-optimized", "zero-layout-shift"]
+      "when_to_use": [
+        "nextjs",
+        "default"
+      ],
+      "avoid_when": [
+        "non-next-framework"
+      ],
+      "traits": [
+        "self-hosted",
+        "performance-optimized",
+        "zero-layout-shift"
+      ]
     },
     {
       "id": "fonts.fontsource",
@@ -169,9 +356,16 @@
       "url": "https://fontsource.org/docs/getting-started/install",
       "package": "@fontsource/*",
       "score": 9.1,
-      "when_to_use": ["framework-agnostic", "self-hosting", "vite"],
+      "when_to_use": [
+        "framework-agnostic",
+        "self-hosting",
+        "vite"
+      ],
       "avoid_when": [],
-      "traits": ["npm-font-packages", "self-hosted"]
+      "traits": [
+        "npm-font-packages",
+        "self-hosted"
+      ]
     },
     {
       "id": "images.unsplash",
@@ -180,9 +374,19 @@
       "url": "https://unsplash.com/developers",
       "package": "http api",
       "score": 8.9,
-      "when_to_use": ["default", "real-photography", "marketing-sites"],
-      "avoid_when": ["strict-brand-licensing"],
-      "traits": ["high-quality-photos", "fast-iteration", "hotlink-allowed"]
+      "when_to_use": [
+        "default",
+        "real-photography",
+        "marketing-sites"
+      ],
+      "avoid_when": [
+        "strict-brand-licensing"
+      ],
+      "traits": [
+        "high-quality-photos",
+        "fast-iteration",
+        "hotlink-allowed"
+      ]
     },
     {
       "id": "image-optimization.next-image",
@@ -191,14 +395,40 @@
       "url": "https://nextjs.org/docs/app/api-reference/components/image",
       "package": "next",
       "score": 9.5,
-      "when_to_use": ["default", "nextjs", "performance-sensitive", "photography-heavy"],
-      "avoid_when": ["non-next-framework"],
-      "traits": ["blur-placeholder", "lazy-load", "auto-sizing", "webp-conversion"],
+      "when_to_use": [
+        "default",
+        "nextjs",
+        "performance-sensitive",
+        "photography-heavy"
+      ],
+      "avoid_when": [
+        "non-next-framework"
+      ],
+      "traits": [
+        "blur-placeholder",
+        "lazy-load",
+        "auto-sizing",
+        "webp-conversion"
+      ],
       "variants": {
-        "placeholder": ["blur", "empty", "data-url-custom"],
-        "loading": ["lazy", "eager"],
-        "sizes": ["responsive-srcset", "fixed", "fill-container"],
-        "effects": ["blur-up-reveal", "fade-in-on-load"]
+        "placeholder": [
+          "blur",
+          "empty",
+          "data-url-custom"
+        ],
+        "loading": [
+          "lazy",
+          "eager"
+        ],
+        "sizes": [
+          "responsive-srcset",
+          "fixed",
+          "fill-container"
+        ],
+        "effects": [
+          "blur-up-reveal",
+          "fade-in-on-load"
+        ]
       }
     },
     {
@@ -208,9 +438,20 @@
       "url": "https://unpic.pics/img/react/",
       "package": "@unpic/react",
       "score": 9.0,
-      "when_to_use": ["vite", "framework-agnostic", "cdn-hosted-images"],
-      "avoid_when": ["nextjs"],
-      "traits": ["blur-placeholder", "lazy-load", "cdn-aware", "zero-layout-shift"]
+      "when_to_use": [
+        "vite",
+        "framework-agnostic",
+        "cdn-hosted-images"
+      ],
+      "avoid_when": [
+        "nextjs"
+      ],
+      "traits": [
+        "blur-placeholder",
+        "lazy-load",
+        "cdn-aware",
+        "zero-layout-shift"
+      ]
     },
     {
       "id": "image-effects.css-svg-filters",
@@ -219,9 +460,21 @@
       "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/filter",
       "package": "native",
       "score": 9.3,
-      "when_to_use": ["default", "editorial", "retro", "film", "luxury", "moody", "brand-heavy"],
+      "when_to_use": [
+        "default",
+        "editorial",
+        "retro",
+        "film",
+        "luxury",
+        "moody",
+        "brand-heavy"
+      ],
       "avoid_when": [],
-      "traits": ["zero-dependency", "composable", "performant"],
+      "traits": [
+        "zero-dependency",
+        "composable",
+        "performant"
+      ],
       "variants": {
         "treatments": [
           "grain-feTurbulence-overlay",
@@ -246,14 +499,51 @@
       "url": "https://cva.style",
       "package": "class-variance-authority",
       "score": 9.4,
-      "when_to_use": ["default", "saas", "marketing-sites", "editorial", "brand-heavy"],
+      "when_to_use": [
+        "default",
+        "saas",
+        "marketing-sites",
+        "editorial",
+        "brand-heavy"
+      ],
       "avoid_when": [],
-      "traits": ["multi-variant", "typed-variants", "forces-visual-diversity"],
+      "traits": [
+        "multi-variant",
+        "typed-variants",
+        "forces-visual-diversity"
+      ],
       "variants": {
-        "style": ["solid", "outline", "ghost", "soft", "gradient", "glow", "brutalist", "underline-only"],
-        "shape": ["default-rounded", "pill", "square", "sharp-corners"],
-        "size": ["xs", "sm", "md", "lg", "xl", "icon-only"],
-        "decoration": ["none", "arrow-right", "external-link-icon", "icon-left", "fill-animation-on-hover", "shimmer-sweep", "border-draw-on-hover"],
+        "style": [
+          "solid",
+          "outline",
+          "ghost",
+          "soft",
+          "brutalist",
+          "underline-only"
+        ],
+        "shape": [
+          "default-rounded",
+          "pill",
+          "square",
+          "sharp-corners"
+        ],
+        "size": [
+          "xs",
+          "sm",
+          "md",
+          "lg",
+          "xl",
+          "icon-only"
+        ],
+        "decoration": [
+          "none",
+          "arrow-right",
+          "external-link-icon",
+          "icon-left",
+          "fill-animation-on-hover",
+          "shimmer-sweep",
+          "border-draw-on-hover"
+        ],
         "usage_rule": "Use at least 3 different button variants per page. Never use the same style for primary and secondary CTAs."
       }
     },
@@ -264,20 +554,55 @@
       "url": "https://css-tricks.com/css-grid-and-custom-properties/",
       "package": "native-css-grid",
       "score": 9.4,
-      "when_to_use": ["default", "feature-showcase", "saas", "dashboard", "editorial"],
-      "avoid_when": ["simple-linear-narrative"],
-      "traits": ["asymmetric-tiles", "mixed-spanning", "magazine-feel"],
+      "when_to_use": [
+        "default",
+        "feature-showcase",
+        "saas",
+        "dashboard",
+        "editorial"
+      ],
+      "avoid_when": [
+        "simple-linear-narrative"
+      ],
+      "traits": [
+        "asymmetric-tiles",
+        "mixed-spanning",
+        "magazine-feel"
+      ],
       "variants": {
-        "tile_ratios": ["1x1", "2x1", "1x2", "2x2", "3x1", "1x3"],
-        "gap": ["tight-4px", "standard-16px", "loose-32px"],
-        "border_treatment": ["none", "thin-border", "rounded-2xl", "rounded-3xl", "mixed-radii"],
-        "hover": ["lift-scale", "border-glow", "background-shift", "spotlight-radial"],
+        "tile_ratios": [
+          "1x1",
+          "2x1",
+          "1x2",
+          "2x2",
+          "3x1",
+          "1x3"
+        ],
+        "gap": [
+          "tight-4px",
+          "standard-16px",
+          "loose-32px"
+        ],
+        "border_treatment": [
+          "none",
+          "thin-border",
+          "rounded-2xl",
+          "rounded-3xl",
+          "mixed-radii"
+        ],
+        "hover": [
+          "lift-scale",
+          "border-glow",
+          "background-shift",
+          "spotlight-radial"
+        ],
         "patterns": [
           "hero-tile-left-mosaic-right",
           "full-width-feature-top-grid-below",
           "alternating-large-small",
           "3-col-varied-heights"
-        ]
+        ],
+        "anti_slop_note": "Bento grids MUST have mixed tile sizes (use 2x1, 1x2, 2x2 spans). Never make all tiles the same size with the same rounded-xl border and gradient. Vary radii, spans, and background treatments across tiles."
       }
     },
     {
@@ -287,13 +612,36 @@
       "url": "https://github.com/paulcollett/react-masonry-css",
       "package": "react-masonry-css",
       "score": 8.8,
-      "when_to_use": ["photography", "testimonials", "blog-cards", "portfolio"],
-      "avoid_when": ["uniform-card-grids"],
-      "traits": ["variable-height-tiles", "natural-flow", "editorial-density"],
+      "when_to_use": [
+        "photography",
+        "testimonials",
+        "blog-cards",
+        "portfolio"
+      ],
+      "avoid_when": [
+        "uniform-card-grids"
+      ],
+      "traits": [
+        "variable-height-tiles",
+        "natural-flow",
+        "editorial-density"
+      ],
       "variants": {
-        "columns": {"mobile": 1, "tablet": 2, "desktop": 3, "wide": 4},
-        "gap": ["tight", "standard", "loose"],
-        "animation": ["stagger-cascade-in", "fade-in-sequence"]
+        "columns": {
+          "mobile": 1,
+          "tablet": 2,
+          "desktop": 3,
+          "wide": 4
+        },
+        "gap": [
+          "tight",
+          "standard",
+          "loose"
+        ],
+        "animation": [
+          "stagger-cascade-in",
+          "fade-in-sequence"
+        ]
       }
     },
     {
@@ -303,9 +651,21 @@
       "url": "https://css-tricks.com/snippets/css/complete-guide-grid/",
       "package": "native-css-grid",
       "score": 9.1,
-      "when_to_use": ["editorial", "luxury", "content-heavy", "storytelling"],
-      "avoid_when": ["data-heavy-saas", "dashboard"],
-      "traits": ["offset-columns", "large-media-with-type", "editorial-rhythm"],
+      "when_to_use": [
+        "editorial",
+        "luxury",
+        "content-heavy",
+        "storytelling"
+      ],
+      "avoid_when": [
+        "data-heavy-saas",
+        "dashboard"
+      ],
+      "traits": [
+        "offset-columns",
+        "large-media-with-type",
+        "editorial-rhythm"
+      ],
       "variants": {
         "patterns": [
           "60-40-split-alternating",
@@ -314,8 +674,17 @@
           "offset-card-with-bleed",
           "pinned-sidebar-scrolling-content"
         ],
-        "column_weights": ["2:1", "3:2", "golden-ratio", "1:1-with-offset"],
-        "vertical_rhythm": ["tight-editorial", "airy-luxury", "dense-magazine"]
+        "column_weights": [
+          "2:1",
+          "3:2",
+          "golden-ratio",
+          "1:1-with-offset"
+        ],
+        "vertical_rhythm": [
+          "tight-editorial",
+          "airy-luxury",
+          "dense-magazine"
+        ]
       }
     },
     {
@@ -325,9 +694,19 @@
       "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/position#sticky",
       "package": "native + framer-motion",
       "score": 9.0,
-      "when_to_use": ["storytelling", "product-feature-walkthrough", "onboarding"],
-      "avoid_when": ["information-dense-docs"],
-      "traits": ["sticky-left-media", "scroll-triggered-content-swap", "immersive-narrative"],
+      "when_to_use": [
+        "storytelling",
+        "product-feature-walkthrough",
+        "onboarding"
+      ],
+      "avoid_when": [
+        "information-dense-docs"
+      ],
+      "traits": [
+        "sticky-left-media",
+        "scroll-triggered-content-swap",
+        "immersive-narrative"
+      ],
       "variants": {
         "patterns": [
           "sticky-phone-mockup-scrolling-features",
@@ -335,7 +714,11 @@
           "sticky-code-window-step-by-step",
           "sticky-stat-visual-with-copy-scroll"
         ],
-        "transition_style": ["fade-swap", "slide-up-swap", "morphing-visual"]
+        "transition_style": [
+          "fade-swap",
+          "slide-up-swap",
+          "morphing-visual"
+        ]
       }
     },
     {
@@ -345,12 +728,33 @@
       "url": "https://motion.dev/docs/react-scroll-animations",
       "package": "framer-motion",
       "score": 8.7,
-      "when_to_use": ["portfolio", "case-studies", "timeline", "product-lineup"],
-      "avoid_when": ["mobile-first-only", "content-heavy-pages"],
-      "traits": ["distinctive", "experiential", "scroll-hijack-section"],
+      "when_to_use": [
+        "portfolio",
+        "case-studies",
+        "timeline",
+        "product-lineup"
+      ],
+      "avoid_when": [
+        "mobile-first-only",
+        "content-heavy-pages"
+      ],
+      "traits": [
+        "distinctive",
+        "experiential",
+        "scroll-hijack-section"
+      ],
       "variants": {
-        "implementation": ["framer-motion-useScroll-translateX", "css-overflow-x-snap", "gsap-horizontal-scroll"],
-        "content_types": ["cards", "full-screen-panels", "image-strip", "timeline-events"]
+        "implementation": [
+          "framer-motion-useScroll-translateX",
+          "css-overflow-x-snap",
+          "gsap-horizontal-scroll"
+        ],
+        "content_types": [
+          "cards",
+          "full-screen-panels",
+          "image-strip",
+          "timeline-events"
+        ]
       }
     },
     {
@@ -360,15 +764,52 @@
       "url": "https://css.glass",
       "package": "native-css",
       "score": 9.0,
-      "when_to_use": ["dark-bg", "gradient-bg", "luxury", "ai-product", "futuristic"],
-      "avoid_when": ["light-solid-bg", "print-style"],
-      "traits": ["backdrop-blur", "translucent-panel", "layered-depth"],
+      "when_to_use": [
+        "dark-bg",
+        "gradient-bg",
+        "luxury",
+        "ai-product",
+        "futuristic"
+      ],
+      "avoid_when": [
+        "light-solid-bg",
+        "print-style"
+      ],
+      "traits": [
+        "backdrop-blur",
+        "translucent-panel",
+        "layered-depth"
+      ],
       "variants": {
-        "blur": ["sm-4px", "md-12px", "lg-24px", "xl-40px"],
-        "opacity": ["5%", "10%", "15%", "20%"],
-        "border": ["none", "1px-white-10%", "1px-white-20%", "gradient-border"],
-        "background": ["white-alpha", "brand-color-alpha", "dark-alpha"],
-        "shadow": ["none", "soft-drop", "inner-glow", "colored-glow"]
+        "blur": [
+          "sm-4px",
+          "md-12px",
+          "lg-24px",
+          "xl-40px"
+        ],
+        "opacity": [
+          "5%",
+          "10%",
+          "15%",
+          "20%"
+        ],
+        "border": [
+          "none",
+          "1px-white-10%",
+          "1px-white-20%",
+          "gradient-border"
+        ],
+        "background": [
+          "white-alpha",
+          "brand-color-alpha",
+          "dark-alpha"
+        ],
+        "shadow": [
+          "none",
+          "soft-drop",
+          "inner-glow",
+          "colored-glow"
+        ]
       }
     },
     {
@@ -378,18 +819,42 @@
       "url": "https://tailwindcss.com/docs/box-shadow",
       "package": "tailwind",
       "score": 9.2,
-      "when_to_use": ["default", "feature-cards", "pricing", "testimonials"],
-      "avoid_when": ["flat-design-system"],
-      "traits": ["multi-layer-shadow", "hover-lift", "depth-perception"],
+      "when_to_use": [
+        "default",
+        "feature-cards",
+        "pricing",
+        "testimonials"
+      ],
+      "avoid_when": [
+        "flat-design-system"
+      ],
+      "traits": [
+        "multi-layer-shadow",
+        "hover-lift",
+        "depth-perception"
+      ],
       "variants": {
         "shadow_stack": [
           "0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.08)",
           "0 2px 4px rgba(0,0,0,.06), 0 8px 32px rgba(0,0,0,.12)",
           "colored-shadow-brand-hue"
         ],
-        "hover_lift": ["translate-y-1", "translate-y-2", "scale-102"],
-        "border_radius": ["rounded-xl", "rounded-2xl", "rounded-3xl"],
-        "border": ["none", "1px-neutral-100", "gradient-border-on-hover"]
+        "hover_lift": [
+          "translate-y-1",
+          "translate-y-2",
+          "scale-102"
+        ],
+        "border_radius": [
+          "rounded-xl",
+          "rounded-2xl",
+          "rounded-3xl"
+        ],
+        "border": [
+          "none",
+          "1px-neutral-100",
+          "gradient-border-on-hover"
+        ],
+        "anti_slop_note": "VARY your border-radius across cards. Never use the same radius on every card. Mix sharp (rounded-none) with subtle (rounded-lg) \u2014 uniform rounded-2xl everywhere is a banned pattern."
       }
     },
     {
@@ -399,14 +864,38 @@
       "url": "https://www.hover.dev/components/cards",
       "package": "native + framer-motion",
       "score": 9.1,
-      "when_to_use": ["feature-grids", "pricing-cards", "dark-backgrounds", "saas"],
-      "avoid_when": ["touch-only-interfaces"],
-      "traits": ["radial-gradient-follows-cursor", "interactive-depth", "premium-feel"],
+      "when_to_use": [
+        "feature-grids",
+        "pricing-cards",
+        "dark-backgrounds",
+        "saas"
+      ],
+      "avoid_when": [
+        "touch-only-interfaces"
+      ],
+      "traits": [
+        "radial-gradient-follows-cursor",
+        "interactive-depth",
+        "premium-feel"
+      ],
       "variants": {
-        "spotlight_color": ["white-alpha", "brand-color-alpha", "warm-glow", "cool-glow"],
-        "spotlight_size": ["200px", "400px", "600px"],
-        "border_reveal": ["on-hover", "always", "gradient-on-hover"],
-        "implementation": "onMouseMove → update CSS custom properties for radial gradient position"
+        "spotlight_color": [
+          "white-alpha",
+          "brand-color-alpha",
+          "warm-glow",
+          "cool-glow"
+        ],
+        "spotlight_size": [
+          "200px",
+          "400px",
+          "600px"
+        ],
+        "border_reveal": [
+          "on-hover",
+          "always",
+          "gradient-on-hover"
+        ],
+        "implementation": "onMouseMove \u2192 update CSS custom properties for radial gradient position"
       }
     },
     {
@@ -416,30 +905,87 @@
       "url": "https://tailwindcss.com/docs/border-width",
       "package": "tailwind",
       "score": 8.7,
-      "when_to_use": ["minimal-design", "editorial", "light-backgrounds"],
-      "avoid_when": ["dark-moody-sites"],
-      "traits": ["outline-only", "lightweight-structure", "clean"],
+      "when_to_use": [
+        "minimal-design",
+        "editorial",
+        "light-backgrounds"
+      ],
+      "avoid_when": [
+        "dark-moody-sites"
+      ],
+      "traits": [
+        "outline-only",
+        "lightweight-structure",
+        "clean"
+      ],
       "variants": {
-        "border_style": ["solid-1px-neutral", "dashed-2px-neutral", "double-border-offset", "gradient-border-via-pseudo"],
-        "on_hover": ["border-darken", "border-brand-color", "background-fill-soft", "scale-up-subtle"],
-        "corner": ["square", "rounded-md", "rounded-xl", "pill"]
+        "border_style": [
+          "solid-1px-neutral",
+          "dashed-2px-neutral",
+          "double-border-offset",
+          "gradient-border-via-pseudo"
+        ],
+        "on_hover": [
+          "border-darken",
+          "border-brand-color",
+          "background-fill-soft",
+          "scale-up-subtle"
+        ],
+        "corner": [
+          "square",
+          "rounded-md",
+          "rounded-xl",
+          "pill"
+        ]
       }
     },
     {
       "id": "text-effects.typewriter",
       "category": "text-effects",
       "name": "Typewriter Reveal",
-      "url": "https://motion.dev/docs/react-animate",
-      "package": "framer-motion or native",
-      "score": 8.9,
-      "when_to_use": ["hero-headlines", "terminal-aesthetic", "tech-product", "ai-product"],
-      "avoid_when": ["content-heavy-pages", "luxury-editorial"],
-      "traits": ["character-by-character", "blinking-cursor", "attention-capturing"],
+      "url": "https://www.npmjs.com/package/react-type-animation",
+      "package": "react-type-animation",
+      "score": 9.2,
+      "when_to_use": [
+        "hero-headlines",
+        "terminal-aesthetic",
+        "tech-product",
+        "ai-product"
+      ],
+      "avoid_when": [
+        "content-heavy-pages",
+        "luxury-editorial"
+      ],
+      "traits": [
+        "141k-weekly-downloads",
+        "production-grade",
+        "configurable-speed",
+        "loop-support"
+      ],
       "variants": {
-        "cursor": ["block", "underscore", "pipe", "none"],
-        "speed_ms_per_char": [30, 50, 80, 120],
-        "variants": ["type-once", "type-delete-loop", "type-through-options"],
-        "trigger": ["on-mount", "on-viewport-enter"]
+        "speed": [
+          10,
+          30,
+          50,
+          75,
+          99
+        ],
+        "wrapper": [
+          "span",
+          "h1",
+          "h2",
+          "p"
+        ],
+        "cursor": [
+          true,
+          false
+        ],
+        "repeat": [
+          "Infinity",
+          1,
+          3
+        ],
+        "implementation": "import { TypeAnimation } from \"react-type-animation\"; <TypeAnimation sequence={[\"First phrase\", 1500, \"Second phrase\", 1500]} wrapper=\"span\" speed={50} repeat={Infinity} />"
       }
     },
     {
@@ -449,13 +995,38 @@
       "url": "https://github.com/thetarnav/solid-enigma",
       "package": "native implementation",
       "score": 8.6,
-      "when_to_use": ["hero-headlines", "tech-product", "cyber-aesthetic", "hover-effects"],
-      "avoid_when": ["body-copy", "accessibility-critical"],
-      "traits": ["randomized-character-reveal", "futuristic-feel", "hover-trigger"],
+      "when_to_use": [
+        "hero-headlines",
+        "tech-product",
+        "cyber-aesthetic",
+        "hover-effects"
+      ],
+      "avoid_when": [
+        "body-copy",
+        "accessibility-critical"
+      ],
+      "traits": [
+        "randomized-character-reveal",
+        "futuristic-feel",
+        "hover-trigger"
+      ],
       "variants": {
-        "characters": ["alphanumeric", "symbols-only", "binary", "hex"],
-        "duration_ms": [400, 600, 800],
-        "trigger": ["on-hover", "on-viewport-enter", "on-mount"],
+        "characters": [
+          "alphanumeric",
+          "symbols-only",
+          "binary",
+          "hex"
+        ],
+        "duration_ms": [
+          400,
+          600,
+          800
+        ],
+        "trigger": [
+          "on-hover",
+          "on-viewport-enter",
+          "on-mount"
+        ],
         "implementation": "requestAnimationFrame character cycling until final text resolved"
       }
     },
@@ -466,13 +1037,36 @@
       "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-text-stroke",
       "package": "native-css",
       "score": 9.0,
-      "when_to_use": ["editorial", "brutalist", "fashion", "large-display-type"],
-      "avoid_when": ["small-body-text"],
-      "traits": ["stroke-only-fill-none", "dramatic-contrast", "layerable"],
+      "when_to_use": [
+        "editorial",
+        "brutalist",
+        "fashion",
+        "large-display-type"
+      ],
+      "avoid_when": [
+        "small-body-text"
+      ],
+      "traits": [
+        "stroke-only-fill-none",
+        "dramatic-contrast",
+        "layerable"
+      ],
       "variants": {
-        "stroke_width": ["1px", "2px", "3px"],
-        "fill": ["none", "semi-transparent", "gradient-on-hover"],
-        "combination": ["solid-word + outlined-word alternating", "outlined-bg + solid-fg", "outlined-oversized-bg-decorative"],
+        "stroke_width": [
+          "1px",
+          "2px",
+          "3px"
+        ],
+        "fill": [
+          "none",
+          "semi-transparent",
+          "gradient-on-hover"
+        ],
+        "combination": [
+          "solid-word + outlined-word alternating",
+          "outlined-bg + solid-fg",
+          "outlined-oversized-bg-decorative"
+        ],
         "css": "-webkit-text-stroke + color: transparent"
       }
     },
@@ -483,26 +1077,67 @@
       "url": "https://css-tricks.com/almanac/properties/f/font-size/",
       "package": "native-css",
       "score": 9.2,
-      "when_to_use": ["editorial", "luxury", "statistics-sections", "feature-lists"],
-      "avoid_when": ["dense-information-layouts"],
-      "traits": ["giant-background-numbers", "anchor-visual-hierarchy", "editorial-rhythm"],
+      "when_to_use": [
+        "editorial",
+        "luxury",
+        "statistics-sections",
+        "feature-lists"
+      ],
+      "avoid_when": [
+        "dense-information-layouts"
+      ],
+      "traits": [
+        "giant-background-numbers",
+        "anchor-visual-hierarchy",
+        "editorial-rhythm"
+      ],
       "variants": {
-        "size": ["8rem", "12rem", "20rem", "clamp-responsive"],
-        "treatment": ["outlined-behind-content", "solid-faded-watermark", "gradient-numeral", "clipped-to-section"],
-        "font_style": ["serif-for-contrast-with-sans-body", "monospaced-for-data", "display-weight"],
-        "position": ["absolute-bg", "inline-flow-break", "sticky-section-counter"]
+        "size": [
+          "8rem",
+          "12rem",
+          "20rem",
+          "clamp-responsive"
+        ],
+        "treatment": [
+          "outlined-behind-content",
+          "solid-faded-watermark",
+          "gradient-numeral",
+          "clipped-to-section"
+        ],
+        "font_style": [
+          "serif-for-contrast-with-sans-body",
+          "monospaced-for-data",
+          "display-weight"
+        ],
+        "position": [
+          "absolute-bg",
+          "inline-flow-break",
+          "sticky-section-counter"
+        ]
       }
     },
     {
       "id": "background.mesh-gradient",
       "category": "background",
       "name": "Mesh Gradient",
-      "url": "https://meshgradient.in",
-      "package": "native-css or @shadergradient/react",
+      "url": "https://shaders.paper.design",
+      "package": "@paper-design/shaders-react",
       "score": 9.3,
-      "when_to_use": ["hero-sections", "saas-landing", "ai-product", "gradient-heavy"],
-      "avoid_when": ["editorial-print-style"],
-      "traits": ["multi-point-radial", "organic-depth", "modern-premium"],
+      "when_to_use": [
+        "hero-sections",
+        "saas-landing",
+        "ai-product",
+        "gradient-heavy"
+      ],
+      "avoid_when": [
+        "editorial-print-style"
+      ],
+      "traits": [
+        "593k-weekly-downloads",
+        "webgl-powered",
+        "zero-config",
+        "animated"
+      ],
       "variants": {
         "implementation": [
           "css-multiple-radial-gradients",
@@ -510,8 +1145,19 @@
           "svg-feTurbulence-displacement",
           "canvas-animated-blobs"
         ],
-        "palette_moods": ["warm-sunset", "cool-tech", "brand-color-mesh", "monochromatic-depth", "dark-neon-glow"],
-        "animation": ["static", "slow-drift-3s", "pulse-opacity", "mouse-follow-subtle"]
+        "palette_moods": [
+          "warm-sunset",
+          "cool-tech",
+          "brand-color-mesh",
+          "monochromatic-depth"
+        ],
+        "animation": [
+          "static",
+          "slow-drift-3s",
+          "pulse-opacity",
+          "mouse-follow-subtle"
+        ],
+        "package_implementation": "import { MeshGradient } from \"@paper-design/shaders-react\"; <MeshGradient color1=\"#ff5005\" color2=\"#dbba95\" color3=\"#d0bce1\" color4=\"#1a1a2e\" speed={0.3} style={{ width: \"100%\", height: \"100vh\" }} /> OR for 3D animated: import { ShaderGradientCanvas, ShaderGradient } from \"@shadergradient/react\"; "
       }
     },
     {
@@ -521,14 +1167,43 @@
       "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feTurbulence",
       "package": "native-svg",
       "score": 9.1,
-      "when_to_use": ["default", "editorial", "moody", "luxury", "anti-flat-design"],
+      "when_to_use": [
+        "default",
+        "editorial",
+        "moody",
+        "luxury",
+        "anti-flat-design"
+      ],
       "avoid_when": [],
-      "traits": ["analog-warmth", "depth-without-shadow", "subtle-sophistication"],
+      "traits": [
+        "analog-warmth",
+        "depth-without-shadow",
+        "subtle-sophistication"
+      ],
       "variants": {
-        "implementation": ["svg-feTurbulence-overlay", "css-background-image-base64-noise", "canvas-generated"],
-        "intensity_opacity": ["2%-subtle", "5%-standard", "10%-heavy", "15%-film-grain"],
-        "blend_mode": ["overlay", "multiply", "screen", "soft-light"],
-        "application": ["full-page-overlay", "per-section", "image-overlay-only", "card-surfaces"]
+        "implementation": [
+          "svg-feTurbulence-overlay",
+          "css-background-image-base64-noise",
+          "canvas-generated"
+        ],
+        "intensity_opacity": [
+          "2%-subtle",
+          "5%-standard",
+          "10%-heavy",
+          "15%-film-grain"
+        ],
+        "blend_mode": [
+          "overlay",
+          "multiply",
+          "screen",
+          "soft-light"
+        ],
+        "application": [
+          "full-page-overlay",
+          "per-section",
+          "image-overlay-only",
+          "card-surfaces"
+        ]
       }
     },
     {
@@ -538,14 +1213,44 @@
       "url": "https://heropatterns.com",
       "package": "native-css",
       "score": 8.8,
-      "when_to_use": ["developer-tools", "saas", "dashboard", "technical-aesthetic"],
-      "avoid_when": ["luxury", "editorial-magazine"],
-      "traits": ["structured-depth", "technical-credibility", "light-touch"],
+      "when_to_use": [
+        "developer-tools",
+        "saas",
+        "dashboard",
+        "technical-aesthetic"
+      ],
+      "avoid_when": [
+        "luxury",
+        "editorial-magazine"
+      ],
+      "traits": [
+        "structured-depth",
+        "technical-credibility",
+        "light-touch"
+      ],
       "variants": {
-        "pattern": ["dot-grid", "line-grid", "crosshatch", "diagonal-lines", "hexagonal"],
-        "density": ["sparse", "medium", "dense"],
-        "fade": ["solid-to-transparent-vertical", "radial-fade-to-transparent", "full-coverage"],
-        "color": ["neutral-on-white", "neutral-on-dark", "brand-color-subtle"]
+        "pattern": [
+          "dot-grid",
+          "line-grid",
+          "crosshatch",
+          "diagonal-lines",
+          "hexagonal"
+        ],
+        "density": [
+          "sparse",
+          "medium",
+          "dense"
+        ],
+        "fade": [
+          "solid-to-transparent-vertical",
+          "radial-fade-to-transparent",
+          "full-coverage"
+        ],
+        "color": [
+          "neutral-on-white",
+          "neutral-on-dark",
+          "brand-color-subtle"
+        ]
       }
     },
     {
@@ -555,14 +1260,47 @@
       "url": "https://motion.dev/docs/react-animate",
       "package": "framer-motion or CSS @keyframes",
       "score": 8.9,
-      "when_to_use": ["hero-sections", "ai-product", "premium-saas", "dark-mode"],
-      "avoid_when": ["performance-critical-mobile", "print-style"],
-      "traits": ["animated-color-blobs", "organic-motion", "premium-atmosphere"],
+      "when_to_use": [
+        "hero-sections",
+        "ai-product",
+        "premium-saas",
+        "dark-mode"
+      ],
+      "avoid_when": [
+        "performance-critical-mobile",
+        "print-style",
+        "floating-orbs",
+        "blob-decoration"
+      ],
+      "traits": [
+        "animated-color-blobs",
+        "organic-motion",
+        "premium-atmosphere"
+      ],
       "variants": {
-        "implementation": ["css-keyframes-background-position", "framer-motion-animate", "canvas-blobs"],
-        "speed": ["very-slow-8s", "slow-4s", "medium-2s"],
-        "palette": ["cool-purple-blue", "warm-pink-orange", "monochrome-dark", "brand-hues"],
-        "subtlety": ["barely-there", "gentle", "prominent", "dramatic"]
+        "implementation": [
+          "css-keyframes-background-position",
+          "framer-motion-animate",
+          "canvas-blobs"
+        ],
+        "speed": [
+          "very-slow-8s",
+          "slow-4s",
+          "medium-2s"
+        ],
+        "palette": [
+          "cool-purple-blue",
+          "warm-pink-orange",
+          "monochrome-dark",
+          "brand-hues"
+        ],
+        "subtlety": [
+          "barely-there",
+          "gentle",
+          "prominent",
+          "dramatic"
+        ],
+        "anti_slop_note": "Aurora gradient must be a FULL-SECTION CSS animation (background-size + animate), NOT floating colored div blobs with blur. The aurora effect is achieved with CSS keyframes animating background-position on a multi-stop gradient, not with absolutely-positioned blurred divs. If you find yourself writing blur(80px) on a colored div, you are doing it wrong \u2014 that is the banned floating-orbs pattern."
       }
     },
     {
@@ -572,15 +1310,48 @@
       "url": "https://motion.dev/docs/react-animate",
       "package": "framer-motion",
       "score": 9.2,
-      "when_to_use": ["default", "logo-strips", "client-logos", "testimonials", "tech-tags"],
-      "avoid_when": ["accessibility-critical"],
-      "traits": ["infinite-loop", "smooth-velocity", "pause-on-hover"],
+      "when_to_use": [
+        "default",
+        "logo-strips",
+        "client-logos",
+        "testimonials",
+        "tech-tags"
+      ],
+      "avoid_when": [
+        "accessibility-critical"
+      ],
+      "traits": [
+        "infinite-loop",
+        "smooth-velocity",
+        "pause-on-hover"
+      ],
       "variants": {
-        "direction": ["left", "right"],
-        "speed_px_per_s": [20, 40, 60, 100],
-        "gap": ["tight", "standard", "loose"],
-        "content": ["logo-images", "text-tags", "cards-with-content", "icon-plus-text"],
-        "rows": [1, 2, 3],
+        "direction": [
+          "left",
+          "right"
+        ],
+        "speed_px_per_s": [
+          20,
+          40,
+          60,
+          100
+        ],
+        "gap": [
+          "tight",
+          "standard",
+          "loose"
+        ],
+        "content": [
+          "logo-images",
+          "text-tags",
+          "cards-with-content",
+          "icon-plus-text"
+        ],
+        "rows": [
+          1,
+          2,
+          3
+        ],
         "alternate_direction": "rows can alternate left/right for visual depth"
       }
     },
@@ -591,32 +1362,74 @@
       "url": "https://www.react-fast-marquee.com",
       "package": "react-fast-marquee",
       "score": 8.8,
-      "when_to_use": ["quick-implementation", "logo-strip", "announcement-bar"],
+      "when_to_use": [
+        "quick-implementation",
+        "logo-strip",
+        "announcement-bar"
+      ],
       "avoid_when": [],
-      "traits": ["simple-api", "css-animation", "gradient-fade-edges"],
+      "traits": [
+        "simple-api",
+        "css-animation",
+        "gradient-fade-edges"
+      ],
       "variants": {
-        "gradient_color": ["white", "black", "page-background"],
-        "speed": [20, 50, 100],
-        "pauseOnHover": [true, false]
+        "gradient_color": [
+          "white",
+          "black",
+          "page-background"
+        ],
+        "speed": [
+          20,
+          50,
+          100
+        ],
+        "pauseOnHover": [
+          true,
+          false
+        ]
       }
     },
     {
       "id": "data-display.animated-counter",
       "category": "data-display",
       "name": "Animated Counter",
-      "url": "https://motion.dev/docs/react-animate",
-      "package": "framer-motion",
-      "score": 9.3,
-      "when_to_use": ["statistics-sections", "metrics", "social-proof", "impact-numbers"],
+      "url": "https://www.npmjs.com/package/react-countup",
+      "package": "react-countup",
+      "score": 9.5,
+      "when_to_use": [
+        "statistics-sections",
+        "metrics",
+        "social-proof",
+        "impact-numbers"
+      ],
       "avoid_when": [],
-      "traits": ["count-up-on-scroll", "attention-capturing", "credibility"],
+      "traits": [
+        "491k-weekly-downloads",
+        "scroll-trigger",
+        "formatting",
+        "easing"
+      ],
       "variants": {
-        "duration_ms": [800, 1200, 2000],
-        "easing": ["easeOut", "easeInOut", "linear"],
-        "format": ["integer", "decimal-1", "currency", "percentage", "abbreviated-1K-1M"],
-        "trigger": ["on-viewport-enter", "on-mount"],
-        "prefix_suffix": ["$", "%", "+", "x", "K", "M"],
-        "implementation": "useMotionValue + useTransform + animate for smooth number interpolation"
+        "props": [
+          "end",
+          "start",
+          "duration",
+          "separator",
+          "prefix",
+          "suffix",
+          "decimals",
+          "delay"
+        ],
+        "trigger": [
+          "enableScrollSpy \u2014 auto-triggers when element enters viewport"
+        ],
+        "easing": [
+          "easeOut",
+          "easeInOut",
+          "linear"
+        ],
+        "implementation": "import CountUp from \"react-countup\"; <CountUp end={10000} duration={2.5} separator=\",\" prefix=\"$\" enableScrollSpy scrollSpyOnce />"
       }
     },
     {
@@ -626,13 +1439,41 @@
       "url": "https://recharts.org",
       "package": "recharts",
       "score": 9.0,
-      "when_to_use": ["data-heavy", "dashboard", "analytics", "saas-metrics"],
-      "avoid_when": ["purely-decorative-charts"],
-      "traits": ["react-native", "composable", "customizable-styling"],
+      "when_to_use": [
+        "data-heavy",
+        "dashboard",
+        "analytics",
+        "saas-metrics"
+      ],
+      "avoid_when": [
+        "purely-decorative-charts"
+      ],
+      "traits": [
+        "react-native",
+        "composable",
+        "customizable-styling"
+      ],
       "variants": {
-        "chart_types": ["AreaChart", "LineChart", "BarChart", "RadialBar", "PieChart", "ComposedChart"],
-        "styling": ["minimal-axes", "gradient-fill-area", "custom-tooltip", "animated-entry"],
-        "palette": ["brand-colors", "sequential-blues", "diverging", "categorical"]
+        "chart_types": [
+          "AreaChart",
+          "LineChart",
+          "BarChart",
+          "RadialBar",
+          "PieChart",
+          "ComposedChart"
+        ],
+        "styling": [
+          "minimal-axes",
+          "gradient-fill-area",
+          "custom-tooltip",
+          "animated-entry"
+        ],
+        "palette": [
+          "brand-colors",
+          "sequential-blues",
+          "diverging",
+          "categorical"
+        ]
       }
     },
     {
@@ -642,13 +1483,37 @@
       "url": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle",
       "package": "native-svg + framer-motion",
       "score": 8.8,
-      "when_to_use": ["skill-levels", "completion-metrics", "feature-highlights"],
-      "avoid_when": ["data-tables", "precise-data-reading"],
-      "traits": ["visual-impact", "custom-animatable", "brand-color-friendly"],
+      "when_to_use": [
+        "skill-levels",
+        "completion-metrics",
+        "feature-highlights"
+      ],
+      "avoid_when": [
+        "data-tables",
+        "precise-data-reading"
+      ],
+      "traits": [
+        "visual-impact",
+        "custom-animatable",
+        "brand-color-friendly"
+      ],
       "variants": {
-        "style": ["thin-stroke", "thick-stroke", "gradient-stroke", "segmented"],
-        "animation": ["draw-on-scroll", "fill-from-start", "countdown"],
-        "label": ["centered-percentage", "centered-icon", "centered-value-with-unit"]
+        "style": [
+          "thin-stroke",
+          "thick-stroke",
+          "gradient-stroke",
+          "segmented"
+        ],
+        "animation": [
+          "draw-on-scroll",
+          "fill-from-start",
+          "countdown"
+        ],
+        "label": [
+          "centered-percentage",
+          "centered-icon",
+          "centered-value-with-unit"
+        ]
       }
     },
     {
@@ -658,13 +1523,41 @@
       "url": "https://sonner.emilkowal.ski",
       "package": "sonner",
       "score": 9.4,
-      "when_to_use": ["default", "saas", "forms", "async-actions", "any-feedback"],
+      "when_to_use": [
+        "default",
+        "saas",
+        "forms",
+        "async-actions",
+        "any-feedback"
+      ],
       "avoid_when": [],
-      "traits": ["minimal-api", "promise-toasts", "stacking", "beautiful-defaults"],
+      "traits": [
+        "minimal-api",
+        "promise-toasts",
+        "stacking",
+        "beautiful-defaults"
+      ],
       "variants": {
-        "types": ["success", "error", "warning", "info", "loading", "promise"],
-        "position": ["top-center", "top-right", "bottom-center", "bottom-right"],
-        "features": ["richColors", "closeButton", "expand-on-hover", "custom-jsx"]
+        "types": [
+          "success",
+          "error",
+          "warning",
+          "info",
+          "loading",
+          "promise"
+        ],
+        "position": [
+          "top-center",
+          "top-right",
+          "bottom-center",
+          "bottom-right"
+        ],
+        "features": [
+          "richColors",
+          "closeButton",
+          "expand-on-hover",
+          "custom-jsx"
+        ]
       }
     },
     {
@@ -674,13 +1567,36 @@
       "url": "https://vaul.emilkowal.ski",
       "package": "vaul",
       "score": 9.5,
-      "when_to_use": ["mobile-first", "bottom-sheet", "filters", "forms-on-mobile", "native-feel"],
-      "avoid_when": ["desktop-only-modal"],
-      "traits": ["drag-to-dismiss", "momentum-based", "radix-compatible", "ios-native-feel"],
+      "when_to_use": [
+        "mobile-first",
+        "bottom-sheet",
+        "filters",
+        "forms-on-mobile",
+        "native-feel"
+      ],
+      "avoid_when": [
+        "desktop-only-modal"
+      ],
+      "traits": [
+        "drag-to-dismiss",
+        "momentum-based",
+        "radix-compatible",
+        "ios-native-feel"
+      ],
       "variants": {
-        "direction": ["bottom", "top", "left", "right"],
-        "features": ["snapPoints", "scaleBackground", "nested-drawers", "scrollable-content"],
-        "easing": "cubic-bezier(0.32, 0.72, 0, 1) — matches iOS Sheet"
+        "direction": [
+          "bottom",
+          "top",
+          "left",
+          "right"
+        ],
+        "features": [
+          "snapPoints",
+          "scaleBackground",
+          "nested-drawers",
+          "scrollable-content"
+        ],
+        "easing": "cubic-bezier(0.32, 0.72, 0, 1) \u2014 matches iOS Sheet"
       }
     },
     {
@@ -690,13 +1606,42 @@
       "url": "https://cmdk.paco.me",
       "package": "cmdk",
       "score": 9.3,
-      "when_to_use": ["saas", "developer-tools", "dashboard", "power-user-ux", "search-heavy"],
-      "avoid_when": ["simple-marketing-page", "content-only-site"],
-      "traits": ["headless", "auto-filter", "keyboard-first", "nested-pages", "accessible"],
+      "when_to_use": [
+        "saas",
+        "developer-tools",
+        "dashboard",
+        "power-user-ux",
+        "search-heavy"
+      ],
+      "avoid_when": [
+        "simple-marketing-page",
+        "content-only-site"
+      ],
+      "traits": [
+        "headless",
+        "auto-filter",
+        "keyboard-first",
+        "nested-pages",
+        "accessible"
+      ],
       "variants": {
-        "trigger": ["cmd-k", "ctrl-k", "custom-hotkey"],
-        "features": ["grouped-items", "nested-pages", "loading-state", "custom-filtering"],
-        "patterns": ["global-search", "action-menu", "navigation-switcher", "contextual-commands"]
+        "trigger": [
+          "cmd-k",
+          "ctrl-k",
+          "custom-hotkey"
+        ],
+        "features": [
+          "grouped-items",
+          "nested-pages",
+          "loading-state",
+          "custom-filtering"
+        ],
+        "patterns": [
+          "global-search",
+          "action-menu",
+          "navigation-switcher",
+          "contextual-commands"
+        ]
       }
     },
     {
@@ -706,13 +1651,47 @@
       "url": "https://nivo.rocks",
       "package": "@nivo/core",
       "score": 9.3,
-      "when_to_use": ["default-charts", "dashboard", "analytics", "editorial-data-stories", "server-rendered"],
-      "avoid_when": ["massive-dataset-100k+"],
-      "traits": ["27-chart-types", "d3-based", "ssr-capable", "beautiful-defaults", "responsive"],
+      "when_to_use": [
+        "default-charts",
+        "dashboard",
+        "analytics",
+        "editorial-data-stories",
+        "server-rendered"
+      ],
+      "avoid_when": [
+        "massive-dataset-100k+"
+      ],
+      "traits": [
+        "27-chart-types",
+        "d3-based",
+        "ssr-capable",
+        "beautiful-defaults",
+        "responsive"
+      ],
       "variants": {
-        "chart_types": ["ResponsiveBar", "ResponsiveLine", "ResponsivePie", "ResponsiveRadar", "ResponsiveHeatMap", "ResponsiveChord", "ResponsiveSunburst", "ResponsiveTreeMap", "ResponsiveCalendar", "ResponsiveSankey"],
-        "rendering": ["svg", "canvas", "html"],
-        "styling": ["built-in-color-schemes", "custom-tooltips", "animated-transitions", "gradient-fills"]
+        "chart_types": [
+          "ResponsiveBar",
+          "ResponsiveLine",
+          "ResponsivePie",
+          "ResponsiveRadar",
+          "ResponsiveHeatMap",
+          "ResponsiveChord",
+          "ResponsiveSunburst",
+          "ResponsiveTreeMap",
+          "ResponsiveCalendar",
+          "ResponsiveSankey"
+        ],
+        "rendering": [
+          "svg",
+          "canvas",
+          "html"
+        ],
+        "styling": [
+          "built-in-color-schemes",
+          "custom-tooltips",
+          "animated-transitions",
+          "gradient-fills"
+        ]
       }
     },
     {
@@ -722,12 +1701,39 @@
       "url": "https://tanstack.com/table",
       "package": "@tanstack/react-table",
       "score": 9.4,
-      "when_to_use": ["dashboard", "admin-panel", "data-heavy", "saas-metrics", "comparison-tables"],
-      "avoid_when": ["simple-static-table"],
-      "traits": ["headless", "sorting", "filtering", "pagination", "column-resizing", "row-selection"],
+      "when_to_use": [
+        "dashboard",
+        "admin-panel",
+        "data-heavy",
+        "saas-metrics",
+        "comparison-tables"
+      ],
+      "avoid_when": [
+        "simple-static-table"
+      ],
+      "traits": [
+        "headless",
+        "sorting",
+        "filtering",
+        "pagination",
+        "column-resizing",
+        "row-selection"
+      ],
       "variants": {
-        "features": ["global-filter", "column-filters", "multi-sort", "row-selection", "column-ordering", "virtualization"],
-        "patterns": ["admin-data-grid", "pricing-comparison", "leaderboard", "analytics-table"]
+        "features": [
+          "global-filter",
+          "column-filters",
+          "multi-sort",
+          "row-selection",
+          "column-ordering",
+          "virtualization"
+        ],
+        "patterns": [
+          "admin-data-grid",
+          "pricing-comparison",
+          "leaderboard",
+          "analytics-table"
+        ]
       }
     },
     {
@@ -737,13 +1743,43 @@
       "url": "https://reactflow.dev",
       "package": "@xyflow/react",
       "score": 9.2,
-      "when_to_use": ["workflow-editors", "architecture-diagrams", "ai-pipelines", "database-schemas", "org-charts"],
-      "avoid_when": ["simple-static-diagram"],
-      "traits": ["interactive-nodes", "custom-edges", "minimap", "zoom-pan", "keyboard-shortcuts"],
+      "when_to_use": [
+        "workflow-editors",
+        "architecture-diagrams",
+        "ai-pipelines",
+        "database-schemas",
+        "org-charts"
+      ],
+      "avoid_when": [
+        "simple-static-diagram"
+      ],
+      "traits": [
+        "interactive-nodes",
+        "custom-edges",
+        "minimap",
+        "zoom-pan",
+        "keyboard-shortcuts"
+      ],
       "variants": {
-        "node_types": ["default", "input", "output", "custom-jsx"],
-        "features": ["MiniMap", "Controls", "Background", "custom-edges", "drag-and-drop"],
-        "layouts": ["dagre-tree", "elk-advanced", "force-directed", "manual"]
+        "node_types": [
+          "default",
+          "input",
+          "output",
+          "custom-jsx"
+        ],
+        "features": [
+          "MiniMap",
+          "Controls",
+          "Background",
+          "custom-edges",
+          "drag-and-drop"
+        ],
+        "layouts": [
+          "dagre-tree",
+          "elk-advanced",
+          "force-directed",
+          "manual"
+        ]
       }
     },
     {
@@ -753,13 +1789,41 @@
       "url": "https://www.embla-carousel.com",
       "package": "embla-carousel-react",
       "score": 9.4,
-      "when_to_use": ["default", "image-gallery", "testimonials", "product-showcase", "card-slider"],
+      "when_to_use": [
+        "default",
+        "image-gallery",
+        "testimonials",
+        "product-showcase",
+        "card-slider"
+      ],
       "avoid_when": [],
-      "traits": ["lightweight-3kb", "accessible", "touch-native", "plugin-system", "css-snap"],
+      "traits": [
+        "lightweight-3kb",
+        "accessible",
+        "touch-native",
+        "plugin-system",
+        "css-snap"
+      ],
       "variants": {
-        "types": ["loop", "fade", "parallax", "thumbnails", "progress-bar"],
-        "plugins": ["autoplay", "auto-scroll", "auto-height", "class-names"],
-        "patterns": ["hero-image-slider", "testimonial-carousel", "product-gallery-with-thumbs", "card-carousel"]
+        "types": [
+          "loop",
+          "fade",
+          "parallax",
+          "thumbnails",
+          "progress-bar"
+        ],
+        "plugins": [
+          "autoplay",
+          "auto-scroll",
+          "auto-height",
+          "class-names"
+        ],
+        "patterns": [
+          "hero-image-slider",
+          "testimonial-carousel",
+          "product-gallery-with-thumbs",
+          "card-carousel"
+        ]
       }
     },
     {
@@ -769,13 +1833,36 @@
       "url": "https://github.com/dvtng/react-loading-skeleton",
       "package": "react-loading-skeleton",
       "score": 9.2,
-      "when_to_use": ["default", "data-fetching", "cards", "lists", "profiles", "dashboards"],
+      "when_to_use": [
+        "default",
+        "data-fetching",
+        "cards",
+        "lists",
+        "profiles",
+        "dashboards"
+      ],
       "avoid_when": [],
-      "traits": ["auto-adapts-layout", "shimmer-animation", "theme-provider", "zero-layout-shift"],
+      "traits": [
+        "auto-adapts-layout",
+        "shimmer-animation",
+        "theme-provider",
+        "zero-layout-shift"
+      ],
       "variants": {
-        "shapes": ["text-line", "circle-avatar", "rectangle-card", "custom-width-height"],
-        "animation": ["shimmer-gradient", "pulse"],
-        "theme": ["SkeletonTheme-baseColor-highlightColor", "dark-mode-compatible"]
+        "shapes": [
+          "text-line",
+          "circle-avatar",
+          "rectangle-card",
+          "custom-width-height"
+        ],
+        "animation": [
+          "shimmer-gradient",
+          "pulse"
+        ],
+        "theme": [
+          "SkeletonTheme-baseColor-highlightColor",
+          "dark-mode-compatible"
+        ]
       }
     },
     {
@@ -785,13 +1872,44 @@
       "url": "https://shiki.style",
       "package": "shiki",
       "score": 9.3,
-      "when_to_use": ["developer-tools", "documentation", "code-showcase", "blog-with-code", "ai-product"],
-      "avoid_when": ["no-code-content"],
-      "traits": ["vscode-themes", "ssr-compatible", "inline-styles", "100+-languages", "wasm-powered"],
+      "when_to_use": [
+        "developer-tools",
+        "documentation",
+        "code-showcase",
+        "blog-with-code",
+        "ai-product"
+      ],
+      "avoid_when": [
+        "no-code-content"
+      ],
+      "traits": [
+        "vscode-themes",
+        "ssr-compatible",
+        "inline-styles",
+        "100+-languages",
+        "wasm-powered"
+      ],
       "variants": {
-        "themes": ["vitesse-dark", "github-dark", "one-dark-pro", "dracula", "catppuccin", "nord"],
-        "features": ["line-highlighting", "line-numbers", "diff-highlighting", "focus-lines", "code-to-html"],
-        "integration": ["next-mdx", "markdown-it-plugin", "rehype-plugin"]
+        "themes": [
+          "vitesse-dark",
+          "github-dark",
+          "one-dark-pro",
+          "dracula",
+          "catppuccin",
+          "nord"
+        ],
+        "features": [
+          "line-highlighting",
+          "line-numbers",
+          "diff-highlighting",
+          "focus-lines",
+          "code-to-html"
+        ],
+        "integration": [
+          "next-mdx",
+          "markdown-it-plugin",
+          "rehype-plugin"
+        ]
       }
     },
     {
@@ -801,12 +1919,37 @@
       "url": "https://www.kirilv.com/canvas-confetti/",
       "package": "canvas-confetti",
       "score": 8.8,
-      "when_to_use": ["success-states", "onboarding-completion", "achievement-unlock", "purchase-confirmation"],
-      "avoid_when": ["serious-enterprise-only"],
-      "traits": ["zero-dom", "canvas-based", "configurable-physics", "tiny-6kb"],
+      "when_to_use": [
+        "success-states",
+        "onboarding-completion",
+        "achievement-unlock",
+        "purchase-confirmation"
+      ],
+      "avoid_when": [
+        "serious-enterprise-only"
+      ],
+      "traits": [
+        "zero-dom",
+        "canvas-based",
+        "configurable-physics",
+        "tiny-6kb"
+      ],
       "variants": {
-        "patterns": ["single-burst", "fireworks-sequence", "snow-fall", "school-pride-sides"],
-        "config": ["particleCount", "spread", "startVelocity", "decay", "gravity", "colors", "shapes"]
+        "patterns": [
+          "single-burst",
+          "fireworks-sequence",
+          "snow-fall",
+          "school-pride-sides"
+        ],
+        "config": [
+          "particleCount",
+          "spread",
+          "startVelocity",
+          "decay",
+          "gravity",
+          "colors",
+          "shapes"
+        ]
       }
     },
     {
@@ -816,13 +1959,40 @@
       "url": "https://react-hook-form.com",
       "package": "react-hook-form + zod + @hookform/resolvers",
       "score": 9.5,
-      "when_to_use": ["default", "any-form", "multi-step", "validation-heavy", "login-signup"],
+      "when_to_use": [
+        "default",
+        "any-form",
+        "multi-step",
+        "validation-heavy",
+        "login-signup"
+      ],
       "avoid_when": [],
-      "traits": ["minimal-re-renders", "uncontrolled-inputs", "zod-schema-validation", "typescript-first"],
+      "traits": [
+        "minimal-re-renders",
+        "uncontrolled-inputs",
+        "zod-schema-validation",
+        "typescript-first"
+      ],
       "variants": {
-        "patterns": ["simple-contact", "multi-step-wizard", "dynamic-field-arrays", "file-upload", "inline-editing"],
-        "validation": ["zod-schema", "yup-schema", "native-html5"],
-        "features": ["useForm", "useFieldArray", "useWatch", "useFormState", "Controller-for-controlled-inputs"]
+        "patterns": [
+          "simple-contact",
+          "multi-step-wizard",
+          "dynamic-field-arrays",
+          "file-upload",
+          "inline-editing"
+        ],
+        "validation": [
+          "zod-schema",
+          "yup-schema",
+          "native-html5"
+        ],
+        "features": [
+          "useForm",
+          "useFieldArray",
+          "useWatch",
+          "useFormState",
+          "Controller-for-controlled-inputs"
+        ]
       }
     },
     {
@@ -832,13 +2002,46 @@
       "url": "https://floating-ui.com",
       "package": "@floating-ui/react",
       "score": 9.3,
-      "when_to_use": ["tooltips", "popovers", "dropdowns", "context-menus", "comboboxes"],
-      "avoid_when": ["already-using-radix-overlays"],
-      "traits": ["viewport-aware", "middleware-composable", "lightweight-3kb", "interaction-hooks"],
+      "when_to_use": [
+        "tooltips",
+        "popovers",
+        "dropdowns",
+        "context-menus",
+        "comboboxes"
+      ],
+      "avoid_when": [
+        "already-using-radix-overlays"
+      ],
+      "traits": [
+        "viewport-aware",
+        "middleware-composable",
+        "lightweight-3kb",
+        "interaction-hooks"
+      ],
       "variants": {
-        "middleware": ["offset", "flip", "shift", "arrow", "size", "autoPlacement", "hide"],
-        "interactions": ["useHover", "useClick", "useFocus", "useDismiss", "useRole"],
-        "patterns": ["tooltip", "popover", "dropdown-menu", "combobox", "floating-toolbar"]
+        "middleware": [
+          "offset",
+          "flip",
+          "shift",
+          "arrow",
+          "size",
+          "autoPlacement",
+          "hide"
+        ],
+        "interactions": [
+          "useHover",
+          "useClick",
+          "useFocus",
+          "useDismiss",
+          "useRole"
+        ],
+        "patterns": [
+          "tooltip",
+          "popover",
+          "dropdown-menu",
+          "combobox",
+          "floating-toolbar"
+        ]
       }
     },
     {
@@ -848,13 +2051,42 @@
       "url": "https://github.com/jamiebuilds/tailwindcss-animate",
       "package": "tailwindcss-animate",
       "score": 9.0,
-      "when_to_use": ["css-only-animation", "enter-exit-transitions", "shadcn-ui-compatible", "lightweight"],
-      "avoid_when": ["complex-orchestrated-sequences"],
-      "traits": ["zero-js", "composable-utilities", "enter-exit", "tailwind-native"],
+      "when_to_use": [
+        "css-only-animation",
+        "enter-exit-transitions",
+        "shadcn-ui-compatible",
+        "lightweight"
+      ],
+      "avoid_when": [
+        "complex-orchestrated-sequences"
+      ],
+      "traits": [
+        "zero-js",
+        "composable-utilities",
+        "enter-exit",
+        "tailwind-native"
+      ],
       "variants": {
-        "enter": ["fade-in", "zoom-in", "slide-in-from-top", "slide-in-from-bottom", "slide-in-from-left", "slide-in-from-right", "spin-in"],
-        "exit": ["fade-out", "zoom-out", "slide-out-to-top", "slide-out-to-bottom"],
-        "modifiers": ["duration-*", "delay-*", "fill-mode-*"]
+        "enter": [
+          "fade-in",
+          "zoom-in",
+          "slide-in-from-top",
+          "slide-in-from-bottom",
+          "slide-in-from-left",
+          "slide-in-from-right",
+          "spin-in"
+        ],
+        "exit": [
+          "fade-out",
+          "zoom-out",
+          "slide-out-to-top",
+          "slide-out-to-bottom"
+        ],
+        "modifiers": [
+          "duration-*",
+          "delay-*",
+          "fill-mode-*"
+        ]
       }
     },
     {
@@ -864,13 +2096,44 @@
       "url": "https://r3f.docs.pmnd.rs",
       "package": "@react-three/fiber + @react-three/drei",
       "score": 8.7,
-      "when_to_use": ["3d-hero", "product-configurator", "immersive-experience", "interactive-background"],
-      "avoid_when": ["simple-marketing-page", "performance-critical-mobile", "content-heavy"],
-      "traits": ["declarative-3d", "react-ecosystem", "shader-support", "post-processing"],
+      "when_to_use": [
+        "3d-hero",
+        "product-configurator",
+        "immersive-experience",
+        "interactive-background"
+      ],
+      "avoid_when": [
+        "simple-marketing-page",
+        "performance-critical-mobile",
+        "content-heavy"
+      ],
+      "traits": [
+        "declarative-3d",
+        "react-ecosystem",
+        "shader-support",
+        "post-processing"
+      ],
       "variants": {
-        "patterns": ["floating-3d-object-hero", "product-viewer-360", "abstract-animated-bg", "particle-field"],
-        "helpers": ["OrbitControls", "PerspectiveCamera", "Environment", "Float", "Text3D", "useGLTF"],
-        "effects": ["bloom", "depth-of-field", "chromatic-aberration", "noise"]
+        "patterns": [
+          "floating-3d-object-hero",
+          "product-viewer-360",
+          "abstract-animated-bg",
+          "particle-field"
+        ],
+        "helpers": [
+          "OrbitControls",
+          "PerspectiveCamera",
+          "Environment",
+          "Float",
+          "Text3D",
+          "useGLTF"
+        ],
+        "effects": [
+          "bloom",
+          "depth-of-field",
+          "chromatic-aberration",
+          "noise"
+        ]
       }
     },
     {
@@ -880,13 +2143,40 @@
       "url": "https://oklch.com",
       "package": "native-css",
       "score": 9.4,
-      "when_to_use": ["default", "dynamic-theming", "brand-color-systems", "dark-mode", "accessible-palettes"],
+      "when_to_use": [
+        "default",
+        "dynamic-theming",
+        "brand-color-systems",
+        "dark-mode",
+        "accessible-palettes"
+      ],
       "avoid_when": [],
-      "traits": ["perceptually-uniform", "p3-gamut", "css-native", "single-color-to-full-palette"],
+      "traits": [
+        "perceptually-uniform",
+        "p3-gamut",
+        "css-native",
+        "single-color-to-full-palette"
+      ],
       "variants": {
         "technique": "oklch(from var(--brand) L C H) with lightness steps for 50-950 scale",
-        "patterns": ["brand-to-palette", "automatic-dark-mode", "semantic-token-generation"],
-        "palette_steps": ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"],
+        "patterns": [
+          "brand-to-palette",
+          "automatic-dark-mode",
+          "semantic-token-generation"
+        ],
+        "palette_steps": [
+          "50",
+          "100",
+          "200",
+          "300",
+          "400",
+          "500",
+          "600",
+          "700",
+          "800",
+          "900",
+          "950"
+        ],
         "accessibility": "WCAG-verifiable contrast ratios at each step"
       }
     },
@@ -895,12 +2185,682 @@
       "category": "reference",
       "name": "Animated Component Pattern Libraries",
       "score": 9.0,
-      "note": "REFERENCE only — not runtime imports. Study patterns and reimplement using existing primitives in the catalog.",
-      "when_to_use": ["default"],
+      "note": "REFERENCE only \u2014 not runtime imports. Study patterns and reimplement using existing primitives in the catalog.",
+      "when_to_use": [
+        "default"
+      ],
       "avoid_when": [],
-      "traits": ["pattern-reference", "copy-paste-inspiration", "tailwind-framer-motion-based"],
+      "traits": [
+        "pattern-reference",
+        "copy-paste-inspiration",
+        "tailwind-framer-motion-based"
+      ],
       "variants": {
-        "libraries": ["Motion Primitives (motion-primitives.com) — scroll/text animations", "Aceternity UI (ui.aceternity.com) — hero effects, 3D cards, sparkles, aurora, tracing beams", "Magic UI (magicui.design) — animated counters, marquees, bento grids, particle effects"]
+        "libraries": [
+          "Motion Primitives (motion-primitives.com) \u2014 scroll/text animations",
+          "Aceternity UI (ui.aceternity.com) \u2014 hero effects, 3D cards, sparkles, aurora, tracing beams",
+          "Magic UI (magicui.design) \u2014 animated counters, marquees, bento grids, particle effects"
+        ]
+      }
+    },
+    {
+      "id": "background.filtered-gradient",
+      "category": "background",
+      "name": "Filtered / Textured Gradient",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/filter",
+      "package": "native-css",
+      "score": 9.5,
+      "when_to_use": [
+        "default",
+        "hero-sections",
+        "saas",
+        "startup",
+        "premium",
+        "marketing",
+        "ai-product"
+      ],
+      "avoid_when": [],
+      "traits": [
+        "zero-dependency",
+        "high-visual-impact",
+        "anti-template",
+        "production-grade"
+      ],
+      "variants": {
+        "gradient_base": [
+          "linear-gradient-2-stop",
+          "linear-gradient-3-stop-angled",
+          "radial-gradient-offset",
+          "conic-gradient",
+          "multi-layer-gradient-stack"
+        ],
+        "filter_treatment": [
+          "grain-overlay-feTurbulence-4-8-percent",
+          "contrast(1.2)-saturate(1.3)-for-punch",
+          "pixelate-via-tiny-bg-size-and-image-rendering-pixelated",
+          "sand-texture-via-feTurbulence-baseFrequency-0.6",
+          "halftone-via-radial-gradient-repeating"
+        ],
+        "compositing": [
+          "noise-svg-overlay-multiply-4-percent",
+          "gradient-plus-backdrop-blur-for-frosted-depth",
+          "stacked-radial-gradients-at-different-origins",
+          "mix-blend-mode-overlay-on-gradient-layer",
+          "pseudo-element-grain-over-gradient-base"
+        ],
+        "implementation_recipe": "Layer 1: CSS gradient (linear/radial/conic) on a div. Layer 2: SVG feTurbulence noise at 4-8% opacity via ::after pseudo-element. Layer 3: Optional CSS filter on the gradient container (contrast+saturate for punch, or blur for soft mesh). Result: rich, non-generic gradient that looks textured and photographically real \u2014 not flat CSS. The grain breaks up banding artifacts and the filter adjustment adds depth that raw gradients lack.",
+        "usage_rule": "NEVER use a raw CSS gradient without a texture layer. Unfiltered gradients look like 2018 landing page slop. Always add at minimum a grain/noise overlay. For maximum impact: gradient + grain + contrast boost + subtle blur on edges.",
+        "anti_slop_note": "This is a SINGLE gradient element with filter treatments applied to it. NOT multiple colored divs with blur. The gradient is a CSS gradient (linear/radial/conic) on ONE container, with noise/grain overlaid via a ::after pseudo-element. Never create multiple blurred blobs."
+      }
+    },
+    {
+      "id": "surface.frosted-panel",
+      "category": "surface",
+      "name": "Frosted Panel / Section Divider",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter",
+      "package": "native-css",
+      "score": 9.3,
+      "when_to_use": [
+        "default",
+        "saas",
+        "enterprise",
+        "premium",
+        "landing",
+        "marketing"
+      ],
+      "avoid_when": [
+        "brutalist",
+        "raw-editorial"
+      ],
+      "traits": [
+        "depth-without-opacity",
+        "premium-feel",
+        "zero-dependency",
+        "composable"
+      ],
+      "variants": {
+        "blur_intensity": [
+          "backdrop-blur-sm(4px)",
+          "backdrop-blur-md(12px)",
+          "backdrop-blur-lg(24px)",
+          "backdrop-blur-xl(40px)"
+        ],
+        "surface_color": [
+          "white/60-on-light-bg",
+          "white/10-on-dark-bg",
+          "brand-color/5-for-tinted-frost",
+          "black/20-for-dark-frost"
+        ],
+        "border": [
+          "border-white/20-for-edge-definition",
+          "border-gradient-via-pseudo-element",
+          "no-border-for-seamless-frost"
+        ],
+        "applications": [
+          "navbar-frosted-over-hero-image",
+          "floating-card-over-gradient-background",
+          "section-divider-strip-between-sections",
+          "modal-backdrop-with-content-blur",
+          "sidebar-frosted-over-content",
+          "pricing-card-highlight-frosted"
+        ],
+        "implementation_note": "backdrop-filter: blur() is the key CSS property. Combine with semi-transparent background-color (bg-white/60 or bg-black/20) and a subtle border (border-white/20) for edge definition. Works on any element placed over colored/image content. The blur creates depth separation that shadows alone cannot achieve."
+      }
+    },
+    {
+      "id": "effects.mix-blend-compositing",
+      "category": "compositing",
+      "name": "Mix-Blend-Mode Compositing",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/mix-blend-mode",
+      "package": "native-css",
+      "score": 9.2,
+      "when_to_use": [
+        "editorial",
+        "creative-agency",
+        "portfolio",
+        "luxury",
+        "cinematic",
+        "brand-heavy"
+      ],
+      "avoid_when": [
+        "accessibility-critical",
+        "data-dense"
+      ],
+      "traits": [
+        "zero-dependency",
+        "photographic-depth",
+        "layered-design",
+        "color-interaction"
+      ],
+      "variants": {
+        "blend_modes": [
+          "multiply \u2014 darkens, great for text over light images",
+          "screen \u2014 lightens, ethereal glow effect",
+          "overlay \u2014 contrast boost, combines multiply+screen",
+          "soft-light \u2014 subtle tinting, natural feel",
+          "difference \u2014 dramatic color inversion, edgy",
+          "exclusion \u2014 like difference but softer",
+          "color \u2014 applies hue+saturation of element to underlying content",
+          "luminosity \u2014 preserves brightness of element over underlying color"
+        ],
+        "applications": [
+          "text-with-mix-blend-difference-over-image \u2014 text inverts based on image brightness",
+          "colored-overlay-multiply-on-photo \u2014 duotone/editorial look",
+          "gradient-overlay-screen-on-dark-image \u2014 ethereal depth",
+          "logo-blend-multiply-on-colored-section \u2014 logo merges with background",
+          "split-screen-blend-at-boundary \u2014 where two sections meet"
+        ],
+        "stacking_patterns": [
+          "image + colored-div-overlay(multiply) = duotone",
+          "gradient-div + text(mix-blend-difference) = adaptive text color",
+          "video + gradient-overlay(screen) = cinematic depth",
+          "dark-section + white-text(mix-blend-difference) = auto-contrast"
+        ]
+      }
+    },
+    {
+      "id": "surface.card-with-inner-glow",
+      "category": "surface",
+      "name": "Inner Glow / Inset Shadow Card",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow",
+      "package": "native-css",
+      "score": 9.0,
+      "when_to_use": [
+        "premium",
+        "saas",
+        "feature-cards",
+        "dark-mode"
+      ],
+      "avoid_when": [
+        "brutalist",
+        "flat-design-strict"
+      ],
+      "traits": [
+        "subtle-depth",
+        "premium-feel",
+        "composable",
+        "zero-dependency"
+      ],
+      "variants": {
+        "glow_type": [
+          "inset-shadow-white-alpha \u2014 subtle inner light edge",
+          "inset-shadow-brand-color-alpha \u2014 tinted inner glow",
+          "top-edge-highlight-1px-white-10percent \u2014 single edge catch",
+          "radial-gradient-inner-for-soft-glow-center"
+        ],
+        "combinations": [
+          "inner-glow + outer-shadow-soft = floating depth",
+          "inner-glow + border-white/10 + backdrop-blur = glass with edge",
+          "inner-glow-colored + noise-texture = material surface"
+        ],
+        "implementation": "box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.1), inset 0 0 20px rgba(255,255,255,0.05); This creates a subtle light-catch on the top edge and a soft interior glow. Combined with a dark background and a 1px border at 10% white, it creates a glass-like surface that feels 3D without any 3D rendering."
+      }
+    },
+    {
+      "id": "text-effects.gradient-text",
+      "category": "text-effects",
+      "name": "Gradient Text (Tasteful)",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/background-clip",
+      "package": "native-css",
+      "score": 8.5,
+      "when_to_use": [
+        "accent-word-only",
+        "hero-emphasis",
+        "brand-statement"
+      ],
+      "avoid_when": [
+        "every-heading",
+        "body-text",
+        "overuse"
+      ],
+      "traits": [
+        "high-impact",
+        "selective-use-only",
+        "zero-dependency"
+      ],
+      "variants": {
+        "application_rules": [
+          "ONLY on 1-2 words maximum per page \u2014 never full headings",
+          "ONLY on display-weight text (font-bold or font-black)",
+          "ONLY with high-contrast gradient stops (not muddy transitions)",
+          "NEVER on body text or navigation"
+        ],
+        "gradient_angles": [
+          "to-right",
+          "45deg",
+          "135deg",
+          "radial-from-center"
+        ],
+        "color_strategies": [
+          "brand-primary-to-brand-secondary \u2014 aligned with palette",
+          "white-to-white/50-on-dark-bg \u2014 subtle luminance gradient",
+          "warm-to-cool-shift \u2014 eg amber to teal for energy feel",
+          "light-to-dark-of-same-hue \u2014 eg teal-400 to teal-700"
+        ],
+        "anti_slop_note": "Gradient text is BANNED as a default heading treatment (see banned_patterns). This primitive exists ONLY for selective, intentional accent use \u2014 one emphasized word in a heading, a brand statement, or a key metric. If more than 2 words have gradient text on the entire page, you are overusing it."
+      }
+    },
+    {
+      "id": "layout.overlap-offset",
+      "category": "layout",
+      "name": "Overlapping / Offset Composition",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/position",
+      "package": "native-css",
+      "score": 9.3,
+      "when_to_use": [
+        "editorial",
+        "agency",
+        "portfolio",
+        "hero-sections",
+        "premium"
+      ],
+      "avoid_when": [
+        "dashboard",
+        "data-dense",
+        "documentation"
+      ],
+      "traits": [
+        "editorial-depth",
+        "visual-interest",
+        "breaks-grid-monotony",
+        "anti-template"
+      ],
+      "variants": {
+        "patterns": [
+          "image-offset-behind-text-block \u2014 image positioned -20px behind text container",
+          "card-stack-fanned \u2014 3 cards offset by 8px each creating depth",
+          "text-overlapping-image-edge \u2014 headline breaks into image space",
+          "section-overlap-negative-margin \u2014 next section pulls up over previous",
+          "floating-element-breaking-container \u2014 element intentionally overflows its parent",
+          "decorative-shape-behind-content \u2014 circle/rectangle at low opacity behind text"
+        ],
+        "implementation_rules": [
+          "Use relative+absolute positioning or negative margins",
+          "ALWAYS set explicit z-index ordering (higher for foreground content)",
+          "Container must have overflow-visible for break-out elements",
+          "Test mobile: overlaps must degrade gracefully (stack instead of overlap on small screens)"
+        ],
+        "anti_template_note": "The default instinct is to keep everything in its grid cell, cleanly separated. Award-winning sites BREAK the grid \u2014 images bleed into adjacent sections, text overlaps image boundaries, cards fan out from a stack. This primitive forces intentional overlap that creates editorial depth and visual hierarchy."
+      }
+    },
+    {
+      "id": "effects.color-shift-scroll",
+      "category": "scroll",
+      "name": "Scroll-Linked Color / Theme Shift",
+      "url": "https://motion.dev/docs/react-use-scroll",
+      "package": "framer-motion",
+      "score": 9.1,
+      "when_to_use": [
+        "storytelling",
+        "immersive",
+        "brand-heavy",
+        "cinematic",
+        "long-scroll"
+      ],
+      "avoid_when": [
+        "short-pages",
+        "dashboard",
+        "documentation"
+      ],
+      "traits": [
+        "immersive",
+        "scroll-narrative",
+        "premium-feel",
+        "memorable"
+      ],
+      "variants": {
+        "techniques": [
+          "background-color-interpolation-via-useTransform \u2014 bg shifts from white to dark as you scroll",
+          "text-color-shift-at-section-boundaries \u2014 text adapts to section bg",
+          "accent-color-progression \u2014 brand accent hue-rotates across page scroll",
+          "gradient-scroll-position \u2014 gradient origin moves with scroll progress"
+        ],
+        "implementation": "Use useScroll to get scrollYProgress (0-1 for full page), then useTransform to map progress ranges to color values. Apply to a wrapper div's backgroundColor. For section-specific shifts, use the section ref with useScroll({target: ref}). Interpolate between oklch values for perceptually smooth color transitions."
+      }
+    },
+    {
+      "id": "text-effects.split-highlight",
+      "category": "text-effects",
+      "name": "Split Word / Highlight Emphasis",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/mark",
+      "package": "native-css + framer-motion",
+      "score": 9.1,
+      "when_to_use": [
+        "marketing",
+        "saas",
+        "headline-impact",
+        "enterprise",
+        "editorial"
+      ],
+      "avoid_when": [
+        "minimal-body-text",
+        "documentation"
+      ],
+      "traits": [
+        "typographic-hierarchy",
+        "scannable",
+        "brand-emphasis",
+        "anti-monotone"
+      ],
+      "variants": {
+        "techniques": [
+          "background-highlight-mark \u2014 colored bg behind key words (like a highlighter pen)",
+          "weight-contrast-split \u2014 light weight + bold weight in same headline",
+          "color-accent-word \u2014 one word in brand color, rest in neutral",
+          "italic-accent \u2014 key word in serif italic within sans-serif heading",
+          "underline-accent \u2014 thick decorative underline on emphasis word (not text-underline, a real element)",
+          "size-contrast \u2014 one word at 1.2x size of surrounding text"
+        ],
+        "implementation_note": "Wrap the emphasis word in a <span> with distinct styling. For highlight: use inline-block with a background-color and slight padding. For weight contrast: use font-thin on most words and font-black on emphasis. The key is SELECTIVE application \u2014 1 word per heading maximum. This breaks typographic monotony without resorting to gradient text."
+      }
+    },
+    {
+      "id": "layout.alternating-rhythm",
+      "category": "layout",
+      "name": "Section Background Rhythm System",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/background",
+      "package": "native-css",
+      "score": 9.4,
+      "when_to_use": [
+        "default",
+        "marketing",
+        "saas",
+        "enterprise",
+        "any-multi-section-page"
+      ],
+      "avoid_when": [],
+      "traits": [
+        "anti-monotony",
+        "structural-variation",
+        "forces-visual-diversity"
+      ],
+      "variants": {
+        "rhythm_patterns": [
+          "white \u2192 slate-50 \u2192 dark \u2192 white \u2192 gradient \u2192 slate-50 \u2014 alternating light/dark/accent",
+          "gradient-hero \u2192 white \u2192 slate-50 \u2192 dark-with-image \u2192 white \u2192 gradient-cta",
+          "every-other-section-gets-treatment \u2014 minimum viable rhythm",
+          "dark-bookends \u2014 dark hero + dark CTA, light middle sections",
+          "progressive-darkening \u2014 page gets darker as you scroll toward CTA"
+        ],
+        "section_treatments": [
+          "plain-white \u2014 MAXIMUM 2 per page, never adjacent",
+          "off-white-slate-50 \u2014 neutral divider, no more than 2 adjacent",
+          "dark-slate-900 \u2014 high contrast, must use at least once per page",
+          "gradient-background \u2014 filtered, with grain overlay",
+          "image-background \u2014 full-bleed with dark overlay for text",
+          "dot-grid-or-pattern \u2014 subtle structural texture",
+          "frosted-panel \u2014 backdrop-blur section over image/gradient"
+        ],
+        "enforcement_rule": "NO TWO ADJACENT SECTIONS may have the same background treatment. Maximum 2 plain-white sections per page. Every page MUST include at least one dark section, one gradient or textured section, and one section with a real image background. This primitive is the single most effective way to prevent template-grade output \u2014 it forces visual variety by construction."
+      }
+    },
+    {
+      "id": "effects.parallax-tilt",
+      "category": "surface",
+      "name": "React Parallax Tilt",
+      "url": "https://www.npmjs.com/package/react-parallax-tilt",
+      "package": "react-parallax-tilt",
+      "score": 9.4,
+      "when_to_use": [
+        "feature-cards",
+        "pricing-cards",
+        "portfolio",
+        "hero-product",
+        "interactive",
+        "premium"
+      ],
+      "avoid_when": [
+        "touch-only",
+        "accessibility-critical"
+      ],
+      "traits": [
+        "45k-weekly-downloads",
+        "3kb-gzipped",
+        "glare-effect",
+        "gyroscope-support",
+        "zero-dependencies"
+      ],
+      "variants": {
+        "tilt_config": [
+          "tiltMaxAngleX: 15",
+          "tiltMaxAngleY: 15",
+          "tiltReverse: false",
+          "scale: 1.05"
+        ],
+        "glare": [
+          "glareEnable: true",
+          "glareMaxOpacity: 0.3",
+          "glareColor: white",
+          "glarePosition: all"
+        ],
+        "perspective": [
+          500,
+          800,
+          1000,
+          1500
+        ],
+        "implementation": "import Tilt from \"react-parallax-tilt\"; <Tilt tiltMaxAngleX={12} tiltMaxAngleY={12} glareEnable glareMaxOpacity={0.2} glareColor=\"white\" perspective={800} transitionSpeed={1500} scale={1.02}> <div className=\"card\">Content</div> </Tilt>",
+        "usage_rule": "Use on feature cards, pricing cards, or hero product mockups. The 3D tilt + glare combination creates a tactile premium feel that flat cards cannot match. Keep tilt subtle (10-15 deg max) \u2014 excessive tilt looks gimmicky."
+      }
+    },
+    {
+      "id": "effects.paper-shaders",
+      "category": "background",
+      "name": "Paper Design Shaders",
+      "url": "https://shaders.paper.design",
+      "package": "@paper-design/shaders-react",
+      "score": 9.6,
+      "when_to_use": [
+        "hero-sections",
+        "saas",
+        "ai-product",
+        "startup",
+        "premium",
+        "marketing",
+        "dark-mode",
+        "landing"
+      ],
+      "avoid_when": [
+        "server-components-only",
+        "ssr-critical-path"
+      ],
+      "traits": [
+        "593k-weekly-downloads",
+        "zero-config",
+        "30-plus-effects",
+        "webgl-powered",
+        "performant"
+      ],
+      "variants": {
+        "shader_types": [
+          "MeshGradient \u2014 smooth multi-color gradient with organic movement",
+          "GrainGradient \u2014 gradient with built-in grain/noise texture (THE anti-slop gradient)",
+          "Waves \u2014 undulating wave pattern with color control",
+          "Swirl \u2014 spiral/vortex gradient animation",
+          "NeroNoise \u2014 perlin noise animation with color",
+          "Metaballs \u2014 organic shapes (USE SPARINGLY, only with clear purpose, not as background decoration)",
+          "VoronoiDisk \u2014 geometric cell pattern",
+          "LiquidMetal \u2014 metallic reflective surface",
+          "MagmaticFluid \u2014 lava-like fluid simulation"
+        ],
+        "common_props": [
+          "color1",
+          "color2",
+          "color3",
+          "color4",
+          "speed",
+          "seed",
+          "style"
+        ],
+        "implementation": "import { GrainGradient } from \"@paper-design/shaders-react\"; <div className=\"relative h-screen\"> <GrainGradient color1=\"#0d9488\" color2=\"#1e293b\" color3=\"#f59e0b\" speed={0.2} seed={42} className=\"absolute inset-0\" /> <div className=\"relative z-10\">Content over gradient</div> </div>",
+        "usage_rule": "This is the single most impactful visual primitive in the registry. A GrainGradient hero immediately separates your output from template-grade. Use MeshGradient for smooth organic feel, GrainGradient for textured premium, Waves for kinetic energy, NeroNoise for dark moody aesthetics. ALWAYS position as a background layer with content floating over it (relative/z-10).",
+        "anti_slop_note": "Do NOT use Metaballs or animated blobs as pure background decoration \u2014 that produces the banned floating-orbs pattern. Use GrainGradient, MeshGradient, or Waves for backgrounds. Metaballs are only for intentional interactive elements."
+      }
+    },
+    {
+      "id": "effects.progressive-blur",
+      "category": "surface",
+      "name": "Progressive Blur",
+      "url": "https://www.npmjs.com/package/react-progressive-blur",
+      "package": "react-progressive-blur",
+      "score": 9.1,
+      "when_to_use": [
+        "navbar-over-hero",
+        "section-fade",
+        "content-overflow-hint",
+        "image-edge-treatment"
+      ],
+      "avoid_when": [],
+      "traits": [
+        "gradient-blur",
+        "drop-in-component",
+        "zero-config"
+      ],
+      "variants": {
+        "position": [
+          "top",
+          "bottom",
+          "left",
+          "right"
+        ],
+        "height": [
+          "100px",
+          "150px",
+          "200px",
+          "300px"
+        ],
+        "strength": [
+          4,
+          8,
+          12,
+          20
+        ],
+        "implementation": "import { ProgressiveBlur } from \"react-progressive-blur\"; /* Frosted bottom edge on hero section: */ <div className=\"relative\"> <HeroContent /> <ProgressiveBlur position=\"bottom\" height=\"200px\" strength={10} className=\"absolute bottom-0 left-0 right-0\" /> </div>",
+        "usage_rule": "Use at section boundaries to create smooth transitions between sections. Place at the bottom of hero sections over images, or at the top of navbars for a frosted-glass effect that blurs the content beneath as it scrolls under."
+      }
+    },
+    {
+      "id": "text-effects.split-text",
+      "category": "text-effects",
+      "name": "Split Type Text Animation",
+      "url": "https://www.npmjs.com/package/split-type",
+      "package": "split-type",
+      "score": 9.3,
+      "when_to_use": [
+        "hero-headlines",
+        "editorial",
+        "cinematic",
+        "agency",
+        "luxury",
+        "premium"
+      ],
+      "avoid_when": [
+        "body-text",
+        "data-dense",
+        "documentation"
+      ],
+      "traits": [
+        "23k-weekly-downloads",
+        "per-character-animation",
+        "per-word-animation",
+        "per-line-animation"
+      ],
+      "variants": {
+        "split_types": [
+          "chars",
+          "words",
+          "lines",
+          "chars, words",
+          "lines, words"
+        ],
+        "animation_patterns": [
+          "char-by-char-fade-in \u2014 stagger each character from opacity 0 to 1",
+          "word-by-word-slide-up \u2014 each word slides up from translateY(100%)",
+          "line-by-line-reveal \u2014 clip-path reveal per line on scroll",
+          "char-scatter \u2014 characters start scattered, assemble on trigger",
+          "char-blur-in \u2014 each char enters from blur(8px) to clear"
+        ],
+        "implementation": "import SplitType from \"split-type\"; import { motion, stagger, useAnimate } from \"framer-motion\"; useEffect(() => { const split = new SplitType(\"#headline\", { types: \"chars\" }); /* animate split.chars with framer-motion stagger */ }, []); Pair with framer-motion for scroll-triggered or viewport-enter animations.",
+        "usage_rule": "Use on hero headlines for maximum entrance impact. Split into chars for dramatic reveals, words for readable stagger, lines for editorial scroll reveals. ALWAYS clean up split on unmount. Limit to 1-2 elements per page \u2014 overuse makes the page feel slow."
+      }
+    },
+    {
+      "id": "effects.auto-animate",
+      "category": "animation",
+      "name": "Auto Animate",
+      "url": "https://auto-animate.formkit.com",
+      "package": "@formkit/auto-animate",
+      "score": 9.3,
+      "when_to_use": [
+        "lists",
+        "grids",
+        "tabs",
+        "filters",
+        "sorting",
+        "dynamic-content"
+      ],
+      "avoid_when": [
+        "static-content-only"
+      ],
+      "traits": [
+        "551k-weekly-downloads",
+        "zero-config",
+        "one-line-setup",
+        "framework-agnostic"
+      ],
+      "variants": {
+        "implementation": "import { useAutoAnimate } from \"@formkit/auto-animate/react\"; const [parent] = useAutoAnimate(); <ul ref={parent}>{items.map(i => <li key={i.id}>{i.name}</li>)}</ul> Any add/remove/reorder of children is automatically animated. That is literally all the code needed.",
+        "config": [
+          "duration: 250",
+          "easing: ease-in-out",
+          "disrespectUserMotionPreference: false"
+        ],
+        "usage_rule": "Use on ANY dynamic list, grid, or container where items can be added, removed, or reordered. Pricing toggle (monthly\u2192annual), feature filter, testimonial carousel, FAQ accordion. The single-line API means there is zero excuse for unanimated DOM changes anywhere in the site."
+      }
+    },
+    {
+      "id": "effects.scroll-reveal",
+      "category": "animation",
+      "name": "React Awesome Reveal",
+      "url": "https://www.npmjs.com/package/react-awesome-reveal",
+      "package": "react-awesome-reveal",
+      "score": 9.0,
+      "when_to_use": [
+        "marketing",
+        "landing",
+        "sections",
+        "content-reveal"
+      ],
+      "avoid_when": [
+        "already-using-framer-motion-variants-extensively"
+      ],
+      "traits": [
+        "35k-weekly-downloads",
+        "scroll-triggered",
+        "cascade-stagger",
+        "css-animations"
+      ],
+      "variants": {
+        "effects": [
+          "Fade",
+          "Slide",
+          "Zoom",
+          "Bounce",
+          "Flip",
+          "Rotate",
+          "Roll",
+          "Hinge",
+          "JackInTheBox"
+        ],
+        "props": [
+          "cascade",
+          "damping",
+          "direction",
+          "delay",
+          "duration",
+          "triggerOnce"
+        ],
+        "implementation": "import { Fade, Slide, Zoom } from \"react-awesome-reveal\"; <Fade cascade damping={0.1} triggerOnce> <h2>Title</h2> <p>Paragraph</p> <Button>CTA</Button> </Fade>"
       }
     }
   ],
@@ -909,7 +2869,12 @@
       "id": "space-grotesk-plus-inter",
       "display": "Space Grotesk",
       "body": "Inter",
-      "tone": ["modern", "saas", "clean", "default"],
+      "tone": [
+        "modern",
+        "saas",
+        "clean",
+        "default"
+      ],
       "contrast": "medium",
       "usage_note": "Default pairing for SaaS and tech. Geometric display with neutral body."
     },
@@ -917,7 +2882,12 @@
       "id": "instrument-serif-plus-manrope",
       "display": "Instrument Serif",
       "body": "Manrope",
-      "tone": ["editorial", "luxury", "fashion", "agency"],
+      "tone": [
+        "editorial",
+        "luxury",
+        "fashion",
+        "agency"
+      ],
       "contrast": "high",
       "usage_note": "High contrast serif display with rounded geometric body. Very editorial."
     },
@@ -925,7 +2895,12 @@
       "id": "archivo-black-plus-work-sans",
       "display": "Archivo Black",
       "body": "Work Sans",
-      "tone": ["bold", "startup", "tech", "impact"],
+      "tone": [
+        "bold",
+        "startup",
+        "tech",
+        "impact"
+      ],
       "contrast": "high",
       "usage_note": "Heavy grotesque display. Strong, confident brand feel."
     },
@@ -933,7 +2908,12 @@
       "id": "playfair-display-plus-source-sans-3",
       "display": "Playfair Display",
       "body": "Source Sans 3",
-      "tone": ["editorial", "corporate", "content-heavy", "publishing"],
+      "tone": [
+        "editorial",
+        "corporate",
+        "content-heavy",
+        "publishing"
+      ],
       "contrast": "medium",
       "usage_note": "Classic contrast serif for editorial and content-focused sites."
     },
@@ -941,7 +2921,13 @@
       "id": "clash-display-plus-satoshi",
       "display": "Clash Display",
       "body": "Satoshi",
-      "tone": ["modern", "edgy", "startup", "bold", "contemporary"],
+      "tone": [
+        "modern",
+        "edgy",
+        "startup",
+        "bold",
+        "contemporary"
+      ],
       "contrast": "medium-high",
       "usage_note": "Clash Display is distinctive and geometric. Satoshi body is clean and modern. Hot pairing."
     },
@@ -949,7 +2935,13 @@
       "id": "dm-serif-display-plus-dm-sans",
       "display": "DM Serif Display",
       "body": "DM Sans",
-      "tone": ["refined", "minimal", "editorial", "light", "premium"],
+      "tone": [
+        "refined",
+        "minimal",
+        "editorial",
+        "light",
+        "premium"
+      ],
       "contrast": "high",
       "usage_note": "Elegant and refined. Thin-bodied serif display with very clean sans body. Less commonly used = more unique."
     },
@@ -957,7 +2949,12 @@
       "id": "syne-plus-outfit",
       "display": "Syne",
       "body": "Outfit",
-      "tone": ["experimental", "design-forward", "agency", "geometric"],
+      "tone": [
+        "experimental",
+        "design-forward",
+        "agency",
+        "geometric"
+      ],
       "contrast": "medium",
       "usage_note": "Syne has an unusual, slightly experimental feel. Outfit body is geometric and friendly."
     },
@@ -965,7 +2962,13 @@
       "id": "bebas-neue-plus-lato",
       "display": "Bebas Neue",
       "body": "Lato",
-      "tone": ["bold", "sports", "impact", "cinematic", "poster"],
+      "tone": [
+        "bold",
+        "sports",
+        "impact",
+        "cinematic",
+        "poster"
+      ],
       "contrast": "extreme",
       "usage_note": "Maximum impact display (all-caps condensed) with neutral body. Dramatic sections."
     },
@@ -973,7 +2976,13 @@
       "id": "cormorant-plus-jost",
       "display": "Cormorant Garamond",
       "body": "Jost",
-      "tone": ["luxury", "fashion", "beauty", "high-end", "delicate"],
+      "tone": [
+        "luxury",
+        "fashion",
+        "beauty",
+        "high-end",
+        "delicate"
+      ],
       "contrast": "high",
       "usage_note": "Cormorant is razor-thin luxury serif. Jost body is geometric and balanced. Very high-end feel."
     }
@@ -996,7 +3005,7 @@
     {
       "id": "blur-scale-in",
       "type": "entrance",
-      "description": "Element enters with blur(8px) + scale(0.96) → clear + scale(1). Premium feel.",
+      "description": "Element enters with blur(8px) + scale(0.96) \u2192 clear + scale(1). Premium feel.",
       "duration_ms": 600,
       "easing": "easeOut"
     },
@@ -1017,21 +3026,21 @@
     {
       "id": "scroll-parallax-soft",
       "type": "scroll",
-      "description": "Subtle y-transform tied to scroll progress via useScroll+useTransform. Range: [0, 200px] → [-30px, 30px].",
+      "description": "Subtle y-transform tied to scroll progress via useScroll+useTransform. Range: [0, 200px] \u2192 [-30px, 30px].",
       "duration_ms": 0,
       "easing": "linear"
     },
     {
       "id": "parallax-image-drift",
       "type": "scroll",
-      "description": "Image moves at 60% of scroll speed creating depth. useScroll on section → useTransform translateY. Makes layouts feel multi-layered.",
+      "description": "Image moves at 60% of scroll speed creating depth. useScroll on section \u2192 useTransform translateY. Makes layouts feel multi-layered.",
       "duration_ms": 0,
       "easing": "linear"
     },
     {
       "id": "text-reveal-clip",
       "type": "entrance",
-      "description": "Text slides up from behind a clip-path mask. Container: overflow-hidden. Child: translateY(100%) → 0. Elegant line-by-line reveal.",
+      "description": "Text slides up from behind a clip-path mask. Container: overflow-hidden. Child: translateY(100%) \u2192 0. Elegant line-by-line reveal.",
       "duration_ms": 700,
       "easing": "circOut"
     },
@@ -1045,14 +3054,14 @@
     {
       "id": "stagger-grid-cascade",
       "type": "entrance",
-      "description": "Grid items enter diagonally — stagger by column index + row index combined. Creates a wave-like cascade across a grid.",
+      "description": "Grid items enter diagonally \u2014 stagger by column index + row index combined. Creates a wave-like cascade across a grid.",
       "duration_ms": 400,
       "easing": "easeOut"
     },
     {
       "id": "image-grain-overlay",
       "type": "ambient",
-      "description": "SVG feTurbulence noise layer at 4–8% opacity over images. Apply via ::after pseudo-element. Adds analog film texture with zero JS.",
+      "description": "SVG feTurbulence noise layer at 4\u20138% opacity over images. Apply via ::after pseudo-element. Adds analog film texture with zero JS.",
       "duration_ms": 0,
       "easing": "none"
     },
@@ -1073,8 +3082,29 @@
     {
       "id": "skeleton-shimmer-to-content",
       "type": "loading",
-      "description": "Skeleton shimmer placeholders cross-fade to real content with blur(4px) → blur(0) + opacity 0 → 1 transition.",
+      "description": "Skeleton shimmer placeholders cross-fade to real content with blur(4px) \u2192 blur(0) + opacity 0 \u2192 1 transition.",
       "duration_ms": 400,
+      "easing": "easeOut"
+    },
+    {
+      "id": "color-morph-on-scroll",
+      "type": "scroll",
+      "description": "Background color morphs between values as user scrolls. Use useScroll({target: wrapperRef}) + useTransform to interpolate between oklch colors. Apply to a wrapper div. Creates immersive narrative scroll.",
+      "duration_ms": 0,
+      "easing": "linear"
+    },
+    {
+      "id": "stagger-blur-reveal",
+      "type": "entrance",
+      "description": "Each child element enters with blur(12px) + translateY(20px) \u2192 clear + translateY(0), staggered by 0.06s. More premium than simple fade-up. Use filter property in framer-motion variants.",
+      "duration_ms": 600,
+      "easing": "easeOut"
+    },
+    {
+      "id": "hover-tilt-3d",
+      "type": "hover",
+      "description": "Card tilts toward cursor in 3D space on hover. Calculate rotateX/rotateY from cursor position relative to card center. Use perspective(800px) on parent, transform on card. Max rotation: 8deg. Very premium feel.",
+      "duration_ms": 150,
       "easing": "easeOut"
     }
   ],
@@ -1085,7 +3115,12 @@
       "hero": "split-offset",
       "section_rhythm": "wide-narrow-wide",
       "background": "paper-texture-or-soft-gradient",
-      "signature_moves": ["offset-image-bleeds", "large-pull-quotes", "mixed-type-weights", "thin-ruled-lines"]
+      "signature_moves": [
+        "offset-image-bleeds",
+        "large-pull-quotes",
+        "mixed-type-weights",
+        "thin-ruled-lines"
+      ]
     },
     {
       "id": "immersive-story",
@@ -1093,7 +3128,12 @@
       "hero": "full-bleed-media",
       "section_rhythm": "chaptered",
       "background": "alternating-solid-and-image",
-      "signature_moves": ["full-bleed-section-images", "parallax-depth", "minimal-copy-max-impact", "dissolve-transitions"]
+      "signature_moves": [
+        "full-bleed-section-images",
+        "parallax-depth",
+        "minimal-copy-max-impact",
+        "dissolve-transitions"
+      ]
     },
     {
       "id": "product-precision",
@@ -1101,7 +3141,12 @@
       "hero": "clear-value-and-product-shot",
       "section_rhythm": "dense-informational",
       "background": "minimal-contrast-blocks",
-      "signature_moves": ["product-screenshot-mockup", "feature-comparison-table", "metric-callouts", "tight-grid-cards"]
+      "signature_moves": [
+        "product-screenshot-mockup",
+        "feature-comparison-table",
+        "metric-callouts",
+        "tight-grid-cards"
+      ]
     },
     {
       "id": "branded-minimal",
@@ -1109,7 +3154,12 @@
       "hero": "headline-dominant",
       "section_rhythm": "large-type-then-detail",
       "background": "single-hue-family-with-accent",
-      "signature_moves": ["massive-headline", "single-color-accent", "extreme-whitespace", "one-striking-image"]
+      "signature_moves": [
+        "massive-headline",
+        "single-color-accent",
+        "extreme-whitespace",
+        "one-striking-image"
+      ]
     },
     {
       "id": "bento-gallery",
@@ -1117,7 +3167,12 @@
       "hero": "large-tile-plus-small-grid-mosaic",
       "section_rhythm": "bento-then-narrative-then-bento",
       "background": "neutral-with-card-surface-contrast",
-      "signature_moves": ["mixed-span-tiles", "spotlight-hover-cards", "icon-in-tile-corner", "alternating-dark-light-tiles"]
+      "signature_moves": [
+        "mixed-span-tiles",
+        "spotlight-hover-cards",
+        "icon-in-tile-corner",
+        "alternating-dark-light-tiles"
+      ]
     },
     {
       "id": "dark-cinematic",
@@ -1125,7 +3180,12 @@
       "hero": "full-bleed-dark-with-large-serif-headline",
       "section_rhythm": "wide-breathing-sections-with-film-grain",
       "background": "deep-black-or-near-black-with-warm-accent",
-      "signature_moves": ["grain-texture-overlay", "warm-amber-accent-on-dark", "film-still-imagery", "oversized-outlined-type"]
+      "signature_moves": [
+        "grain-texture-overlay",
+        "warm-amber-accent-on-dark",
+        "film-still-imagery",
+        "oversized-outlined-type"
+      ]
     },
     {
       "id": "brutalist-editorial",
@@ -1133,7 +3193,13 @@
       "hero": "oversized-type-with-rule-lines",
       "section_rhythm": "dense-chunked-with-borders",
       "background": "white-or-cream-with-black-accents",
-      "signature_moves": ["thick-border-rules", "outlined-display-type", "raw-image-no-rounding", "bold-accent-color-single", "grid-exposed-structure"]
+      "signature_moves": [
+        "thick-border-rules",
+        "outlined-display-type",
+        "raw-image-no-rounding",
+        "bold-accent-color-single",
+        "grid-exposed-structure"
+      ]
     },
     {
       "id": "soft-luxury",
@@ -1141,7 +3207,13 @@
       "hero": "centered-refined-headline-with-large-imagery",
       "section_rhythm": "slow-airy-paced",
       "background": "warm-off-white-or-soft-beige",
-      "signature_moves": ["delicate-serif-display", "extreme-letter-spacing", "muted-earthy-palette", "full-bleed-lifestyle-photography", "no-strong-shadows"]
+      "signature_moves": [
+        "delicate-serif-display",
+        "extreme-letter-spacing",
+        "muted-earthy-palette",
+        "full-bleed-lifestyle-photography",
+        "no-strong-shadows"
+      ]
     },
     {
       "id": "data-dashboard",
@@ -1149,7 +3221,12 @@
       "hero": "metric-cards-top-row",
       "section_rhythm": "dense-grid-with-charts",
       "background": "neutral-with-card-elevation",
-      "signature_moves": ["tanstack-table-with-filters", "nivo-area-charts", "skeleton-loading-states", "cmdk-search"]
+      "signature_moves": [
+        "tanstack-table-with-filters",
+        "nivo-area-charts",
+        "skeleton-loading-states",
+        "cmdk-search"
+      ]
     },
     {
       "id": "developer-docs",
@@ -1157,7 +3234,12 @@
       "hero": "simple-headline-with-code-example",
       "section_rhythm": "prose-then-code-alternating",
       "background": "light-with-code-block-dark",
-      "signature_moves": ["shiki-code-blocks", "sticky-toc-sidebar", "cmdk-search", "copy-to-clipboard-buttons"]
+      "signature_moves": [
+        "shiki-code-blocks",
+        "sticky-toc-sidebar",
+        "cmdk-search",
+        "copy-to-clipboard-buttons"
+      ]
     }
   ],
   "critique_rubric": [
@@ -1196,6 +3278,9 @@
     "modal-on-mobile-for-simple-actions-use-vaul-drawer",
     "unoptimized-video-autoplay-without-poster-and-preload-metadata",
     "raw-html-table-without-sort-filter-use-tanstack-table-for-5+-rows",
-    "hardcoded-hex-colors-without-semantic-tokens-use-oklch"
+    "hardcoded-hex-colors-without-semantic-tokens-use-oklch",
+    "more-than-two-adjacent-white-background-sections",
+    "uniform-border-radius-on-everything-pick-sharp-or-rounded-not-both",
+    "gradient-text-on-more-than-two-words"
   ]
 }
