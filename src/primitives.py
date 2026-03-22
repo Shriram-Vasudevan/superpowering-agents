@@ -323,6 +323,7 @@ _DISCOVERY_CATEGORIES = frozenset({
     "background",
     "image-effects",
     "surface",
+    "compositing",
     "marquee",
     "delight",
     "loading",
@@ -333,7 +334,7 @@ _DISCOVERY_CATEGORIES = frozenset({
 
 
 def get_discovery_highlights(registry: dict) -> list[dict]:
-    """Return providers from discovery-tier categories with a 'why' note.
+    """Return providers from discovery-tier categories (lean format).
 
     These are surfaced separately from the full catalog so the model encounters
     the less-obvious options first, before pattern-matching to its defaults.
@@ -347,11 +348,6 @@ def get_discovery_highlights(registry: dict) -> list[dict]:
                 "category": p.get("category"),
                 "name": p.get("name"),
                 "package": p.get("package", ""),
-                "traits": p.get("traits", []),
-                "why_non_obvious": (
-                    "Most developers skip this category and reach for their defaults — "
-                    "using it is what makes output feel custom rather than template-generated."
-                ),
             })
     return highlights
 
@@ -359,10 +355,10 @@ def get_discovery_highlights(registry: dict) -> list[dict]:
 _ALL_PROVIDER_CATEGORIES = (
     "headless-ui", "icons", "animation", "css-animation", "scroll", "fonts",
     "images", "image-optimization", "image-effects", "buttons",
-    "layout", "surface", "text-effects", "background", "marquee", "data-display",
-    "charts", "data-table", "diagrams", "carousel", "loading", "code", "delight",
-    "forms", "positioning", "3d", "theming", "overlay", "command-palette",
-    "feedback", "reference",
+    "layout", "surface", "text-effects", "background", "compositing", "marquee",
+    "data-display", "charts", "data-table", "diagrams", "carousel", "loading",
+    "code", "delight", "forms", "positioning", "3d", "theming", "overlay",
+    "command-palette", "feedback", "reference",
 )
 
 
