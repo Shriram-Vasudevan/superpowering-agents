@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import base64
+import json as _json
 import tempfile
+from collections import Counter
+from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 import httpx
 
@@ -27,207 +31,166 @@ from src.variation import (
     rerank_for_variation,
 )
 
+
+# ── DOM summary helpers ────────────────────────────────────────────────────
+
+@lru_cache(maxsize=1)
+def _load_dom_summaries() -> dict[str, Any]:
+    """Load dom_summaries.json (cached)."""
+    path = settings.reference_data_dir / "dom_summaries.json"
+    if not path.exists():
+        return {}
+    with open(path) as f:
+        return _json.load(f)
+
+
+def _domain_to_dom_key(domain: str) -> str | None:
+    """Find the DOM summary key for a given domain."""
+    summaries = _load_dom_summaries()
+    # dom_summaries keys are like "knock_app.html", "glideapps_com.html"
+    slug = domain.replace(".", "_").replace("-", "_")
+    for key in summaries:
+        key_bare = key.replace(".html", "")
+        if key_bare == slug or slug in key_bare or key_bare in slug:
+            return key
+    return None
+
+
+def get_dom_summaries_for_domains(domains: list[str]) -> dict[str, dict]:
+    """Return DOM summary data for a list of domains.
+
+    Returns a dict mapping domain → {surface_techniques, detected_primitives, colors}.
+    """
+    summaries = _load_dom_summaries()
+    result: dict[str, dict] = {}
+    for domain in domains:
+        key = _domain_to_dom_key(domain)
+        if key and key in summaries:
+            entry = summaries[key]
+            result[domain] = {
+                "surface_techniques": entry.get("surface_techniques", []),
+                "detected_primitives": entry.get("detected_primitives", []),
+                "colors": entry.get("colors", [])[:8],
+            }
+    return result
+
+
+def build_reference_surface_analysis(
+    domains: list[str],
+) -> dict[str, Any]:
+    """Synthesize aggregate surface technique analysis across references.
+
+    Returns a dict with:
+      - per_reference: DOM data per domain
+      - technique_frequency: how many references use each surface technique
+      - primitive_frequency: how many references use each detected primitive
+      - design_vocabulary: natural-language summary of what the references actually do
+    """
+    per_ref = get_dom_summaries_for_domains(domains)
+    if not per_ref:
+        return {
+            "per_reference": {},
+            "technique_frequency": {},
+            "primitive_frequency": {},
+            "design_vocabulary": "No DOM summaries available for these references.",
+        }
+
+    technique_counts: Counter[str] = Counter()
+    primitive_counts: Counter[str] = Counter()
+    all_colors: list[str] = []
+
+    for domain, data in per_ref.items():
+        for t in data.get("surface_techniques", []):
+            technique_counts[t] += 1
+        for p in data.get("detected_primitives", []):
+            primitive_counts[p] += 1
+        all_colors.extend(data.get("colors", []))
+
+    n = len(per_ref)
+    # Build natural-language summary
+    vocab_parts: list[str] = []
+    for technique, count in technique_counts.most_common():
+        pct = count / n
+        if pct >= 0.6:
+            vocab_parts.append(f"{technique} ({count}/{n} references — STRONGLY expected)")
+        elif pct >= 0.4:
+            vocab_parts.append(f"{technique} ({count}/{n} references — recommended)")
+
+    # Filter primitives to interesting ones (not framework-level)
+    skip_prims = {"tailwind", "bootstrap", "webflow", "wordpress", "shopify"}
+    interesting_prims: list[str] = []
+    for prim, count in primitive_counts.most_common():
+        if prim not in skip_prims and count >= 2:
+            interesting_prims.append(f"{prim} ({count}/{n})")
+
+    design_vocabulary = (
+        "Your references use these surface treatments — your output should match or exceed this level of visual richness:\n"
+        + "\n".join(f"  - {v}" for v in vocab_parts)
+        + ("\n\nDetected primitives in references (implement these for parity):\n"
+           + "\n".join(f"  - {p}" for p in interesting_prims[:12])
+           if interesting_prims else "")
+    )
+
+    return {
+        "per_reference": per_ref,
+        "technique_frequency": dict(technique_counts.most_common()),
+        "primitive_frequency": dict(primitive_counts.most_common()),
+        "design_vocabulary": design_vocabulary,
+    }
+
+
 # ── Context system prompt ───────────────────────────────────────────────────
 
 CONTEXT_SYSTEM_PROMPT = """\
-You are a world-class frontend engineer and UI designer. You have been given \
-a set of screenshot images from real, professionally designed and award-winning \
-websites. These are your design references — they are your PRIMARY SOURCE OF \
-VISUAL TRUTH. Everything you build MUST look like it came from one of these \
-sites, not from a template or component library. Deviating from this is failure.
+You are a frontend engineer. You have reference screenshots from award-winning \
+websites. Your ONLY job is to copy them.
 
-## NON-NEGOTIABLE REQUIREMENTS
+## HOW TO WORK
 
-These are not suggestions. Every single one of these MUST be present in your output:
+1. Open every reference image with your Read tool. Study each one for
+   at least a few seconds.
+2. For each reference, extract EXACT visual parameters:
+   - Background color (sample it — is it white? cream? dark navy? what exact shade?)
+   - Border radius (0px? 4px? 8px? 16px? References often use SHARP corners.)
+   - Typography (serif? sans? condensed? what weight? what size?)
+   - Spacing (how much padding between sections? tight or airy?)
+   - Color palette (how many colors? which ones? how sparingly are they used?)
+   - Surface treatments (shadows? borders? glassmorphism? grain? gradients?)
+   - Layout (centered? asymmetric? grid? split? full-bleed?)
+3. Write a comment block documenting exactly what you found in each reference.
+4. Build a site that looks like it was MADE BY THE SAME DESIGNER who made \
+   those reference sites. Copy their decisions. If they used sharp corners, \
+   you use sharp corners. If they used a light background, you use a light \
+   background. If they used serif headings, you use serif headings.
 
-1. MINIMUM 8 DISTINCT SECTIONS per page — hero, social proof, features (varied layouts), \
-   testimonials, stats, process/how-it-works, gallery or visual showcase, CTA, footer. \
-   Each section must be visually distinct from every other section.
-2. REAL IMAGES EVERYWHERE — call superpower_images to get real Unsplash URLs. Every \
-   section that can have an image MUST have one. No colored rectangles, no gradients \
-   as image substitutes, no placeholder boxes. Real photographs only.
-3. FRAMER-MOTION ANIMATIONS on every single element — entrance animations on scroll \
-   (useInView), parallax effects (useScroll+useTransform), hover states, stagger \
-   children. Every section animates. Every interactive element has a hover effect.
-4. FULL MULTI-PAGE APP ROUTER STRUCTURE: app/page.tsx (home, 8+ sections), \
-   app/about/page.tsx, app/services/page.tsx (or domain-relevant), shared layout.tsx \
-   with Navbar and Footer. Use <Link href=...> not anchor tags.
-5. USE THE PRIMITIVES FROM THE PALETTE — the primitive selections below are MANDATORY. \
-   You MUST implement every listed primitive. Not optional, not "if it fits" — required.
-6. REALISTIC CONTENT — real company names, real product descriptions, real pricing, \
-   real testimonial quotes with full names and titles. Zero placeholder text.
-7. PROPER CENTERING AND LAYOUT — content must be horizontally centered in the viewport, \
-   use max-w-7xl mx-auto px-6 containers. No content should appear stuck to an edge \
-   unless intentionally full-bleed.
-8. NO EMOJIS — almost never use emojis anywhere in the UI. Professional websites do not \
-   use emojis in headings, body copy, buttons, or labels. Only use an emoji if you have \
-   a very specific, intentional reason and it would look genuinely wrong without one.
+The references override everything else. If a reference site uses a visual \
+pattern that contradicts your instincts — follow the reference. Your instincts \
+produce generic output. The references produce award-winning output.
 
-## Why these references matter
+Also study the reference_surface_analysis data returned with your context. \
+It tells you what CSS techniques (glassmorphism, gradients, noise textures) \
+those sites actually use in their DOM. Use the same techniques.
 
-People cannot verbally communicate the precise spacing, color palette, typography \
-hierarchy, shadow depths, border radii, gradient angles, or layout rhythm that \
-separates a world-class website from a generic one. That gap is exactly what \
-these references fill. Without them, you fall back to training data defaults — \
-and those defaults produce generic, template-looking output. The references ARE \
-the design specification. Treat them as binding.
+## STRUCTURE
 
-NOTE: The reference screenshots often show the top/hero portion of each site. \
-The full page continues below with more sections, content, and variation. \
-Extrapolate: if the hero is this polished, the full page has MORE content, \
-MORE sections, MORE visual variety. Your output must feel like a COMPLETE, \
-DENSE, CONTENT-RICH production site.
+- 8+ visually distinct sections on the home page (each one different from its neighbors)
+- Multi-page: home + pricing/about + one more page. Shared layout with nav + footer.
+- Real Unsplash images (call superpower_images 3+ times). next/image for all photos.
+- Framer-motion on every element: useInView entrance, useScroll parallax, whileHover.
+- Realistic content: real names, real prices, real testimonials, real stats.
+- No emojis.
 
-## How to study the references
+## PRIMITIVES
 
-BEFORE writing any code, write a comment block naming specific elements you are \
-taking from each reference. Format: "From ref 1: [specific layout pattern]. \
-From ref 2: [specific color treatment]. From ref 3: [specific typography choice]." \
-If you cannot name specifics, you have not studied the images — go back and look.
+The primitive palette below lists npm packages you MUST install and use. \
+Do not hand-write CSS approximations of what a package already does. \
+If the palette says "react-parallax-tilt" — npm install it and import it. \
+If it says "@paper-design/shaders-react" — npm install it and use the components.
 
-- WHAT MAKES IT FEEL EXPENSIVE? Identify the specific choices (spacing scale, \
-  border treatment, type size, whitespace density, color restraint).
-- NOTICE THE UNUSUAL CHOICES. Award-winning sites do NOT look like Bootstrap. \
-  Find what makes each reference UNIQUE and reproduce that uniqueness.
-- SPECIFIC DETAILS: border-radius values (often 0px or minimal), shadow styles \
-  (often none or barely-there), typography scale (headings often text-7xl+), \
-  color palette (often very limited — 1-2 colors used precisely).
-- WHAT'S ABSENT: great design is as much about what's NOT there.
+## TECH
 
-## BANNED PATTERNS — instant failure if used
-
-These patterns make a site look AI-generated and fake. Using any of these without \
-explicit reference support is a critical failure:
-
-- GLOWING CTA BUTTONS with box-shadow glow or gradient backgrounds
-- GRID/DOT/LINE PATTERN BACKGROUNDS
-- FAKE CODE EDITOR or TERMINAL MOCKUPS
-- IDENTICAL ROUNDED RECTANGLE CARD GRIDS (3-4 cards, same size, all rounded-xl)
-- GRADIENT TEXT on headings (background-clip: text)
-- FLOATING ORBS, BLURS, or BLOB DECORATIONS in backgrounds
-- EXCESSIVE BORDER-RADIUS (rounded-2xl, rounded-3xl on everything)
-- SHADCN/RADIX DEFAULT STYLING — component-library-looking output is failure
-- LUCIDE/HEROICONS — use @tabler/icons-react exclusively
-- "TRUSTED BY" LOGO BARS with fake logos
-- BENTO GRIDS where every cell is a rounded rectangle with a gradient
-- NEON/ELECTRIC COLOR ACCENTS on dark backgrounds (the default "dark SaaS" look)
-- SPARSE PAGES with fewer than 8 sections
-- REPEATING SECTION PATTERNS (hero → 3 features → pricing → footer, done)
-- PLACEHOLDER IMAGES — every image must be a real Unsplash URL
-
-## Design requirements
-
-### Density and richness
-- 8-15 distinct sections minimum. Dense, rich, full-page sites.
-- Every section MUST look different from the last. Vary layouts, backgrounds, \
-  typography scale, and content types aggressively. A grid section must be \
-  followed by something completely different. Dark sections alternate with light. \
-  Full-bleed alternates with contained. NEVER repeat a layout pattern.
-- Real images in every section that can take one. Call superpower_images multiple \
-  times with specific queries (hero backgrounds, team photos, product shots, \
-  textures, industry imagery). Use url_full for hero backgrounds.
-- Rich content: real stats (numbers), testimonial quotes (full name + title + \
-  company), detailed feature breakdowns, comparison tables, process steps with \
-  real descriptions.
-
-### Animation (MANDATORY — not one section can be static)
-- Import: `import { motion, useScroll, useTransform, useInView, AnimatePresence } \
-  from "framer-motion"`
-- EVERY section: wrap main content in `<motion.div>` with `useInView` trigger and \
-  `variants` for stagger. No section can be static.
-- Hero: entrance animation (fadeUp or blur-in) on every element, staggered.
-- Parallax: at least 2 sections use `useScroll + useTransform` for parallax image \
-  or text drift.
-- Hover: every card, button, link, and interactive element has `whileHover`.
-- Page transitions: `<AnimatePresence>` wrapping page content in layout.tsx.
-- Target: feels like a Framer/Webflow site. Every scroll reveals something.
-
-### Typography
-- DRAMATIC scale: hero headings text-7xl to text-9xl on desktop (lg:text-8xl). \
-  Never use text-3xl or text-4xl for a hero heading. This is the most common \
-  mistake — go bigger.
-- Weight contrast: font-light or font-thin for large display text, font-black for \
-  emphasis words, font-medium for body.
-- tracking-tighter or tracking-tight on large headings. tracking-wide or \
-  tracking-widest on small uppercase labels.
-- Mix serif and sans-serif. Use next/font/google. Options: Inter, Space Grotesk, \
-  DM Sans, Instrument Serif, Playfair Display, Libre Baskerville.
-- Break lines intentionally with <br/> for impact.
-
-### Layout and composition
-- COPY THE REFERENCES EXACTLY for layout DNA. Sharp corners in refs = sharp \
-  corners in code. Asymmetric layout in refs = asymmetric in code.
-- Mix asymmetric layouts with centered ones. Not everything is centered. Use \
-  off-grid, overlapping, and full-bleed treatments.
-- CSS Grid: span columns, vary cell sizes, overlap rows. Not uniform grids.
-- Container rhythm: alternate max-w-7xl → full-bleed → max-w-5xl. This creates \
-  visual interest across sections.
-- Sections must have proper padding: py-24 or py-32 minimum (not py-12).
-
-## MANDATORY Tech Stack
-
-- Next.js 14+ App Router + Tailwind CSS
-- `framer-motion` — ALL animations, no CSS animation fallbacks
-- `@tabler/icons-react` — ALL icons
-- `next/font/google` — typography
-- `next/image` — all images (with real Unsplash URLs from superpower_images)
-- ZERO component libraries: no ShadCN, no Radix, no Headless UI, no Lucide
-- Build every element from scratch with Tailwind utilities
-- Responsive: sm, md, lg, xl breakpoints on every layout
-
-## Content standards
-
-Real content everywhere:
-- Company/product name: invent something real-sounding, not "Acme Corp"
-- Features: specific, detailed descriptions (not "Feature 1 — Our feature does things")
-- Pricing: real tiers with real prices ($29/mo, $79/mo, $199/mo) and real feature lists
-- Testimonials: full name, job title, company, and a specific, detailed quote
-- Stats: real numbers (10,000+ customers, $2.4M saved, 99.97% uptime)
-- Never: Lorem ipsum, "Company Name", "Your Feature Here", placeholder text of any kind
-
-## Image requirements
-
-- Call superpower_images with specific, evocative queries:
-  - Hero backgrounds: "dark abstract architectural texture", "aerial city night lights"
-  - People: "professional smiling woman office", "diverse team meeting"
-  - Product: industry-specific imagery
-  - Sections: "minimal white desk workspace", "modern interior design"
-- Use `url_full` for fullscreen hero backgrounds
-- Use `url` (1080px) for cards and section images
-- Every image in a next/image component with proper width, height, alt text
-- Images MUST fill their containers properly: use `fill` prop + `object-cover` for \
-  background images, explicit dimensions for content images
-
-## Image performance (MANDATORY — slow images = failed site)
-
-- HERO / above-the-fold images: add `priority` prop to `next/image` — this injects \
-  a `<link rel="preload">` and disables lazy loading so the image loads immediately.
-- ALL other images: add `sizes` prop matching the layout, e.g. \
-  `sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"` — this tells \
-  the browser the correct render size so it fetches the smallest adequate variant.
-- BLUR PLACEHOLDER on every image: add `placeholder="blur"` + a shimmer \
-  `blurDataURL`. Use this exact shimmer helper once at the top of each file: \
-  `const shimmer = (w: number, h: number) => \`<svg width="${w}" height="${h}" \
-  xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#1a1a1a"/>\
-  </svg>\`; const toBase64 = (str: string) => typeof window === 'undefined' ? \
-  Buffer.from(str).toString('base64') : window.btoa(str);` \
-  Then on each image: `placeholder="blur" blurDataURL={\`data:image/svg+xml;\
-  base64,${toBase64(shimmer(700, 475))}\`}`
-- This prevents layout shift and gives instant visual feedback instead of blank \
-  white boxes while Unsplash CDN responds.
-
-## Final check (run before output)
-
-1. Does every section look visually different from the adjacent sections?
-2. Does every element have a framer-motion entrance/hover animation?
-3. Are there real Unsplash photos (not placeholders) in every image slot?
-4. Are there 8+ sections on the home page?
-5. Is there a multi-page structure (home + about + services/work)?
-6. Are all listed primitives implemented?
-7. Is all content realistic (no placeholder text)?
-8. Is everything properly centered with max-w containers?
-9. Do hero images have `priority` prop? Do all images have `sizes` and `placeholder="blur"` with a shimmer blurDataURL?
-If any answer is NO — fix it before outputting.
+Next.js App Router, Tailwind, framer-motion, @tabler/icons-react, next/font, \
+next/image. No ShadCN. No Lucide. Build from scratch with Tailwind.
 """
 
 
@@ -336,9 +299,16 @@ def save_reference_images(results: list[RetrievalResult]) -> list[dict]:
     in the tool response (which exceeds Claude Code's size limit), we save
     images to disk and return file paths that Claude Code can read natively
     with its Read tool (which supports vision).
+
+    Each reference now includes DOM summary data (surface_techniques,
+    detected_primitives, colors) when available.
     """
     tmp_dir = Path(tempfile.mkdtemp(prefix="superpower_refs_"))
     references = []
+
+    # Pre-load DOM summaries for all domains
+    domains = [r.domain for r in results]
+    dom_data = get_dom_summaries_for_domains(domains)
 
     for i, result in enumerate(results, 1):
         try:
@@ -347,7 +317,7 @@ def save_reference_images(results: list[RetrievalResult]) -> list[dict]:
             img_path.write_bytes(img_bytes)
 
             desc = result.descriptor
-            references.append({
+            ref_entry: dict[str, Any] = {
                 "reference_number": i,
                 "domain": result.domain,
                 "image_path": str(img_path),
@@ -358,7 +328,13 @@ def save_reference_images(results: list[RetrievalResult]) -> list[dict]:
                 "color_mode": desc.get("color_mode", ""),
                 "industry": desc.get("industry", ""),
                 "distinguishing_features": desc.get("distinguishing_features", ""),
-            })
+            }
+
+            # Include DOM summary if available
+            if result.domain in dom_data:
+                ref_entry["dom_analysis"] = dom_data[result.domain]
+
+            references.append(ref_entry)
         except Exception:
             continue
 
@@ -373,15 +349,21 @@ def build_reference_images_for_remote(
     Returns (references_meta, image_bytes_list). Unlike save_reference_images,
     this does not write to disk — image bytes are returned directly for embedding
     as MCP image content blocks.
+
+    Each reference now includes DOM summary data when available.
     """
     references = []
     image_bytes_list = []
+
+    # Pre-load DOM summaries for all domains
+    domains = [r.domain for r in results]
+    dom_data = get_dom_summaries_for_domains(domains)
 
     for i, result in enumerate(results, 1):
         try:
             img_bytes = resize_screenshot(str(result.screenshot_path), max_width=1200)
             desc = result.descriptor
-            references.append({
+            ref_entry: dict[str, Any] = {
                 "reference_number": i,
                 "domain": result.domain,
                 "similarity": round(result.similarity, 4),
@@ -391,7 +373,12 @@ def build_reference_images_for_remote(
                 "color_mode": desc.get("color_mode", ""),
                 "industry": desc.get("industry", ""),
                 "distinguishing_features": desc.get("distinguishing_features", ""),
-            })
+            }
+
+            if result.domain in dom_data:
+                ref_entry["dom_analysis"] = dom_data[result.domain]
+
+            references.append(ref_entry)
             image_bytes_list.append(img_bytes)
         except Exception:
             continue
