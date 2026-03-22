@@ -211,6 +211,222 @@ _DETECTION_JS = """
 """
 
 
+# ── Visual richness detection (injected separately) ──────────────────────
+
+_RICHNESS_JS = """
+() => {
+  const issues = [];
+  let issueId = 1;
+
+  // Helper: get all "section-level" elements (direct children of main/body, or semantic sections)
+  function getSections() {
+    const sections = [];
+    // Try semantic elements first
+    const semanticSections = document.querySelectorAll('main > section, main > div, body > section, body > div > section');
+    if (semanticSections.length >= 3) {
+      semanticSections.forEach(s => {
+        const r = s.getBoundingClientRect();
+        if (r.height > 100 && r.width > 200) sections.push(s);
+      });
+    }
+    // Fallback: direct children of main or first major container
+    if (sections.length < 3) {
+      const main = document.querySelector('main') || document.body;
+      [...main.children].forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.height > 100 && r.width > 200) sections.push(el);
+      });
+    }
+    return sections;
+  }
+
+  const sections = getSections();
+
+  sections.forEach((section, idx) => {
+    const styles = getComputedStyle(section);
+    const rect = section.getBoundingClientRect();
+    const sectionSignals = [];
+    const sectionWarnings = [];
+
+    // 1. Check background treatment
+    const bg = styles.backgroundColor;
+    const bgImage = styles.backgroundImage;
+    const hasBackgroundImage = bgImage && bgImage !== 'none';
+
+    // Rich background = gradient, mesh, aurora, image, pattern — NOT just a flat color
+    // Check both the section itself AND its children
+    const richBgPatterns = ['gradient', 'noise', 'dot-grid', 'mesh', 'aurora', 'pattern', 'backdrop-blur'];
+    const sectionClasses = section.className || '';
+    const hasSelfRichBg = richBgPatterns.some(p => sectionClasses.includes(p));
+    const hasChildRichBg = section.querySelector(
+      '[class*="gradient"], [class*="noise"], [class*="dot-grid"], [class*="mesh"], ' +
+      '[class*="aurora"], [class*="pattern"], [class*="backdrop-blur"]'
+    );
+    const hasRichBgClass = hasSelfRichBg || hasChildRichBg;
+
+    const hasImageChild = section.querySelector(
+      'img[style*="object-cover"], img[class*="object-cover"], ' +
+      '[style*="background-image"], [class*="object-cover"]'
+    );
+    // Fill images that serve as section backgrounds (not small content images)
+    const hasFillImage = section.querySelector('img[class*="object-cover"][style*="position"]') ||
+      section.querySelector('[class*="relative"] > img[class*="object-cover"]');
+
+    // Check both section itself and children for overlays
+    const overlayPatterns = ['overlay', 'noise', 'grain', 'texture'];
+    const hasSelfOverlay = overlayPatterns.some(p => sectionClasses.includes(p));
+    const hasChildOverlay = section.querySelector(
+      '[class*="overlay"], [class*="noise"], [class*="grain"], [class*="texture"]'
+    );
+    const hasOverlayChild = hasSelfOverlay || hasChildOverlay;
+
+    if (hasBackgroundImage || hasRichBgClass || hasFillImage) {
+      sectionSignals.push('has-background-treatment');
+    }
+    if (hasOverlayChild) {
+      sectionSignals.push('has-texture-overlay');
+    }
+
+    // Plain = white/near-white/transparent with no rich background treatment
+    const isNearWhite = (c) => {
+      if (!c) return true;
+      if (c === 'rgba(0, 0, 0, 0)' || c === 'transparent') return true;
+      const m = c.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (m && parseInt(m[1]) > 235 && parseInt(m[2]) > 235 && parseInt(m[3]) > 235) return true;
+      return false;
+    };
+    // Also check near-white grays like bg-slate-50 (#f8fafc = rgb(248,250,252))
+    const isPlainBackground = !hasBackgroundImage && !hasRichBgClass && !hasFillImage && isNearWhite(bg);
+    if (isPlainBackground && !hasOverlayChild) {
+      sectionWarnings.push('plain-white-background');
+    }
+
+    // 2. Check for surface depth indicators
+    const hasGlassmorphism = section.querySelector('[class*="glass"], [class*="backdrop-blur"], [style*="backdrop-filter"]');
+    const hasShadow = styles.boxShadow && styles.boxShadow !== 'none';
+    const childrenWithShadow = section.querySelectorAll('[class*="shadow"]').length;
+    const hasSpotlight = section.querySelector('[class*="spotlight"], [class*="hover-card"]');
+    const hasBorder = section.querySelector('[class*="border-"]');
+
+    if (hasGlassmorphism) sectionSignals.push('glassmorphism');
+    if (hasShadow || childrenWithShadow > 0) sectionSignals.push('shadow-depth');
+    if (hasSpotlight) sectionSignals.push('spotlight-effect');
+    if (hasBorder) sectionSignals.push('border-treatment');
+
+    // 3. Check typography scale
+    const headings = section.querySelectorAll('h1, h2, h3');
+    let maxFontSize = 0;
+    headings.forEach(h => {
+      const fs = parseFloat(getComputedStyle(h).fontSize);
+      if (fs > maxFontSize) maxFontSize = fs;
+    });
+    if (maxFontSize >= 48) sectionSignals.push('large-typography');
+    if (maxFontSize > 0 && maxFontSize < 28) sectionWarnings.push('small-headings');
+
+    // 4. Check for animation attributes (framer-motion, CSS animations)
+    const hasMotion = section.querySelector('[style*="transform"], [style*="opacity"], [class*="motion"], [data-framer], [class*="animate"]');
+    const hasTransition = section.querySelector('[class*="transition"]');
+    if (hasMotion || hasTransition) sectionSignals.push('has-animation');
+
+    // 5. Check for images with visual treatment
+    const images = section.querySelectorAll('img');
+    const hasImages = images.length > 0;
+    if (hasImages) sectionSignals.push('has-images');
+    const hasImageTreatment = section.querySelector('[class*="grain"], [class*="duotone"], [class*="filter"], [class*="image-grain"]');
+    if (hasImageTreatment) sectionSignals.push('image-visual-treatment');
+
+    // 6. Check color diversity within section
+    const colorElements = section.querySelectorAll('[class*="text-"], [class*="bg-"]');
+    const uniqueColors = new Set();
+    colorElements.forEach(el => {
+      const c = getComputedStyle(el).color;
+      if (c) uniqueColors.add(c);
+    });
+    if (uniqueColors.size >= 3) sectionSignals.push('color-diversity');
+
+    // 7. Layout complexity
+    const hasGrid = section.querySelector('[class*="grid"]');
+    const hasFlex = section.querySelector('[class*="flex"]');
+    const hasAsymmetric = section.querySelector('[class*="col-span-2"], [class*="col-span-3"], [class*="row-span"]');
+    if (hasGrid) sectionSignals.push('uses-grid');
+    if (hasAsymmetric) sectionSignals.push('asymmetric-layout');
+
+    // Compute richness score (0-10)
+    // Subtle treatments (noise, dot-grid alone) count as partial credit
+    const subtleOnlySignals = ['has-texture-overlay', 'border-treatment', 'has-animation', 'uses-grid'];
+    const strongSignals = sectionSignals.filter(s => !subtleOnlySignals.includes(s));
+    const richnessScore = Math.min(10, strongSignals.length * 2 + (sectionSignals.length - strongSignals.length));
+
+    // Template-grade: low richness OR only subtle/structural signals (no bold visual investment)
+    const isTemplateGrade = richnessScore <= 3 || (strongSignals.length <= 1 && sectionWarnings.length > 0);
+
+    if (isTemplateGrade) {
+      issues.push({
+        id: issueId++,
+        type: 'low_visual_richness',
+        severity: richnessScore <= 1 ? 'high' : 'medium',
+        section_index: idx + 1,
+        element: {
+          selector: section.tagName.toLowerCase() + (section.className ? '.' + [...section.classList].slice(0, 2).join('.') : ''),
+          rect: {
+            top: Math.round(rect.top),
+            left: Math.round(rect.left),
+            bottom: Math.round(rect.bottom),
+            right: Math.round(rect.right),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+          },
+          tag: section.tagName.toLowerCase(),
+        },
+        richness_score: richnessScore,
+        signals_present: sectionSignals,
+        warnings: sectionWarnings,
+        intentionality_score: 0.1,
+        note: `Section ${idx + 1} has richness score ${richnessScore}/10 with ${sectionWarnings.length} warning(s): ${sectionWarnings.join(', ') || 'none'}. ` +
+              `This section looks template-grade. Add background treatments (gradient, noise, texture), ` +
+              `surface depth (glassmorphism, shadows, spotlight), or visual effects.`,
+      });
+    }
+  });
+
+  // Overall page richness — count sections with REAL visual treatments
+  let sectionsWithBg = 0;
+  const treatmentPatterns = ['gradient', 'noise', 'mesh', 'aurora', 'backdrop-blur', 'pattern', 'dot-grid'];
+  sections.forEach(s => {
+    const sClasses = s.className || '';
+    const hasSelfTreatment = treatmentPatterns.some(p => sClasses.includes(p));
+    const hasChildTreatment = s.querySelector(
+      '[class*="gradient"], [class*="noise"], [class*="mesh"], [class*="aurora"], ' +
+      '[class*="backdrop-blur"], [class*="pattern"], [class*="dot-grid"]'
+    );
+    const hasBgImage = getComputedStyle(s).backgroundImage !== 'none';
+    const hasFillImg = s.querySelector('img[class*="object-cover"]');
+    const bgColor = getComputedStyle(s).backgroundColor;
+    // Dark sections count as treated (bg-slate-900 etc)
+    const m = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+    const isDark = m && parseInt(m[1]) < 60 && parseInt(m[2]) < 60 && parseInt(m[3]) < 60;
+    if (hasSelfTreatment || hasChildTreatment || hasBgImage || hasFillImg || isDark) sectionsWithBg++;
+  });
+  if (sections.length > 0 && sectionsWithBg / sections.length < 0.3) {
+    issues.push({
+      id: issueId++,
+      type: 'page_visual_monotony',
+      severity: 'high',
+      element: { selector: 'body', tag: 'body', rect: { top: 0, left: 0, bottom: 0, right: 0, width: 0, height: 0 } },
+      intentionality_score: 0.05,
+      note: `Only ${sectionsWithBg}/${sections.length} sections have background treatments. ` +
+            `The page will look flat and monotonous. Award-winning sites alternate between ` +
+            `different background treatments (gradient, texture, dark/light, image) across sections.`,
+      sections_total: sections.length,
+      sections_with_background: sectionsWithBg,
+    });
+  }
+
+  return issues;
+}
+"""
+
+
 # ── Annotation script (injected after detection) ─────────────────────────
 
 _ANNOTATE_JS = """
@@ -285,6 +501,32 @@ def _severity_order(issue: dict) -> int:
     return {"high": 0, "medium": 1, "low": 2}.get(issue.get("severity", "low"), 3)
 
 
+def _compact_issues(issues: list[dict], max_issues: int = 30) -> list[dict]:
+    """Strip verbose data from issues and cap total count for payload size."""
+    compact = []
+    for issue in issues[:max_issues]:
+        entry = {
+            "id": issue.get("id"),
+            "type": issue.get("type"),
+            "severity": issue.get("severity"),
+            "intentionality_score": issue.get("intentionality_score"),
+            "note": issue.get("note", "")[:200],
+        }
+        # Include section_index for richness issues
+        if "section_index" in issue:
+            entry["section_index"] = issue["section_index"]
+        if "richness_score" in issue:
+            entry["richness_score"] = issue["richness_score"]
+        if "signals_present" in issue:
+            entry["signals_present"] = issue["signals_present"]
+        compact.append(entry)
+    if len(issues) > max_issues:
+        compact.append({
+            "note": f"... and {len(issues) - max_issues} more issues (showing top {max_issues} by severity)"
+        })
+    return compact
+
+
 def _deduplicate(issues: list[dict]) -> list[dict]:
     """Remove near-duplicate issues (same type + same selector pair)."""
     seen: set[frozenset] = set()
@@ -353,8 +595,12 @@ def check_layout(
         page.evaluate("window.scrollTo(0, 0)")
         page.wait_for_timeout(100)
 
-        # Run detection
+        # Run layout detection
         raw_issues: list[dict] = page.evaluate(_DETECTION_JS)
+
+        # Run visual richness detection
+        richness_issues: list[dict] = page.evaluate(_RICHNESS_JS)
+        raw_issues.extend(richness_issues)
 
         # Deduplicate and sort
         issues = _deduplicate(raw_issues)
@@ -385,6 +631,10 @@ def check_layout(
     for issue in issues:
         by_type[issue["type"]] = by_type.get(issue["type"], 0) + 1
 
+    # Separate layout issues from richness issues for clearer reporting
+    layout_issues = [i for i in issues if i["type"] not in ("low_visual_richness", "page_visual_monotony")]
+    richness_issues_found = [i for i in issues if i["type"] in ("low_visual_richness", "page_visual_monotony")]
+
     summary_lines = [
         f"Layout check: {url} @ {viewport_width}px",
         f"Found {len(issues)} issue(s): {len(high)} high, {len(medium)} medium, {len(low)} low",
@@ -392,7 +642,10 @@ def check_layout(
     if issues:
         summary_lines.append("Issues by type: " + ", ".join(f"{t}×{n}" for t, n in by_type.items()))
         summary_lines.append("")
-        for issue in issues:
+
+        if layout_issues:
+            summary_lines.append("── LAYOUT ISSUES ──")
+        for issue in layout_issues:
             itype = issue["type"].replace("_", " ")
             sev   = issue.get("severity", "?").upper()
             note  = issue.get("note", "")
@@ -403,13 +656,26 @@ def check_layout(
             elif "element" in issue and isinstance(issue["element"], dict):
                 sel = issue["element"].get("selector", "?")
                 summary_lines.append(f"[{sev}] #{issue['id']} {itype}: {sel!r} — {note}")
+
+        if richness_issues_found:
+            summary_lines.append("")
+            summary_lines.append("── VISUAL RICHNESS ISSUES ──")
+            summary_lines.append(
+                "These sections look template-grade — they lack the visual depth "
+                "and surface treatments that award-winning sites use. Fix these "
+                "to match your reference quality."
+            )
+            for issue in richness_issues_found:
+                sev = issue.get("severity", "?").upper()
+                note = issue.get("note", "")
+                summary_lines.append(f"[{sev}] #{issue['id']} — {note}")
     else:
-        summary_lines.append("No layout issues detected.")
+        summary_lines.append("No layout or visual richness issues detected.")
 
     return {
         "url": url,
         "viewport_width": viewport_width,
-        "issues": issues,
+        "issues": _compact_issues(issues),
         "screenshot_path": str(screenshot_path),
         "summary": "\n".join(summary_lines),
         "stats": {
