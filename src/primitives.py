@@ -389,7 +389,61 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
         "them in unexpected ways — but every one must be present and visible."
     )
 
+    # Generate ready-to-paste npm install command and import statements
     providers = bundle.get("selected_providers", {})
+    installable_packages: list[str] = []
+    import_lines: list[str] = []
+    _skip_packages = {"native-css", "native-svg", "native", "native-css-grid",
+                      "native + framer-motion", "native-css + framer-motion",
+                      "framer-motion or native", "pattern-reference", "http api",
+                      "tailwind", "next"}
+    _import_map = {
+        "framer-motion": 'import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion"',
+        "@tabler/icons-react": 'import { IconArrowRight, IconCheck } from "@tabler/icons-react"',
+        "class-variance-authority": 'import { cva, type VariantProps } from "class-variance-authority"',
+        "react-parallax-tilt": 'import Tilt from "react-parallax-tilt"',
+        "react-countup": 'import CountUp from "react-countup"',
+        "react-type-animation": 'import { TypeAnimation } from "react-type-animation"',
+        "recharts": 'import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"',
+        "@paper-design/shaders-react": 'import { GrainGradient, MeshGradient } from "@paper-design/shaders-react"',
+        "lenis": 'import Lenis from "lenis"',
+        "react-awesome-reveal": 'import { Fade, Slide } from "react-awesome-reveal"',
+        "split-type": 'import SplitType from "split-type"',
+        "@formkit/auto-animate": 'import { useAutoAnimate } from "@formkit/auto-animate/react"',
+        "react-progressive-blur": 'import { ProgressiveBlur } from "react-progressive-blur"',
+        "sonner": 'import { toast } from "sonner"',
+        "react-fast-marquee": 'import Marquee from "react-fast-marquee"',
+        "shiki": '// Use shiki for syntax highlighting (see shiki docs for setup)',
+        "@nivo/core": 'import { ResponsiveLine } from "@nivo/line"',
+        "react-loading-skeleton": 'import Skeleton from "react-loading-skeleton"',
+    }
+
+    seen_packages: set[str] = set()
+    for provider in providers.values():
+        pkg = provider.get("package", "")
+        # Handle composite packages like "@paper-design/shaders-react OR native-css"
+        # and "react-hook-form + zod + @hookform/resolvers"
+        for p in pkg.replace(" OR ", "|").replace(" + ", "|").split("|"):
+            p = p.strip()
+            if p and p.lower() not in _skip_packages and p not in seen_packages and not p.startswith("@radix"):
+                seen_packages.add(p)
+                installable_packages.append(p)
+                if p in _import_map:
+                    import_lines.append(_import_map[p])
+
+    # Also add framer-motion always (core requirement)
+    if "framer-motion" not in seen_packages:
+        installable_packages.insert(0, "framer-motion")
+        import_lines.insert(0, _import_map["framer-motion"])
+        seen_packages.add("framer-motion")
+
+    if installable_packages:
+        lines.append(f"\n## INSTALL COMMAND — run this FIRST, before writing any code:")
+        lines.append(f"npm install {' '.join(installable_packages)}")
+        lines.append("")
+        lines.append("## IMPORT STATEMENTS — copy these into your components:")
+        lines.extend(import_lines)
+        lines.append("")
     for category in _ALL_PROVIDER_CATEGORIES:
         provider = providers.get(category)
         if provider:
@@ -397,11 +451,18 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
 
     font_pair = bundle.get("font_pair") or {}
     if font_pair:
+        display_font = font_pair.get('display', 'Inter')
+        body_font = font_pair.get('body', 'Inter')
         note = font_pair.get("usage_note", "")
+        # Generate the exact next/font/google import
+        display_import = display_font.replace(' ', '_')
+        body_import = body_font.replace(' ', '_')
         lines.append(
-            f"- [fonts] MANDATORY: {font_pair.get('display', 'N/A')} (display) + "
-            f"{font_pair.get('body', 'N/A')} (body)"
+            f"- [fonts] MANDATORY: {display_font} (display) + {body_font} (body)"
             + (f" — {note}" if note else "")
+        )
+        lines.append(
+            f"  Import: import {{ {display_import}, {body_import} }} from 'next/font/google'"
         )
 
     archetype = bundle.get("variation_archetype") or {}
