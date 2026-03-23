@@ -147,8 +147,22 @@ def _score_provider(provider: dict[str, Any], tags: set[str]) -> float:
     return base + gains - penalties
 
 
+_ALWAYS_INCLUDE_CATEGORIES = frozenset({
+    "icons", "animation", "scroll", "fonts", "images", "image-optimization",
+    "buttons", "layout", "surface", "background", "image-effects",
+    "text-effects", "marquee", "theming",
+})
+"""Categories that are relevant to virtually every marketing site."""
+
+
 def select_providers(tags: set[str], registry: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    """Pick best provider per category using weighted tags."""
+    """Pick best provider per RELEVANT category using weighted tags.
+
+    Only includes a category if:
+    - It's in the always-include set (core visual categories), OR
+    - The best provider in that category has at least one tag match
+      (meaning the site actually needs that kind of primitive)
+    """
     selected: dict[str, dict[str, Any]] = {}
 
     by_category: dict[str, list[dict[str, Any]]] = {}
@@ -157,8 +171,21 @@ def select_providers(tags: set[str], registry: dict[str, Any]) -> dict[str, dict
 
     for category, providers in by_category.items():
         ranked = sorted(providers, key=lambda p: _score_provider(p, tags), reverse=True)
-        if ranked:
-            selected[category] = ranked[0]
+        if not ranked:
+            continue
+        best = ranked[0]
+
+        # Always include core visual categories
+        if category in _ALWAYS_INCLUDE_CATEGORIES:
+            selected[category] = best
+            continue
+
+        # For optional categories, only include if the best provider
+        # has at least one tag match (score > base score)
+        base = float(best.get("score", 0))
+        actual = _score_provider(best, tags)
+        if actual > base:  # Has at least one tag match
+            selected[category] = best
 
     return selected
 
@@ -169,10 +196,15 @@ def choose_font_pair(tags: set[str], registry: dict[str, Any]) -> dict[str, Any]
     if not pairs:
         return {}
 
+    # Don't let 'default' bias font selection — it matches everything
+    font_tags = tags - {"default"}
+
     def pair_score(pair: dict[str, Any]) -> float:
         score = 0.0
         for tone in pair.get("tone", []):
-            if _safe_slug(tone) in tags:
+            if tone == "default":
+                continue  # Skip 'default' tone — it's not a real signal
+            if _safe_slug(tone) in font_tags:
                 score += 1.0
         if "editorial" in tags and pair.get("contrast") == "high":
             score += 0.5
