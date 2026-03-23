@@ -158,20 +158,28 @@ def _composite_score(
 ) -> float:
     """Compute a weighted composite retrieval score for a candidate entry.
 
+    CLIP visual similarity is the dominant signal (75%). The references should
+    look like what the user described, not just match an industry taxonomy.
+    Quality is the secondary signal (15%) to surface well-designed sites.
+    Industry and color are minor tiebreakers (10% combined).
+
     Weights:
-      0.45 — CLIP vector similarity       (visual style match)
-      0.25 — Industry match score         (exact=1.0, same group=0.5, miss=0.0, no intent=0.5)
-      0.15 — Industry×style profile match (exact=1.0, miss=0.0, no intent=0.5)
-      0.10 — Quality score normalized     (1-5 → 0.0-1.0)
-      0.05 — Color mode match             (exact=1.0, miss=0.0, no preference=0.5)
+      0.75 — CLIP vector similarity       (visual match — the primary signal)
+      0.15 — Quality score normalized     (1-5 → 0.0-1.0)
+      0.05 — Industry match score         (tiebreaker only)
+      0.05 — Color mode match             (tiebreaker only)
     """
-    # 1. Vector similarity (clamped 0-1)
+    # 1. Vector similarity (clamped 0-1) — PRIMARY SIGNAL
     vsim = max(0.0, min(1.0, vector_sim))
 
-    # 2. Industry match
+    # 2. Quality normalized (1→0.0, 5→1.0)
+    raw_quality = candidate.get("quality_score") or 1
+    quality_score = (max(1, min(5, int(raw_quality))) - 1) / 4.0
+
+    # 3. Industry match (minor tiebreaker)
     c_industry = candidate.get("industry") or ""
     if not intent.industry:
-        industry_score = 0.5  # neutral — no preference expressed
+        industry_score = 0.5
     elif c_industry == intent.industry:
         industry_score = 1.0
     elif c_industry and _same_industry_group(c_industry, intent.industry, groups):
@@ -179,20 +187,7 @@ def _composite_score(
     else:
         industry_score = 0.0
 
-    # 3. Industry×style profile match
-    c_profile = candidate.get("industry_style_profile") or ""
-    if not intent.industry_style_profile:
-        profile_score = 0.5  # neutral
-    elif c_profile == intent.industry_style_profile:
-        profile_score = 1.0
-    else:
-        profile_score = 0.0
-
-    # 4. Quality normalized (1→0.0, 5→1.0)
-    raw_quality = candidate.get("quality_score") or 1
-    quality_score = (max(1, min(5, int(raw_quality))) - 1) / 4.0
-
-    # 5. Color mode match
+    # 4. Color mode match (minor tiebreaker)
     c_color = candidate.get("color_mode") or ""
     if not intent.color_preference:
         color_score = 0.5
@@ -202,10 +197,9 @@ def _composite_score(
         color_score = 0.0
 
     return (
-        0.45 * vsim
-        + 0.25 * industry_score
-        + 0.15 * profile_score
-        + 0.10 * quality_score
+        0.75 * vsim
+        + 0.15 * quality_score
+        + 0.05 * industry_score
         + 0.05 * color_score
     )
 
@@ -213,32 +207,17 @@ def _composite_score(
 # ── Metadata filter ────────────────────────────────────────────────────────
 
 def metadata_filter(catalog: list[dict[str, Any]], intent: UserIntent) -> list[dict[str, Any]]:
-    """Filter catalog to a manageable candidate set for scoring.
+    """Minimal filter — only remove very low quality sites.
 
-    Applies only functional/objective filters (page_type, quality floor, color mode).
-    Industry matching is intentionally handled by composite scoring, not here, so
-    that related-industry results are not hard-excluded.
+    The old version filtered by page_type and color_mode, which threw away
+    good visual matches. Now we let CLIP do the finding and only remove
+    sites with quality < 3 (if there are enough remaining).
     """
-    candidates = catalog
-
-    # page_type filter (exact functional match)
-    if intent.page_type:
-        filtered = [c for c in candidates if c.get("page_type") == intent.page_type]
-        if len(filtered) >= 10:
-            candidates = filtered
-
-    # Quality floor: prefer quality >= 3; fall through to all if not enough
-    filtered = [c for c in candidates if c.get("quality_score", 0) >= 3]
-    if len(filtered) >= 10:
-        candidates = filtered
-
-    # Color mode filter (optional soft pass — only applied if enough results remain)
-    if intent.color_preference:
-        filtered = [c for c in candidates if c.get("color_mode") == intent.color_preference]
-        if len(filtered) >= 5:
-            candidates = filtered
-
-    return candidates
+    # Quality floor only — let CLIP handle everything else
+    filtered = [c for c in catalog if c.get("quality_score", 0) >= 3]
+    if len(filtered) >= 20:
+        return filtered
+    return catalog
 
 
 # ── Vector similarity ───────────────────────────────────────────────────────
@@ -299,27 +278,21 @@ def vector_search(
 # ── Query building ─────────────────────────────────────────────────────────
 
 def _build_visual_query(prompt: str, intent: UserIntent) -> str:
-    """Build a CLIP-optimized query using visual style terms, not domain nouns.
+    """Build a CLIP-optimized query combining the user's prompt with visual signals.
 
-    CLIP's text encoder has strong visual grounding for style descriptors ("minimal",
-    "dark", "editorial") but weak grounding for industry nouns ("aerospace",
-    "fintech"). Stripping domain terms and querying on style keywords alone yields
-    more visually relevant results.
+    Uses the full prompt as the base (CLIP understands visual descriptions like
+    "light theme sharp modern") and appends extracted style signals for reinforcement.
+    This is better than stripping domain terms, because the user's prompt often
+    contains the most important visual intent ("light themed, sharp, modern").
     """
-    parts: list[str] = []
+    parts: list[str] = [prompt[:200]]  # Use the full prompt (capped for CLIP token limit)
     if intent.style_keywords:
         parts.extend(intent.style_keywords)
     if intent.color_preference:
         parts.append(intent.color_preference)
-    if intent.page_type:
-        parts.append(intent.page_type.replace("_", " "))
-    # brand_tier carries some visual signal (e.g. "startup modern" → bold, gradient)
     if intent.brand_tier and intent.brand_tier != "unknown":
         parts.append(intent.brand_tier.replace("_", " "))
-    # Need at least two visual signals to be meaningful; else fall back to full prompt.
-    if len(parts) >= 2:
-        return " ".join(parts)
-    return prompt
+    return " ".join(parts)
 
 
 # ── Coverage reporting ─────────────────────────────────────────────────────

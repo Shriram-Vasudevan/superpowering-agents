@@ -32,6 +32,110 @@ from src.variation import (
 )
 
 
+# ── Vision-based reference analysis ────────────────────────────────────────
+
+_REFERENCE_ANALYSIS_PROMPT = """\
+You are analyzing a screenshot of an award-winning website. Extract the EXACT visual parameters as structured data. Be extremely specific — no vague descriptions.
+
+Return a JSON object with these fields:
+{
+  "background": "exact color (e.g. '#ffffff', 'cream #faf9f6', 'dark navy #0f172a')",
+  "border_radius": "exact px value used on cards/containers (e.g. '0px', '4px', '8px', '16px')",
+  "heading_font": "serif or sans-serif, weight (e.g. 'sans-serif, bold, condensed')",
+  "heading_size_estimate": "approximate px size of largest heading (e.g. '72px', '96px')",
+  "body_font": "serif or sans-serif (e.g. 'sans-serif, regular weight')",
+  "color_palette": "list the 2-3 main colors and how they're used (e.g. 'charcoal #1a1a2e for text, teal #0d9488 on CTA button only, light gray #f1f5f9 for card backgrounds')",
+  "color_count": "how many distinct accent colors (usually 1-2)",
+  "layout_style": "describe the layout (e.g. 'asymmetric 60/40 split', 'centered single column', 'full-bleed image with overlay text')",
+  "card_style": "how cards/containers look (e.g. '1px border #e2e8f0, no shadow, no radius', 'subtle shadow, 4px radius', 'no cards — just text sections')",
+  "whitespace": "tight/moderate/generous spacing between sections",
+  "overall_feel": "2-3 word description (e.g. 'sharp corporate minimal', 'editorial magazine', 'bold experimental')",
+  "notable_techniques": "any special visual techniques (e.g. 'grain texture overlay', 'glassmorphism on navbar', 'oversized serif numbers as decoration')"
+}
+
+IMPORTANT: Be precise about border-radius. Most award-winning sites use SHARP corners (0-4px) or very subtle rounding (6-8px). If you see rounded-xl (16px+) corners, say so — but it's uncommon in high-quality design.
+
+Return ONLY the JSON object, no markdown formatting."""
+
+
+def analyze_reference_screenshot(image_bytes: bytes, domain: str) -> dict[str, str] | None:
+    """Use Claude vision to extract structured design parameters from a reference screenshot.
+
+    Returns a dict of CSS-level visual parameters, or None if analysis fails.
+    """
+    if not settings.anthropic_api_key:
+        return None
+
+    try:
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+
+        img_b64 = base64.b64encode(image_bytes).decode("utf-8")
+
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=600,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/jpeg",
+                                "data": img_b64,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "text": _REFERENCE_ANALYSIS_PROMPT,
+                        },
+                    ],
+                }
+            ],
+        )
+
+        text = response.content[0].text.strip()
+        # Strip markdown code fences if present
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3].strip()
+        if text.startswith("json"):
+            text = text[4:].strip()
+
+        return _json.loads(text)
+    except Exception:
+        return None
+
+
+def analyze_all_references(results: list[RetrievalResult]) -> list[dict[str, Any]]:
+    """Analyze all reference screenshots with vision and return structured design specs.
+
+    Returns a list of dicts, each containing the domain and extracted visual parameters.
+    Falls back gracefully if the API key is missing or any analysis fails.
+    """
+    if not settings.anthropic_api_key:
+        return []
+
+    analyses: list[dict[str, Any]] = []
+    for result in results:
+        try:
+            img_bytes = resize_screenshot(str(result.screenshot_path), max_width=1200)
+            spec = analyze_reference_screenshot(img_bytes, result.domain)
+            if spec:
+                analyses.append({
+                    "domain": result.domain,
+                    "visual_spec": spec,
+                })
+        except Exception:
+            continue
+
+    return analyses
+
+
 # ── DOM summary helpers ────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
@@ -142,55 +246,110 @@ def build_reference_surface_analysis(
 # ── Context system prompt ───────────────────────────────────────────────────
 
 CONTEXT_SYSTEM_PROMPT = """\
-You are a frontend engineer. You have reference screenshots from award-winning \
-websites. Your ONLY job is to copy them.
+## YOUR ONE JOB: COPY THE REFERENCE IMAGES
 
-## HOW TO WORK
+You have screenshots from award-winning websites. COPY THEM. Not "inspired by." \
+Not "similar to." COPY. If the reference has a white background, yours is white. \
+If it has 0px border-radius, yours is 0px. If it uses a serif heading at 80px, \
+yours uses a serif heading at 80px. Your instincts are WRONG — they produce the \
+same generic AI output every time. The references are RIGHT. Copy them.
 
-1. Open every reference image with your Read tool. Study each one for
-   at least a few seconds.
-2. For each reference, extract EXACT visual parameters:
-   - Background color (sample it — is it white? cream? dark navy? what exact shade?)
-   - Border radius (0px? 4px? 8px? 16px? References often use SHARP corners.)
-   - Typography (serif? sans? condensed? what weight? what size?)
-   - Spacing (how much padding between sections? tight or airy?)
-   - Color palette (how many colors? which ones? how sparingly are they used?)
-   - Surface treatments (shadows? borders? glassmorphism? grain? gradients?)
-   - Layout (centered? asymmetric? grid? split? full-bleed?)
-3. Write a comment block documenting exactly what you found in each reference.
-4. Build a site that looks like it was MADE BY THE SAME DESIGNER who made \
-   those reference sites. Copy their decisions. If they used sharp corners, \
-   you use sharp corners. If they used a light background, you use a light \
-   background. If they used serif headings, you use serif headings.
+## MANDATORY PROCESS — YOU MUST USE SUB-AGENTS TO REVIEW YOUR WORK
 
-The references override everything else. If a reference site uses a visual \
-pattern that contradicts your instincts — follow the reference. Your instincts \
-produce generic output. The references produce award-winning output.
+After EACH major step, spin up a sub-agent (using the Agent tool) to audit:
 
-Also study the reference_surface_analysis data returned with your context. \
-It tells you what CSS techniques (glassmorphism, gradients, noise textures) \
-those sites actually use in their DOM. Use the same techniques.
+REVIEW CHECKPOINT 1 — after studying references, before selecting primitives:
+  Sub-agent prompt: "Read these reference images: [paths]. List the exact \
+  background color, border-radius, typography (font family, weight, size), \
+  color palette, and layout pattern of each. Does the plan match these? \
+  If any element uses rounded-xl, gradient backgrounds, or dark-mode-with- \
+  neon-accent, flag it as WRONG — that is AI-generated slop, not what the \
+  references show."
+
+REVIEW CHECKPOINT 2 — after writing code, before finishing:
+  Sub-agent prompt: "Read these files: [all tsx files]. Check: \
+  1. Are the npm packages from the primitive selection actually imported? \
+     (not hand-rolled CSS doing the same thing) \
+  2. Do the colors/typography/border-radius match the reference images? \
+  3. Are there 8+ sections, all visually different? \
+  4. Are real Unsplash image URLs used (not placeholder)? \
+  5. Is there more than one page (home + pricing/about)? \
+  6. Flag ANY of these: rounded-xl cards, gradient text on full headings, \
+     aurora/blob CSS keyframes, uniform dark bg + neon accent. These are \
+     AI slop patterns. They must be replaced with what the references show."
+
+If any review fails — FIX IT before outputting. Do not skip reviews.
+
+## WHAT TO COPY — USE THE reference_visual_specs
+
+The reference_visual_specs field contains EXACT CSS parameters extracted from \
+each reference screenshot by vision analysis. These are your design spec:
+- background color → use that exact color
+- border_radius → use that exact value (usually 0-4px, NOT rounded-xl)
+- heading_font, heading_size_estimate → match the font style and scale
+- color_palette → use those exact colors, that sparingly
+- layout_style → copy that layout pattern
+- card_style → copy that card treatment
+
+Also open the reference images with your Read tool to see details the \
+structured spec might miss. For each one, extract:
+
+  BACKGROUND: What exact color? White (#fff)? Cream? Light gray? Dark navy? \
+              Is it a photo? A gradient? What kind of gradient (not aurora blobs)?
+  CORNERS:    What border-radius? Award-winning sites mostly use SHARP (0-4px) \
+              or VERY subtle (6-8px). Almost never rounded-xl or rounded-2xl.
+  TYPE:       Serif or sans? Condensed or extended? What weight? What size for \
+              hero headings? (Usually MASSIVE — 64px-96px+, often with mixed weights \
+              like thin+black in the same heading.)
+  COLOR:      How many colors? (Usually 1-2, used VERY sparingly.) What are they? \
+              Not purple+cyan+green — real sites use restraint.
+  LAYOUT:     Centered? Asymmetric? Split? Full-bleed images? Magazine-style? \
+              How much whitespace? (Award-winning sites are often either very \
+              dense or use whitespace DRAMATICALLY — not the boring middle ground.)
+  SURFACES:   How do cards look? (Thin 1px borders? No borders? Subtle shadows? \
+              Frosted glass? NOT thick rounded borders with gradient backgrounds.)
+
+Write a comment block documenting EVERY finding. Then build to match.
+
+## ENTROPY — SURPRISE YOURSELF
+
+Do NOT fall into the same layout pattern for every section. Each section must \
+make you think "how is THIS section different from the one above it?" Look at \
+what your reference images do — they never repeat the same layout twice. \
+Examples of variation (not exhaustive — invent your own based on the references):
+- Split layouts, asymmetric grids, full-bleed photography, oversized type as \
+  design element, editorial magazine layouts, data-dense comparison tables, \
+  single-image-and-one-line sections, sections with zero cards at all.
+
+If every section follows "label → heading → paragraph → card grid" you failed. \
+The references show you what variety looks like. Copy their variety.
+
+## PRIMITIVES — USE THE PACKAGES, NOT HAND-ROLLED CSS
+
+The primitive palette below lists npm packages. npm install them. import them. \
+Use them. If the palette says "@paper-design/shaders-react" and you write CSS \
+@keyframes instead — that is a failure. The packages exist because they produce \
+better results than hand-written CSS. Trust them.
+
+You are NOT ALLOWED to use any visual technique that isn't from the primitive \
+palette or directly copied from a reference image. No improvising. No "I'll add \
+a nice gradient here." If it's not in the references and not in the primitives, \
+don't use it.
 
 ## STRUCTURE
 
-- 8+ visually distinct sections on the home page (each one different from its neighbors)
-- Multi-page: home + pricing/about + one more page. Shared layout with nav + footer.
-- Real Unsplash images (call superpower_images 3+ times). next/image for all photos.
-- Framer-motion on every element: useInView entrance, useScroll parallax, whileHover.
-- Realistic content: real names, real prices, real testimonials, real stats.
-- No emojis.
-
-## PRIMITIVES
-
-The primitive palette below lists npm packages you MUST install and use. \
-Do not hand-write CSS approximations of what a package already does. \
-If the palette says "react-parallax-tilt" — npm install it and import it. \
-If it says "@paper-design/shaders-react" — npm install it and use the components.
+- 8+ visually distinct sections. Each one DIFFERENT from its neighbors.
+- Multi-page: home + at least 2 more pages (pricing, about, etc). ALL fully built.
+- Real Unsplash images via superpower_images (call 3+ times). next/image for all.
+- Framer-motion: useInView entrance on every section, useScroll parallax on 2+, \
+  whileHover on all interactive elements.
+- Real content: real names, prices, testimonials (name + title + company), stats.
+- No emojis. Pages scroll to top on navigation.
 
 ## TECH
 
-Next.js App Router, Tailwind, framer-motion, @tabler/icons-react, next/font, \
-next/image. No ShadCN. No Lucide. Build from scratch with Tailwind.
+Next.js App Router, Tailwind CSS, framer-motion, @tabler/icons-react, \
+next/font/google, next/image. No ShadCN. No Lucide. No component libraries.
 """
 
 

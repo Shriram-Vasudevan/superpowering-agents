@@ -21,6 +21,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from src.pipeline import (
+    analyze_all_references,
     build_context_system_prompt,
     build_reference_images_for_remote,
     build_reference_surface_analysis,
@@ -225,6 +226,11 @@ def superpower_context(
     ref_domains = [r.domain for r in results]
     surface_analysis = build_reference_surface_analysis(ref_domains)
 
+    # Vision-based reference analysis: extract structured CSS parameters from screenshots
+    # This is the key insight — text-based visual specs get followed 100% of the time,
+    # while image-based references get ignored. So we convert images → text specs.
+    vision_specs = analyze_all_references(results)
+
     if _remote_mode:
         references, image_bytes_list = build_reference_images_for_remote(results)
         payload = {
@@ -233,6 +239,7 @@ def superpower_context(
             "corpus_coverage": corpus_coverage,
             "num_references": len(references),
             "references": references,
+            "reference_visual_specs": vision_specs,
             "reference_surface_analysis": surface_analysis,
             "primitives": primitive_bundle,
             "instructions": instructions,
@@ -249,6 +256,7 @@ def superpower_context(
         "corpus_coverage": corpus_coverage,
         "num_references": len(references),
         "references": references,
+        "reference_visual_specs": vision_specs,
         "reference_surface_analysis": surface_analysis,
         "primitives": primitive_bundle,
         "instructions": instructions,
