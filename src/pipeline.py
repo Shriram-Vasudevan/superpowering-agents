@@ -350,6 +350,22 @@ don't use it.
 
 Next.js App Router, Tailwind CSS, framer-motion, @tabler/icons-react, \
 next/font/google, next/image. No ShadCN. No Lucide. No component libraries.
+
+IMPORTANT: If using Node.js 25, framer-motion SSR will crash with \
+"localStorage.getItem is not a function". Fix: set NODE_OPTIONS in package.json \
+scripts: "dev": "NODE_OPTIONS='--localstorage-file=/tmp/nextls' next dev". \
+Also add "use client" directive to ALL components that use framer-motion.
+
+## VISUAL ANTI-PATTERNS TO AVOID
+
+Do NOT use Tabler icons (or any icons) next to brand/company names in the \
+navbar. Company names should be bold typography only — no icon logos.
+
+Do NOT leave team member sections without real photographs. Call superpower_images \
+for headshot photos and use them.
+
+Do NOT create thin/lazy pages. Each page should have SUBSTANTIAL content — if a \
+section looks like it could fit in a tweet, it needs 3x more content.
 """
 
 
