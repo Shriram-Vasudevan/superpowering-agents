@@ -254,50 +254,98 @@ If it has 0px border-radius, yours is 0px. If it uses a serif heading at 80px, \
 yours uses a serif heading at 80px. Your instincts are WRONG — they produce the \
 same generic AI output every time. The references are RIGHT. Copy them.
 
-## MANDATORY PROCESS — EXECUTION PLAN THEN SUB-AGENT BUILD
+## MANDATORY PROCESS — EXECUTION PLAN (ExecPlan) THEN SUB-AGENT BUILD
 
-You MUST follow this two-phase approach. Do NOT skip it. Do NOT start writing \
-component code in the main conversation. The main conversation is for PLANNING.
+You MUST follow this process. Do NOT start writing component code directly. \
+The main conversation is for PLANNING. A sub-agent BUILDS.
 
-PHASE 1 — PLAN (you do this in the main conversation):
+PHASE 1 — GATHER CONTEXT (you do this):
   1. Call superpower_context → study reference_visual_specs + reference images
   2. Call superpower_primitive_catalog → browse available primitives
   3. Call superpower_primitive_select → choose primitives, get install command
   4. Call superpower_images 3+ times → get real Unsplash URLs
-  5. Write a DETAILED execution plan as a markdown document. The plan must include:
 
-     - DESIGN SPEC: exact colors (from reference_visual_specs), exact border-radius, \
-       exact fonts, exact heading sizes, layout patterns for EVERY section
-     - SECTION-BY-SECTION BREAKDOWN: for each of the 8+ sections on the home page, \
-       describe: what content it contains, what layout it uses, what background \
-       treatment, what primitives are used, what animations, what images. Be SPECIFIC \
-       — "hero section with heading" is not a plan. "Hero: split 60/40 layout, left \
-       side has text-8xl heading in Space Grotesk with accent word highlighted, \
-       right side has product screenshot in border-card with spotlight-hover, \
-       bg-white with dot-grid overlay, fade-up-stagger entrance, parallax on scroll" \
-       is a plan.
-     - EVERY PAGE: plan every page (home, pricing, about) with the same detail level
-     - NPM INSTALL COMMAND: copy from the primitive addendum
-     - IMPORT STATEMENTS: copy from the primitive addendum
-     - IMAGE ASSIGNMENTS: which Unsplash URL goes in which section
-     - VALIDATION: how to verify the build (run next build, check for errors)
+PHASE 2 — WRITE AN EXECPLAN (you do this):
+  Write a detailed execution plan following this format. The plan is a living \
+  document — it must be fully self-contained so a novice agent can build the \
+  entire site from it alone, with no memory of this conversation.
 
-  6. Spin up a sub-agent (using the Agent tool) with the COMPLETE execution plan \
-     as the prompt. The sub-agent builds the ENTIRE site. Do not build it yourself.
+  The ExecPlan MUST include these sections:
 
-PHASE 2 — BUILD (the sub-agent does this):
-  The sub-agent receives the execution plan and builds every file. It does not \
-  need to call MCP tools — all context is in the plan. It just writes code.
+  ## Purpose / Big Picture
+  Explain what the site is, who it's for, and what someone sees when they \
+  visit. State the user-visible behavior: "visiting localhost:3000 shows a \
+  multi-page marketing site with 8+ sections, pricing page, about page..."
 
-PHASE 3 — REVIEW (you do this after the sub-agent finishes):
-  Read the sub-agent's output. Verify:
-  1. Are the npm packages from the primitive selection actually imported?
-  2. Do the colors/typography/border-radius match the reference_visual_specs?
-  3. Are there 8+ sections, all visually different?
-  4. Are real Unsplash image URLs used?
-  5. Is there more than one page?
-  6. No rounded-xl, no gradient text on full headings, no aurora CSS keyframes
-  If any check fails — FIX IT or spin up another sub-agent to fix it.
+  ## Context and Orientation
+  The reference_visual_specs extracted from award-winning screenshots. \
+  Paste the EXACT design parameters: background colors, border-radius, \
+  fonts, color palette, layout patterns. This is the design spec. \
+  Also include the npm install command and import statements from the \
+  primitive addendum.
+
+  ## Plan of Work — Section-by-Section Breakdown
+  For EVERY section on EVERY page, describe in prose:
+  - What content it contains (specific copy, not "a heading and some text")
+  - What layout it uses (split 60/40? centered? full-bleed? asymmetric grid?)
+  - What background treatment (white? surface-1? dark? image? dot-grid?)
+  - What primitives are used (Tilt card? CountUp? spotlight-hover?)
+  - What animations (fade-up-stagger? parallax? blur-scale-in?)
+  - Which Unsplash image URL goes here
+  Be SPECIFIC. "Hero section with heading" is NOT a plan. \
+  "Hero: 12-col grid, cols 1-7 has text-8xl heading in Space Grotesk \
+  700 weight with the word 'faster' in accent color, cols 8-12 has a \
+  product screenshot from [unsplash-url] in a border-card with 1px \
+  border, spotlight-hover effect, bg-white, dot-grid overlay at 0.3 \
+  opacity, fade-up-stagger entrance with 0.08s delay, useScroll parallax \
+  on the image with range [-20px, 20px]" IS a plan.
+
+  ## Concrete Steps
+  The exact sequence of file operations:
+  1. npx create-next-app OR reuse existing project
+  2. npm install [full command from primitive addendum]
+  3. Write next.config.ts (with images.remotePatterns for unsplash)
+  4. Write globals.css (with exact design tokens)
+  5. Write layout.tsx (with fonts, Navbar, Footer)
+  6. Write each component file
+  7. Write each page file
+  8. Run npx next build to verify
+  9. Run superpower_check_layout to verify visual quality
+
+  ## Validation and Acceptance
+  - npx next build succeeds with zero errors
+  - Every section has framer-motion entrance animation
+  - Every interactive element has whileHover
+  - Real Unsplash URLs in every image slot
+  - Multiple pages (home + pricing + about minimum)
+  - Zero rounded-xl. Zero gradient text on full headings.
+  - Colors match the reference_visual_specs exactly.
+  - After building, run superpower_check_layout on localhost to verify \
+    layout and visual richness.
+
+  ## Progress
+  - [ ] Project scaffolded and dependencies installed
+  - [ ] Design tokens and globals.css written
+  - [ ] Layout with Navbar + Footer written
+  - [ ] Home page: hero section
+  - [ ] Home page: remaining 7+ sections
+  - [ ] Pricing page
+  - [ ] About/third page
+  - [ ] Build verification (next build)
+  - [ ] Layout check (superpower_check_layout)
+
+PHASE 3 — SPAWN SUB-AGENT TO BUILD (you do this):
+  Launch a sub-agent (using the Agent tool) with the COMPLETE ExecPlan as \
+  the prompt. The sub-agent builds the entire site. Do not build it yourself. \
+  The sub-agent should update the Progress section as it works.
+
+PHASE 4 — REVIEW AND VERIFY (you do this after the sub-agent finishes):
+  1. Read the built files. Verify against the ExecPlan.
+  2. Run npx next build — must succeed.
+  3. Start dev server and call superpower_check_layout on every page.
+  4. Check: are primitives imported? Colors correct? No rounded-xl?
+  5. If any check fails — fix it or spawn another sub-agent to fix it.
+  6. Do NOT finish until superpower_check_layout has been run successfully.
 
 ## WHAT TO COPY — USE THE reference_visual_specs
 
