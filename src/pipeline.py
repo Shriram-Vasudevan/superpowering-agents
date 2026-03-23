@@ -254,31 +254,50 @@ If it has 0px border-radius, yours is 0px. If it uses a serif heading at 80px, \
 yours uses a serif heading at 80px. Your instincts are WRONG — they produce the \
 same generic AI output every time. The references are RIGHT. Copy them.
 
-## MANDATORY PROCESS — YOU MUST USE SUB-AGENTS TO REVIEW YOUR WORK
+## MANDATORY PROCESS — EXECUTION PLAN THEN SUB-AGENT BUILD
 
-After EACH major step, spin up a sub-agent (using the Agent tool) to audit:
+You MUST follow this two-phase approach. Do NOT skip it. Do NOT start writing \
+component code in the main conversation. The main conversation is for PLANNING.
 
-REVIEW CHECKPOINT 1 — after studying references, before selecting primitives:
-  Sub-agent prompt: "Read these reference images: [paths]. List the exact \
-  background color, border-radius, typography (font family, weight, size), \
-  color palette, and layout pattern of each. Does the plan match these? \
-  If any element uses rounded-xl, gradient backgrounds, or dark-mode-with- \
-  neon-accent, flag it as WRONG — that is AI-generated slop, not what the \
-  references show."
+PHASE 1 — PLAN (you do this in the main conversation):
+  1. Call superpower_context → study reference_visual_specs + reference images
+  2. Call superpower_primitive_catalog → browse available primitives
+  3. Call superpower_primitive_select → choose primitives, get install command
+  4. Call superpower_images 3+ times → get real Unsplash URLs
+  5. Write a DETAILED execution plan as a markdown document. The plan must include:
 
-REVIEW CHECKPOINT 2 — after writing code, before finishing:
-  Sub-agent prompt: "Read these files: [all tsx files]. Check: \
-  1. Are the npm packages from the primitive selection actually imported? \
-     (not hand-rolled CSS doing the same thing) \
-  2. Do the colors/typography/border-radius match the reference images? \
-  3. Are there 8+ sections, all visually different? \
-  4. Are real Unsplash image URLs used (not placeholder)? \
-  5. Is there more than one page (home + pricing/about)? \
-  6. Flag ANY of these: rounded-xl cards, gradient text on full headings, \
-     aurora/blob CSS keyframes, uniform dark bg + neon accent. These are \
-     AI slop patterns. They must be replaced with what the references show."
+     - DESIGN SPEC: exact colors (from reference_visual_specs), exact border-radius, \
+       exact fonts, exact heading sizes, layout patterns for EVERY section
+     - SECTION-BY-SECTION BREAKDOWN: for each of the 8+ sections on the home page, \
+       describe: what content it contains, what layout it uses, what background \
+       treatment, what primitives are used, what animations, what images. Be SPECIFIC \
+       — "hero section with heading" is not a plan. "Hero: split 60/40 layout, left \
+       side has text-8xl heading in Space Grotesk with accent word highlighted, \
+       right side has product screenshot in border-card with spotlight-hover, \
+       bg-white with dot-grid overlay, fade-up-stagger entrance, parallax on scroll" \
+       is a plan.
+     - EVERY PAGE: plan every page (home, pricing, about) with the same detail level
+     - NPM INSTALL COMMAND: copy from the primitive addendum
+     - IMPORT STATEMENTS: copy from the primitive addendum
+     - IMAGE ASSIGNMENTS: which Unsplash URL goes in which section
+     - VALIDATION: how to verify the build (run next build, check for errors)
 
-If any review fails — FIX IT before outputting. Do not skip reviews.
+  6. Spin up a sub-agent (using the Agent tool) with the COMPLETE execution plan \
+     as the prompt. The sub-agent builds the ENTIRE site. Do not build it yourself.
+
+PHASE 2 — BUILD (the sub-agent does this):
+  The sub-agent receives the execution plan and builds every file. It does not \
+  need to call MCP tools — all context is in the plan. It just writes code.
+
+PHASE 3 — REVIEW (you do this after the sub-agent finishes):
+  Read the sub-agent's output. Verify:
+  1. Are the npm packages from the primitive selection actually imported?
+  2. Do the colors/typography/border-radius match the reference_visual_specs?
+  3. Are there 8+ sections, all visually different?
+  4. Are real Unsplash image URLs used?
+  5. Is there more than one page?
+  6. No rounded-xl, no gradient text on full headings, no aurora CSS keyframes
+  If any check fails — FIX IT or spin up another sub-agent to fix it.
 
 ## WHAT TO COPY — USE THE reference_visual_specs
 
