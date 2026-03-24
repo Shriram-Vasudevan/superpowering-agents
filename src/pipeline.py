@@ -418,10 +418,19 @@ don't use it.
 Next.js App Router, Tailwind CSS, framer-motion, @tabler/icons-react, \
 next/font/google, next/image. No ShadCN. No Lucide. No component libraries.
 
-IMPORTANT: If using Node.js 25, framer-motion SSR will crash with \
+IMPORTANT NODE.JS 25 FIX: framer-motion SSR will crash with \
 "localStorage.getItem is not a function". Fix: set NODE_OPTIONS in package.json \
 scripts: "dev": "NODE_OPTIONS='--localstorage-file=/tmp/nextls' next dev". \
 Also add "use client" directive to ALL components that use framer-motion.
+
+IMPORTANT TAILWIND v4 FIX: If Next.js scaffolds with Tailwind v4 (which uses \
+@import "tailwindcss" instead of @tailwind directives), you MUST define all \
+custom colors inside a @theme inline { } block in globals.css — NOT in :root. \
+Example: @theme inline { --color-brand: oklch(0.55 0.25 250); --color-surface: \
+#ffffff; } — then use "bg-brand" and "bg-surface" as utilities. Custom CSS \
+variables in :root do NOT generate Tailwind utility classes in v4. If you use \
+:root variables, your classes like "text-brand" will produce NO CSS output and \
+the entire layout will break. Always verify with npx next build.
 
 ## VISUAL ANTI-PATTERNS TO AVOID
 
