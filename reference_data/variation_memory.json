@@ -1,13 +1,31 @@
 {
   "version": 1,
   "recent_layout_patterns": [
+    "hero_cta",
+    "single_column",
     "fullscreen_media",
     "card_grid",
-    "hero_cta",
-    "form_centered",
-    "single_column"
+    "form_centered"
   ],
   "recent_domains": [
+    "ruul.io",
+    "lemonsqueezy.com",
+    "mollie.com",
+    "linear.app",
+    "bbetperf.com",
+    "flowstep.ai",
+    "langchain.com",
+    "makethecut.studio",
+    "lt-serv.com",
+    "palermo.ddd.live",
+    "vkz.studio",
+    "turbine.studio",
+    "rogo.ai",
+    "setpoint.io",
+    "getvesto.com",
+    "monsterjamvideogame.com",
+    "millenniumparade.com",
+    "songo.uprock.pro",
     "saracajner.com",
     "atomus.io",
     "gaming.onbeam.com",
@@ -29,25 +47,7 @@
     "nudiejeans.com",
     "stravagar.io",
     "focal.inc",
-    "todesktop.com",
-    "brilliant.org",
-    "wasolutions.com",
-    "roamresearch.com",
-    "reown.com",
-    "obsidian.md",
-    "beehiiv.com",
-    "bazel.build",
-    "humanity.org",
-    "endless.design",
-    "curaffy.usestate.org",
-    "nika.agency",
-    "naka.com",
-    "buildium.com",
-    "work.co",
-    "frame.io",
-    "front.com",
-    "lisk.com",
-    "gitness.com"
+    "todesktop.com"
   ],
-  "updated_at": "2026-03-21T23:44:18.702188+00:00"
+  "updated_at": "2026-03-24T01:55:38.309626+00:00"
 }
