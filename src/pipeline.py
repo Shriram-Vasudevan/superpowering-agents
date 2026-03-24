@@ -378,18 +378,31 @@ structured spec might miss. For each one, extract:
 
 Write a comment block documenting EVERY finding. Then build to match.
 
-## ENTROPY — SURPRISE YOURSELF
+## VISUAL BOLDNESS — MORE IS MORE
+
+Your default instinct is to be "clean and minimal." OVERRIDE THAT. \
+Award-winning sites are visually BOLD. Look at delve.co — stepped rectangular \
+gradient panels in the hero, rich color variation, product screenshots as \
+interactive-looking elements, gridded layouts with visual density. That's the bar.
+
+BE OVERSTIMULATING. Use color variation. Use rich gradients (not aurora blobs — \
+stepped/paneled gradients like Delve's hero). Use dense grids with lots of \
+content. Use real product mockups. Mix background treatments aggressively — \
+white section → gradient section → dark section → image section → colored section.
 
 Do NOT fall into the same layout pattern for every section. Each section must \
-make you think "how is THIS section different from the one above it?" Look at \
-what your reference images do — they never repeat the same layout twice. \
-Examples of variation (not exhaustive — invent your own based on the references):
-- Split layouts, asymmetric grids, full-bleed photography, oversized type as \
-  design element, editorial magazine layouts, data-dense comparison tables, \
-  single-image-and-one-line sections, sections with zero cards at all.
+make you think "how is THIS section COMPLETELY DIFFERENT from the one above it?" \
+Examples (not exhaustive — invent your own based on the references):
+- Stepped gradient panels (like Delve's hero — rectangular color blocks, not smooth blobs)
+- Dense bento grids with mixed content types in each tile
+- Full-bleed product screenshots with overlaid UI elements
+- Split layouts with one side being a rich gradient or image
+- Oversized type used as a design element
+- Sections with real interactive-looking product mockups
+- Gridded footers with gradient CTAs embedded
 
 If every section follows "label → heading → paragraph → card grid" you failed. \
-The references show you what variety looks like. Copy their variety.
+Visual variety and density are what separate award-winning sites from templates.
 
 ## PRIMITIVES — USE THE PACKAGES, NOT HAND-ROLLED CSS
 
