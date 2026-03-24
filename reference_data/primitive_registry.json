@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-21-v7",
+  "version": "2026-03-24-v8",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -2862,6 +2862,41 @@
         ],
         "implementation": "import { Fade, Slide, Zoom } from \"react-awesome-reveal\"; <Fade cascade damping={0.1} triggerOnce> <h2>Title</h2> <p>Paragraph</p> <Button>CTA</Button> </Fade>"
       }
+    },
+    {
+      "id": "background.stepped-gradient-panels",
+      "category": "background",
+      "name": "Stepped Gradient Panels",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout",
+      "package": "native-css-grid",
+      "score": 9.7,
+      "when_to_use": [
+        "default",
+        "hero-sections",
+        "cta",
+        "saas",
+        "enterprise",
+        "marketing",
+        "premium"
+      ],
+      "avoid_when": [],
+      "traits": [
+        "zero-dependency",
+        "anti-vibe-code",
+        "award-winning",
+        "delve-style",
+        "high-impact"
+      ],
+      "variants": {
+        "implementation": "NOT a CSS linear-gradient. This is a GRID of colored divs side by side. Create a flex container with 10-16 vertical strip divs. Each strip has a slightly different background color, creating an abrupt stepped color transition. Example: <div className=\"flex h-full\"> {colors.map((c, i) => <div key={i} className=\"flex-1 h-full\" style={{backgroundColor: c}} />)} </div> \u2014 Color arrays should shift hue gradually: pick 12 oklch values going from cool (hue 240) to warm (hue 40), each step about 15-20 hue degrees apart. The strips create a rich, sophisticated gradient effect that looks designed, not generated. See delve.co hero for the canonical example.",
+        "patterns": [
+          "vertical-strips \u2014 10-16 equal-width columns, each a different color",
+          "variable-width-strips \u2014 some strips wider for visual rhythm",
+          "with-content-overlay \u2014 text/cards floated over the strip grid via absolute positioning",
+          "partial-coverage \u2014 strips cover part of the section, rest is solid color"
+        ],
+        "usage_rule": "This is the PREFERRED gradient treatment for hero and CTA sections. Do NOT use CSS linear-gradient for backgrounds. Stepped panels look sophisticated and designed. Continuous gradients look AI-generated."
+      }
     }
   ],
   "font_pairs": [
@@ -3281,6 +3316,7 @@
     "hardcoded-hex-colors-without-semantic-tokens-use-oklch",
     "more-than-two-adjacent-white-background-sections",
     "uniform-border-radius-on-everything-pick-sharp-or-rounded-not-both",
-    "gradient-text-on-more-than-two-words"
+    "gradient-text-on-more-than-two-words",
+    "continuous-css-linear-gradient-as-hero-or-cta-background"
   ]
 }

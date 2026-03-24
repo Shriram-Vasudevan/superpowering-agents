@@ -385,10 +385,14 @@ Award-winning sites are visually BOLD. Look at delve.co — stepped rectangular 
 gradient panels in the hero, rich color variation, product screenshots as \
 interactive-looking elements, gridded layouts with visual density. That's the bar.
 
-BE OVERSTIMULATING. Use color variation. Use rich gradients (not aurora blobs — \
-stepped/paneled gradients like Delve's hero). Use dense grids with lots of \
-content. Use real product mockups. Mix background treatments aggressively — \
-white section → gradient section → dark section → image section → colored section.
+BE OVERSTIMULATING. Use color variation. Use rich gradients — but NEVER \
+continuous CSS linear-gradient or radial-gradient. Instead use STEPPED GRADIENT \
+PANELS: a flex row of 10-16 vertical colored divs, each with a slightly \
+different oklch color, creating abrupt color transitions between strips (see \
+the background.stepped-gradient-panels primitive). This is how delve.co does \
+their hero — rectangular color blocks, NOT smooth blobs or CSS gradients. \
+Use dense grids packed with content. Mix backgrounds aggressively — \
+white → stepped gradient → dark → image → colored solid → another gradient.
 
 Do NOT fall into the same layout pattern for every section. Each section must \
 make you think "how is THIS section COMPLETELY DIFFERENT from the one above it?" \
@@ -418,8 +422,10 @@ don't use it.
 
 ## STRUCTURE
 
-- 8+ visually distinct sections. Each one DIFFERENT from its neighbors.
-- Multi-page: home + at least 2 more pages (pricing, about, etc). ALL fully built.
+- 8+ visually distinct sections on the home page. Each DIFFERENT from neighbors.
+- MINIMUM 3 PAGES — home + pricing + about (or integrations). A single-page site \
+  is an automatic failure. Each page must be fully built with substantial content, \
+  not a stub.
 - Real Unsplash images via superpower_images (call 3+ times). next/image for all.
 - Framer-motion: useInView entrance on every section, useScroll parallax on 2+, \
   whileHover on all interactive elements.
