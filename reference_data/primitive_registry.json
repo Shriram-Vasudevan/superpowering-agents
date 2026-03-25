@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-24-v9",
+  "version": "2026-03-24-v10",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -2895,7 +2895,8 @@
           "with-content-overlay \u2014 text/cards floated over the strip grid via absolute positioning",
           "partial-coverage \u2014 strips cover part of the section, rest is solid color"
         ],
-        "usage_rule": "This is the PREFERRED gradient treatment for hero and CTA sections. Do NOT use CSS linear-gradient for backgrounds. Stepped panels look sophisticated and designed. Continuous gradients look AI-generated."
+        "usage_rule": "This is the PREFERRED gradient treatment for hero and CTA sections. Do NOT use CSS linear-gradient for backgrounds. Stepped panels look sophisticated and designed. Continuous gradients look AI-generated.",
+        "palette_guidance": "WARM palettes (amber, gold, orange): use as PARTIAL coverage only (bottom 30% of section, or one side of a split). Never as full-section background \u2014 it flattens hierarchy and makes text hard to read. COOL palettes (blue, teal, navy): safe for full-section backgrounds. MIXED cool-to-warm: the most sophisticated \u2014 start cool on the left, shift to warm on the right. Creates visual movement. NEVER use your accent color as the dominant background color \u2014 it overwhelms. Each page must use a DIFFERENT palette for its stepped gradient."
       }
     }
   ],

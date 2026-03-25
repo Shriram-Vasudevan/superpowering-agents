@@ -641,20 +641,37 @@ def superpower_design_review(
         if words < 15:
             template_score += 2
 
-        # Determine verdict
-        if richness_score >= 3 and template_score == 0:
+        # Count distinct visual LAYERS (background + layout + interactive + typography)
+        layer_categories = {
+            "background": ["gradient", "noise", "texture", "image", "photo", "dark section", "stepped"],
+            "layout": ["asymmetric", "split", "bento", "magazine", "overlap", "offset", "horizontal scroll", "sticky"],
+            "interactive": ["tilt", "spotlight", "hover", "parallax", "scroll-triggered", "animated"],
+            "typography": ["oversized", "serif", "display", "reveal", "split-type", "weight contrast"],
+            "depth": ["glassmorphism", "frosted", "blur", "shadow", "inner glow", "layered"],
+        }
+        layers_present = 0
+        for cat, keywords in layer_categories.items():
+            if any(kw in desc_lower for kw in keywords):
+                layers_present += 1
+
+        # Determine verdict — requires LAYERED treatments, not just keyword presence
+        if layers_present >= 3 and richness_score >= 4 and template_score == 0:
             verdict = "STRONG"
-            note = "This section sounds visually ambitious."
-        elif richness_score >= 1 and template_score <= 1:
+            note = f"This section has {layers_present} visual layers. Ambitious."
+        elif layers_present >= 2 and richness_score >= 2:
             verdict = "ADEQUATE"
-            note = "Acceptable, but could be pushed further."
+            note = (
+                f"Has {layers_present} visual layers but could use more. "
+                f"Add a {'background' if not any(kw in desc_lower for kw in layer_categories['background']) else 'layout'} "
+                f"treatment to make it richer."
+            )
         else:
             verdict = "TEMPLATE-GRADE"
             note = (
-                "This section sounds generic. Add specific visual treatments: "
-                "background technique (gradient/noise/texture), surface depth "
-                "(glassmorphism/spotlight), text effects (oversized/reveal), "
-                "or layout ambition (asymmetric/overlapping/full-bleed)."
+                f"Only {layers_present} visual layer(s). Sections need 3+ layers: "
+                "background treatment + layout composition + interactive element + "
+                "typography effect. 'Counters on dark bg' is one layer. Add photography, "
+                "asymmetric layout, overlapping elements, or interactive depth."
             )
 
         total_richness += richness_score
@@ -669,6 +686,24 @@ def superpower_design_review(
             "template_signals": template_found,
             "note": note,
         })
+
+    # Check structural repetition — max 2 grid sections per page
+    grid_keywords = ["grid", "card grid", "three columns", "four columns", "card layout",
+                     "grid of cards", "grid of features", "feature cards"]
+    grid_sections = []
+    for i, desc in enumerate(sections, 1):
+        desc_lower = desc.lower()
+        if any(kw in desc_lower for kw in grid_keywords):
+            grid_sections.append(i)
+    if len(grid_sections) > 2:
+        for s in section_scores:
+            if s["section"] in grid_sections[2:]:
+                s["verdict"] = "TEMPLATE-GRADE"
+                s["note"] = (
+                    f"STRUCTURAL REPETITION: This is grid section #{grid_sections.index(s['section'])+1} "
+                    f"on this page (max 2 allowed). Replace with: split/asymmetric, sticky-scroll, "
+                    f"full-bleed image, horizontal scroll, overlap-offset, or magazine layout."
+                )
 
     # Check primitive coverage
     primitive_notes: list[str] = []
