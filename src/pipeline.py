@@ -405,12 +405,16 @@ overlap-offset, magazine layout, data visualization, interactive mockup. \
 If 3+ sections on the same page follow "heading → subheading → grid of cards" \
 — that is structural repetition and it is a failure.
 
-CONTENT COMPOSITION: Primitives define surfaces (glassmorphism, tilt, spotlight). \
-But a spotlight-hover card with boring content is STILL boring. Think about what \
-story each section tells. Comparison sections should use before/after narratives, \
-not feature checklists. Metric sections need photography + asymmetric layout + \
-overlapping elements — not just numbers in a row. Show the user's pain, then the \
-relief. Make every section a COMPOSITION that evokes feeling.
+CONTENT COMPOSITION: The primitive registry contains a content_type_guidance \
+field with specific anti-patterns and better alternatives for each section type \
+(walkthrough, values, investors, metrics, how-it-works, CTA). BEFORE designing \
+any section, check this guidance. It tells you what the LAZY AI DEFAULT looks \
+like for that content type, and what award-winning sites do instead. Examples:
+- Values → NOT icon-card-grid. Instead: oversized type statements, editorial quotes
+- Walkthrough → NOT sticky-scroll-with-steps. Instead: horizontal panels, visual pipeline
+- Metrics → NOT 4-numbers-in-a-row. Instead: one hero metric 3x larger, asymmetric layout
+- CTA → NOT centered-text-on-dark. Instead: split-screen, interactive element, rich visual
+Think about what STORY each section tells. Show transformation, not lists.
 
 VISUAL WEIGHT: A section with one primitive (just progress rings, or just counters) \
 is thin. Every section should layer 3+ visual treatments: background treatment + \

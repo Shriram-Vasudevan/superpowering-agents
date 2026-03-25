@@ -687,6 +687,38 @@ def superpower_design_review(
             "note": note,
         })
 
+    # Check for lazy AI defaults per content type
+    lazy_pattern_checks = {
+        "walkthrough": (
+            ["sticky left", "sticky panel", "scrolling steps", "numbered list", "step 1", "step 2", "step 3"],
+            "LAZY PATTERN: Sticky-scroll walkthrough is overused by AI. Try: horizontal-scroll-panels, "
+            "visual-pipeline-diagram, overlapping-reveal-cards, or split-screen-progression instead."
+        ),
+        "values": (
+            ["icon card grid", "2x2 grid", "icon title description", "four cards", "values grid", "value card"],
+            "LAZY PATTERN: Icon-card-grid for values is the #1 AI cliche. Values are BELIEFS — present them "
+            "as oversized type statements, full-bleed alternating sections, or editorial pull quotes. Never as cards."
+        ),
+        "investors": (
+            ["text only grid", "investor grid", "name cards", "logo grid", "backed by"],
+            "LAZY PATTERN: Text-only investor grid looks boring. Use oversized fund names in display typography, "
+            "marquee ticker with frosted treatment, or editorial layout with varied sizes."
+        ),
+        "timeline": (
+            ["our journey", "timeline", "milestones", "founded in", "series a", "series b"],
+            "LAZY PATTERN: Generic company timeline is overused. Tell the story visually — oversized year numbers, "
+            "full-bleed milestone images, pull quotes from founders. Not a vertical dotted line."
+        ),
+    }
+    for pattern_name, (keywords, warning) in lazy_pattern_checks.items():
+        for s in section_scores:
+            desc_lower = sections[s["section"] - 1].lower() if s["section"] <= len(sections) else ""
+            if any(kw in desc_lower for kw in keywords):
+                if s["verdict"] != "TEMPLATE-GRADE":
+                    s["verdict"] = "NEEDS WORK"
+                    s["note"] = warning
+                break
+
     # Check structural repetition — max 2 grid sections per page
     grid_keywords = ["grid", "card grid", "three columns", "four columns", "card layout",
                      "grid of cards", "grid of features", "feature cards"]

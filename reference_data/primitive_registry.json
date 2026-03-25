@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-24-v11",
+  "version": "2026-03-25-v12",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -3329,5 +3329,92 @@
     "same-stepped-gradient-palette-on-every-page-hero-vary-the-colors",
     "image-background-with-overlay-opacity-above-75-percent-image-becomes-invisible",
     "centered-headline-on-plain-dark-rectangle-CTA-use-stepped-gradient-or-visible-image-instead"
-  ]
+  ],
+  "content_type_guidance": {
+    "product_walkthrough": {
+      "lazy_defaults": [
+        "sticky-left-panel-with-scrolling-steps",
+        "numbered-list-with-side-image",
+        "tabbed-content-with-screenshot"
+      ],
+      "better_alternatives": [
+        "horizontal-scroll-panels \u2014 each step occupies a full viewport-width panel that scrolls left-to-right",
+        "visual-pipeline \u2014 goods/data physically moves across screen with animated connectors between stages",
+        "overlapping-reveal-cards \u2014 each step card overlaps the previous one as you scroll, creating depth",
+        "split-screen-progression \u2014 screen splits 50/50, each side tells a parallel story (before/after)",
+        "full-bleed-stage-sections \u2014 each step is its own full-viewport section with unique visual treatment"
+      ],
+      "composition_recipe": "Make each step feel like a DIFFERENT section, not items in a list. Vary the layout, background, and scale of each step dramatically."
+    },
+    "values_mission": {
+      "lazy_defaults": [
+        "icon-card-grid-2x2-or-3col",
+        "icon-title-description-repeat",
+        "values-list-with-numbers"
+      ],
+      "better_alternatives": [
+        "oversized-type-statements \u2014 each value is a massive headline (text-7xl+) with 2 lines of supporting text below, stacked vertically with generous spacing",
+        "full-bleed-alternating \u2014 each value gets its own full-width section alternating light/dark/image backgrounds",
+        "editorial-pull-quotes \u2014 values as large serif italic quotes with attribution",
+        "single-value-per-viewport \u2014 one value fills the entire screen, scroll to the next"
+      ],
+      "composition_recipe": "Values are BELIEFS, not features. Present them with the weight of beliefs \u2014 big type, emotional imagery, breathing room. Never as a card grid."
+    },
+    "investors_press": {
+      "lazy_defaults": [
+        "text-only-name-grid",
+        "logo-card-grid",
+        "press-quote-cards-identical"
+      ],
+      "better_alternatives": [
+        "oversized-fund-names \u2014 large outlined or display-weight typography for fund names, stagger-animated on scroll",
+        "marquee-ticker-with-frosted-treatment \u2014 names scrolling in a frosted-panel strip",
+        "editorial-press-layout \u2014 large pull quotes from press with publication logo, asymmetric layout, varied card sizes",
+        "logo-wall-with-hover-detail \u2014 logos at scale with hover revealing investment details"
+      ],
+      "composition_recipe": "Social proof should feel PRESTIGIOUS, not like a boring directory. Use typography scale and visual weight to convey importance."
+    },
+    "metrics_stats": {
+      "lazy_defaults": [
+        "countup-numbers-in-equal-grid",
+        "four-numbers-in-a-row",
+        "progress-rings-only"
+      ],
+      "better_alternatives": [
+        "hero-metric-with-subordinates \u2014 one number is 3x larger than the others, asymmetric layout",
+        "metric-over-photography \u2014 numbers overlaid on a relevant full-bleed image with dark overlay",
+        "animated-infographic \u2014 the numbers are part of a visual diagram, not standalone",
+        "before-after-contrast \u2014 show the old number crossed out next to the new number"
+      ],
+      "composition_recipe": "One metric should DOMINATE. The others support it. Never give equal visual weight to 4 numbers \u2014 create hierarchy by making one dramatically larger."
+    },
+    "how_it_works": {
+      "lazy_defaults": [
+        "numbered-steps-1-2-3",
+        "timeline-with-dots",
+        "cards-with-step-numbers"
+      ],
+      "better_alternatives": [
+        "horizontal-scroll-stages \u2014 each stage is a full panel that scrolls horizontally",
+        "animated-flow-diagram \u2014 visual arrows/connectors between stages with scroll-triggered progression",
+        "split-screen-demo \u2014 left shows the UI, right shows the outcome, both animate on scroll",
+        "interactive-prototype-mockup \u2014 a realistic product UI that steps through the flow"
+      ],
+      "composition_recipe": "Show the TRANSFORMATION, not the steps. What does it look like BEFORE and AFTER each stage? The user should feel the progress, not read a numbered list."
+    },
+    "cta_section": {
+      "lazy_defaults": [
+        "centered-text-on-dark-bg",
+        "gradient-bg-with-two-buttons",
+        "simple-headline-cta"
+      ],
+      "better_alternatives": [
+        "stepped-gradient-with-asymmetric-layout \u2014 gradient panels with text on one side, interactive element on the other",
+        "split-screen-cta \u2014 one half is a bold visual (gradient, image, animation), the other is the action",
+        "full-bleed-image-with-glassmorphic-card \u2014 real photography with a frosted CTA card floating over it",
+        "interactive-roi-calculator-as-cta \u2014 the CTA IS a mini-tool that demonstrates value"
+      ],
+      "composition_recipe": "The CTA should be the CLIMAX of the page, not an afterthought. It should be the most visually striking section. No two CTAs across the site should look the same."
+    }
+  }
 }
