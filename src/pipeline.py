@@ -428,6 +428,14 @@ Examples of variety (not exhaustive — invent based on references):
 
 If every section follows "label → heading → paragraph → card grid" you failed.
 
+## IMAGES — USE url_full FOR ALL HERO AND FULL-BLEED SECTIONS
+
+When you get images from superpower_images, each image has url, url_full, url_small. \
+Use url_full (original resolution) for ANY image that is fill + object-cover or \
+used as a section background. Use url for content images in cards. url_small for \
+avatars only. Using 1080px images on a 1440px+ viewport looks soft and cheap. \
+EVERY hero, CTA, and full-bleed section MUST use url_full.
+
 ## PRIMITIVES — USE THE PACKAGES, NOT HAND-ROLLED CSS
 
 The primitive palette below lists npm packages. npm install them. import them. \

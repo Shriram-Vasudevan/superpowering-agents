@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-24-v10",
+  "version": "2026-03-24-v11",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -718,7 +718,8 @@
           "fade-swap",
           "slide-up-swap",
           "morphing-visual"
-        ]
+        ],
+        "failure_modes": "HIGH RISK PRIMITIVE. Fails badly with: generic stock images (looks like dark void), low-opacity inactive text (looks broken), scroll height >300vh (scroll desert). ONLY use if you have 4+ distinct, high-contrast product screenshots that will be clearly visible. If using generic Unsplash images, DO NOT use this primitive \u2014 use a simpler tabbed layout or stepped cards instead."
       }
     },
     {
@@ -754,7 +755,8 @@
           "full-screen-panels",
           "image-strip",
           "timeline-events"
-        ]
+        ],
+        "failure_modes": "Needs 6-8 cards MINIMUM to justify scroll hijacking. 4 cards with gaps = empty. Cards should be wide (500px+) and visually rich, not narrow text cards. Scroll height should be 150-200vh max, not 300-500vh."
       }
     },
     {
@@ -1113,7 +1115,8 @@
           "absolute-bg",
           "inline-flow-break",
           "sticky-section-counter"
-        ]
+        ],
+        "failure_modes": "ONLY works in: large editorial sections (min 400px tile height), with max 1-2 numerals per viewport. NEVER use behind data visualizations (charts, progress rings). NEVER use in bento grid tiles \u2014 tiles are too small. The numeral must be the DECORATIVE element, not competing with functional content for attention."
       }
     },
     {
@@ -3323,6 +3326,8 @@
     "logo-only-marquee-as-social-proof-use-testimonials-or-metrics-instead",
     "identical-CTA-blocks-across-pages-each-CTA-must-look-different",
     "countup-number-grid-as-the-only-social-proof-pattern",
-    "same-stepped-gradient-palette-on-every-page-hero-vary-the-colors"
+    "same-stepped-gradient-palette-on-every-page-hero-vary-the-colors",
+    "image-background-with-overlay-opacity-above-75-percent-image-becomes-invisible",
+    "centered-headline-on-plain-dark-rectangle-CTA-use-stepped-gradient-or-visible-image-instead"
   ]
 }
