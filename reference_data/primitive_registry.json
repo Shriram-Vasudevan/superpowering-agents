@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-25-v12",
+  "version": "2026-03-25-v13",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -544,7 +544,8 @@
           "shimmer-sweep",
           "border-draw-on-hover"
         ],
-        "usage_rule": "Use at least 3 different button variants per page. Never use the same style for primary and secondary CTAs."
+        "usage_rule": "Use at least 3 different button variants per page. Never use the same style for primary and secondary CTAs.",
+        "disposition": "Sharp (rounded-none or rounded-sm) is the DEFAULT button shape. It signals design confidence. Pill (rounded-full) is the safe, uncommitted choice \u2014 use it ONLY if the reference sites specifically use pill buttons and you can articulate why. Default to sharp."
       }
     },
     {
@@ -3415,6 +3416,34 @@
         "interactive-roi-calculator-as-cta \u2014 the CTA IS a mini-tool that demonstrates value"
       ],
       "composition_recipe": "The CTA should be the CLIMAX of the page, not an afterthought. It should be the most visually striking section. No two CTAs across the site should look the same."
+    },
+    "features": {
+      "lazy_defaults": [
+        "icon-grid-6-items",
+        "same-size-card-grid",
+        "icon-title-description-boxes"
+      ],
+      "better_alternatives": [
+        "sticky-scroll-feature-reveal \u2014 each feature transforms the visual as you scroll (different image, color shift, element reveal)",
+        "split-screen-alternating \u2014 feature on left, visual on right, then flip for the next feature",
+        "single-feature-per-viewport \u2014 one feature fills the screen with bold type + large visual, scroll to next",
+        "progressive-disclosure \u2014 start with one feature visible, each scroll reveals the next with animation"
+      ],
+      "composition_recipe": "Features are a STORY, not a grid. Each feature should transform the visual. If you can swap the order and nothing changes visually, you have failed. Each feature deserves its own moment."
+    },
+    "hero": {
+      "lazy_defaults": [
+        "centered-headline-with-floating-dashboard-mockup",
+        "badge-pill-then-headline-then-two-buttons",
+        "headline-over-gradient-with-product-screenshot"
+      ],
+      "better_alternatives": [
+        "editorial-statement \u2014 massive display type IS the section. Let typography + background carry it. No mockup needed.",
+        "split-asymmetric \u2014 bold headline on 60%, rich visual element on 40%. The visual is NOT a generic dashboard.",
+        "full-bleed-visual \u2014 real photography or stepped gradient fills the viewport, text overlaid with confidence",
+        "interactive-hero \u2014 the hero IS a mini-experience (calculator, demo, interactive element)"
+      ],
+      "composition_recipe": "The hero sets the emotional tone. It should make the visitor feel something in 2 seconds. A bold statement on a rich background achieves this. A dashboard mockup does not."
     }
   }
 }
