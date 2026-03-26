@@ -396,14 +396,16 @@ Award-winning sites are visually BOLD. Look at delve.co — stepped rectangular 
 gradient panels in the hero, rich color variation, product screenshots as \
 interactive-looking elements, gridded layouts with visual density. That's the bar.
 
-BE OVERSTIMULATING. Use color variation. Use rich gradients — but NEVER \
-continuous CSS linear-gradient or radial-gradient. Instead use STEPPED GRADIENT \
-PANELS: a flex row of 10-16 vertical colored divs, each with a slightly \
-different oklch color, creating abrupt color transitions between strips (see \
-the background.stepped-gradient-panels primitive). This is how delve.co does \
-their hero — rectangular color blocks, NOT smooth blobs or CSS gradients. \
-Use dense grids packed with content. Mix backgrounds aggressively — \
-white → stepped gradient → dark → image → colored solid → another gradient.
+BE OVERSTIMULATING. Use color variation. Use rich backgrounds — but NEVER \
+continuous CSS linear-gradient or radial-gradient. Options include stepped \
+gradient panels (max 1 per page!), full-bleed photography with grain, solid \
+dark blocks with noise texture, frosted panels over imagery, colored solids \
+with strong typography. Do NOT default to stepped gradients on every hero and \
+CTA — that creates visual monotony across the site. If you used a stepped \
+gradient on the hero, the CTA MUST use a different treatment (image, solid \
+color, frosted panel, etc.). Similarly, dot-grid backgrounds are a spice, not \
+a base — max 1 per page. Mix backgrounds aggressively: \
+white → dark-with-image → colored-solid → frosted-panel → photography.
 
 STRUCTURAL VARIETY RULE: Maximum 2 sections per page may use a card grid layout. \
 The remaining sections MUST use fundamentally different compositions: \
@@ -439,6 +441,50 @@ Examples of variety (not exhaustive — invent based on references):
 
 If every section follows "label → heading → paragraph → card grid" you failed.
 
+## DEAD SECTIONS — EVERY SECTION MUST FEEL ALIVE
+
+A section is DEAD if a user can screenshot it and it looks identical to a \
+static HTML page with no JavaScript. Every section must have at least one of: \
+- Scroll-triggered animation that TRANSFORMS the layout (not just fade-in) \
+- Interactive element the user can click/hover to CHANGE STATE (accordion, \
+  stepper, carousel, toggle, tab) \
+- Data visualization that ANIMATES on entry (chart drawing, counter ticking) \
+"Fade in on scroll" alone does NOT count — that is decoration, not interaction. \
+If a section doesn't have genuine interactivity, it needs to be redesigned or \
+cut entirely. A page with 7 alive sections is better than 9 sections where 2 \
+are dead weight.
+
+QUALITY FLOOR: Every section must score at least ADEQUATE in design review. \
+If ANY section would be scored as TEMPLATE-GRADE, the entire page fails. \
+A page with 7 strong sections and 2 boring ones is WORSE than 7 strong \
+sections — the boring ones actively damage the impression of the good ones.
+
+## HERO DISPOSITION — TEXT-DOMINANT BY DEFAULT
+
+Your instinct is to fill the hero with elements: left text + right widget, \
+floating cards, live-data mockups, decorative dashboards. OVERRIDE THAT. \
+A text-dominant hero with a massive headline and two buttons IS a complete \
+hero. A decorative widget on the right that adds no real information WEAKENS \
+the hero by splitting attention. Default to: headline overflows boldly, \
+subtext, buttons, background treatment. That's it. Only add a secondary \
+visual element if it genuinely conveys information the headline cannot.
+
+## FAQ SECTIONS — MUST BE INTERACTIVE
+
+FAQ sections MUST use an interactive accordion pattern (@radix-ui/react-accordion \
++ framer-motion). NEVER render all answers as static visible text blocks. \
+Show only questions by default — answers reveal on click with animated \
+expand/collapse. A static wall of Q&A is the laziest possible implementation \
+and creates massive dead space. See the ui.accordion-faq primitive.
+
+## ICON-CARD GRIDS ARE BANNED FOR VALUES AND FEATURES
+
+ANY section that is N identically-sized cards with [icon + heading + paragraph] \
+is banned. This includes 2-card, 3-card, and 4-card layouts for values, \
+principles, or features. It is the single most overused AI-generated pattern. \
+Instead: oversized type statements, editorial pull-quotes with photography, \
+interactive reveals, or give each item its own full-width moment.
+
 ## IMAGES — USE url_full FOR ALL HERO AND FULL-BLEED SECTIONS
 
 When you get images from superpower_images, each image has url, url_full, url_small. \
@@ -469,7 +515,17 @@ don't use it.
 - Framer-motion: useInView entrance on every section, useScroll parallax on 2+, \
   whileHover on all interactive elements.
 - Real content: real names, prices, testimonials (name + title + company), stats.
-- No emojis. Pages scroll to top on navigation.
+- No emojis.
+- SCROLL TO TOP: Pages MUST scroll to top on navigation. In Next.js App Router, \
+  Link components should scroll to top by default, but if using Lenis smooth \
+  scroll it can interfere with native scroll restoration. Verify this works: \
+  navigating from /pricing back to / should start at the top, not mid-page. \
+  If Lenis breaks this, add an effect that calls window.scrollTo(0, 0) on \
+  route change using usePathname() from next/navigation.
+- HORIZONTAL SCROLL: Any horizontal scroll section MUST hide the native \
+  scrollbar. Use CSS: overflow-x: auto; scrollbar-width: none; and \
+  ::-webkit-scrollbar { display: none; }. A visible scrollbar on a designed \
+  horizontal scroll section looks broken and unprofessional.
 
 ## TECH
 
