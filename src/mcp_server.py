@@ -1010,6 +1010,121 @@ def superpower_images(
     }
 
 
+@mcp.tool()
+async def superpower_review_build(
+    url: str,
+    company_name: str = "",
+) -> dict:
+    """MANDATORY post-build quality review. Takes a screenshot of each page, analyzes
+    it with AI vision, and returns specific section-by-section critiques with
+    actionable fixes. This is your design review partner — it sees what you built
+    and tells you what needs to be better.
+
+    Call this AFTER building and starting the dev server. It will:
+    1. Screenshot the page
+    2. Analyze every visible section for visual quality
+    3. Return specific, actionable critiques
+
+    You MUST fix the issues it finds and rebuild. Then call it again to verify.
+    Keep iterating until it returns no critical issues.
+
+    Args:
+        url: The localhost URL to review (e.g. http://localhost:3000)
+        company_name: The company name for context
+    """
+    import asyncio
+
+    try:
+        from playwright.sync_api import sync_playwright
+
+        def _take_screenshot() -> bytes:
+            with sync_playwright() as pw:
+                browser = pw.chromium.launch(headless=True)
+                page = browser.new_page(viewport={"width": 1440, "height": 900})
+                page.goto(url, wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_timeout(3000)
+                screenshot = page.screenshot(full_page=True, type="jpeg", quality=85)
+                browser.close()
+                return screenshot
+
+        screenshot_bytes = await asyncio.to_thread(_take_screenshot)
+    except Exception as e:
+        return {"error": f"Could not screenshot {url}: {e}"}
+
+    if not settings.anthropic_api_key:
+        return {"error": "No ANTHROPIC_API_KEY set — cannot run vision review"}
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+
+        img_b64 = base64.b64encode(screenshot_bytes).decode("utf-8")
+
+        review_prompt = f"""You are a brutally honest senior design critic reviewing a marketing website for "{company_name or 'a SaaS company'}".
+
+Look at this full-page screenshot. For EACH visible section (hero, features, metrics, testimonials, CTA, etc.), rate it and give specific feedback:
+
+Return a JSON object:
+{{
+  "overall_grade": "A/B/C/D/F",
+  "overall_notes": "2-3 sentence summary of the biggest problems",
+  "sections": [
+    {{
+      "name": "what this section is (e.g. 'Hero', 'Features grid', 'Testimonials')",
+      "grade": "A/B/C/D/F",
+      "problems": ["specific problem 1", "specific problem 2"],
+      "fixes": ["specific fix 1 (be concrete — mention CSS classes, layout changes, colors)", "specific fix 2"]
+    }}
+  ],
+  "critical_issues": ["the 1-3 things that MUST be fixed before this ships"]
+}}
+
+Be BRUTAL. Grade on these criteria:
+- Visual impact: Does this section make you FEEL something? Or is it just filling space?
+- Layout quality: Is the spacing right? Is content properly aligned? Any awkward gaps?
+- Variety: Does this section look DIFFERENT from its neighbors? Or is it the same pattern repeated?
+- Interactivity: Does the section feel alive or static?
+- Typography: Is the type hierarchy clear? Are headings large and bold enough?
+- Color: Is color used intentionally or just defaulting to dark-bg + accent?
+
+A "C" section is average/forgettable. "B" is good but not memorable. "A" is exceptional.
+"D" means actively hurting the site. "F" means broken or embarrassingly bad.
+
+Return ONLY the JSON object."""
+
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=1500,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": img_b64}},
+                    {"type": "text", "text": review_prompt},
+                ],
+            }],
+        )
+
+        text = response.content[0].text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+        if text.endswith("```"):
+            text = text[:-3].strip()
+        if text.startswith("json"):
+            text = text[4:].strip()
+
+        review = _json.loads(text)
+        review["url"] = url
+        review["instructions"] = (
+            "Fix ALL critical_issues and any section graded D or F. "
+            "Then call superpower_review_build again to verify. "
+            "Keep iterating until overall_grade is B or higher and no sections are D/F."
+        )
+        return review
+
+    except Exception as e:
+        return {"error": f"Vision review failed: {e}"}
+
+
 @mcp.tool(structured_output=False)
 async def superpower_check_layout(
     url: str,
