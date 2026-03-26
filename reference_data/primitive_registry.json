@@ -1,5 +1,5 @@
 {
-  "version": "2026-03-25-v14",
+  "version": "2026-03-25-v13",
   "default_policy": {
     "prefer_existing_libraries": true,
     "ban_generic_defaults": true,
@@ -17,15 +17,7 @@
     "prefer_native_css_first": true,
     "require_section_rhythm_variation": true,
     "require_filtered_gradients": true,
-    "max_plain_white_sections": 2,
-    "max_stepped_gradient_sections_per_page": 1,
-    "max_stepped_gradient_sections_per_site": 4,
-    "max_dot_grid_sections_per_page": 1,
-    "require_scroll_to_top_on_navigation": true,
-    "require_interactive_faq": true,
-    "ban_visible_native_scrollbar_on_horizontal_scroll": true,
-    "every_section_must_have_interaction_or_state_change": true,
-    "quality_floor_no_template_grade_sections_allowed": true
+    "max_plain_white_sections": 2
   },
   "providers": [
     {
@@ -1224,18 +1216,17 @@
       "name": "Dot / Grid Pattern",
       "url": "https://heropatterns.com",
       "package": "native-css",
-      "score": 7.5,
+      "score": 8.8,
       "when_to_use": [
         "developer-tools",
+        "saas",
+        "dashboard",
         "technical-aesthetic"
       ],
       "avoid_when": [
         "luxury",
-        "editorial-magazine",
-        "already-used-on-this-page",
-        "more-than-one-per-page"
+        "editorial-magazine"
       ],
-      "key_rule": "Dot-grid is a SPICE, not a base. Maximum 1 section per page across the entire site. If you've used dot-grid on any section, you CANNOT use it again on the same page. Overusing dot-grid makes every section look the same and reduces visual diversity — the exact opposite of what background treatments should achieve. Reach for noise-texture, photography, solid colors, or frosted panels instead.",
       "traits": [
         "structured-depth",
         "technical-credibility",
@@ -1365,8 +1356,7 @@
           2,
           3
         ],
-        "alternate_direction": "rows can alternate left/right for visual depth",
-        "key_rule": "The marquee MUST have enough items that at least 3x the viewport width is filled with content BEFORE duplication. Use minimum 15-20 unique items. Triple the array (not just double) for seamless looping. Speed should be 40-60px/s minimum — anything below 30px/s feels broken and sluggish. If you can EVER see the 'seam' where the loop resets or empty space appears, you need more items. Test: resize to 1440px and watch the full loop — no gaps, no visible reset. Use overflow-hidden on the container and hide any native scrollbar."
+        "alternate_direction": "rows can alternate left/right for visual depth"
       }
     },
     {
@@ -2609,86 +2599,6 @@
       }
     },
     {
-      "id": "layout.interactive-card-stepper",
-      "category": "layout",
-      "name": "Interactive Card Stepper / Carousel Walkthrough",
-      "url": "https://www.embla-carousel.com/get-started/react/",
-      "package": "embla-carousel-react + framer-motion",
-      "score": 9.5,
-      "when_to_use": [
-        "product-walkthrough",
-        "feature-showcase",
-        "how-it-works",
-        "onboarding-flow",
-        "process-explanation"
-      ],
-      "avoid_when": [
-        "single-item-display"
-      ],
-      "traits": [
-        "interactive",
-        "state-change-on-click",
-        "anti-static",
-        "replaces-boring-numbered-steps"
-      ],
-      "key_rule": "For walkthroughs showing 3-5 steps, use large ticket-style or panel cards with navigation arrows (prev/next). Each card should be visually rich — not just text. Include inline UI mockups, small charts, status indicators, or bubble/pill elements within each card. The user should be able to click arrows OR the cards auto-advance tied to scroll. This is the PREFERRED alternative to static alternating text+image layouts for product walkthroughs. A static left-text-right-image alternating layout is boring — it feels like scrolling through a brochure. Interactive steppers feel like USING the product.",
-      "variants": {
-        "navigation": [
-          "arrow-buttons — prev/next arrows flanking the card",
-          "dot-indicators — clickable dots below the cards",
-          "scroll-linked — cards advance as user scrolls the page",
-          "auto-play-with-pause — cards rotate on a timer, pause on hover"
-        ],
-        "card_style": [
-          "ticket-card — rounded corners on one side, straight on the other, with a perforated-edge divider",
-          "panel-card — large full-width card with embedded UI mockup",
-          "bubble-widget-card — card with floating pill/badge elements showing live status",
-          "split-card — left side is text, right side is an interactive mini-visualization"
-        ],
-        "transition": [
-          "slide-horizontal — cards slide left/right with framer-motion",
-          "fade-scale — current card fades out and scales down, new card fades in",
-          "stack-overlap — cards stack on top of each other, active card is on top"
-        ]
-      }
-    },
-    {
-      "id": "ui.accordion-faq",
-      "category": "headless-ui",
-      "name": "Accordion / Collapsible FAQ",
-      "url": "https://www.radix-ui.com/primitives/docs/components/accordion",
-      "package": "@radix-ui/react-accordion + framer-motion",
-      "score": 9.5,
-      "when_to_use": [
-        "faq",
-        "feature-details",
-        "pricing-comparison",
-        "any-expandable-content"
-      ],
-      "avoid_when": [],
-      "traits": [
-        "interactive",
-        "reduces-visual-clutter",
-        "accessible",
-        "adds-state-change"
-      ],
-      "key_rule": "FAQ sections MUST use interactive accordions — NEVER static open text blocks. Show only questions by default; answers reveal on click with framer-motion height/opacity animation. A static FAQ with all answers visible is a wall of text that nobody reads. Accordions make the content scannable and add the interactivity that separates a designed site from a template. Use AnimatePresence + motion.div with layout animation for smooth open/close. Style the trigger with a rotation chevron icon.",
-      "variants": {
-        "style": [
-          "minimal — border-bottom divider between items, chevron rotates on open",
-          "card — each item is a separate card that expands, with elevation change",
-          "numbered — large oversized step numbers on the left, content expands on right",
-          "highlighted — active/open item gets a background color change or border accent"
-        ],
-        "behavior": [
-          "single — only one item open at a time (use Accordion type='single')",
-          "multiple — any number of items can be open simultaneously",
-          "first-open — first item is open by default to show the pattern"
-        ],
-        "implementation": "import * as Accordion from '@radix-ui/react-accordion'; Wrap items in <Accordion.Root>, each item has <Accordion.Item><Accordion.Trigger> for the question and <Accordion.Content> for the answer. Animate the content with framer-motion: use AnimatePresence and motion.div with initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} for smooth expansion."
-      }
-    },
-    {
       "id": "effects.parallax-tilt",
       "category": "surface",
       "name": "React Parallax Tilt",
@@ -2963,16 +2873,17 @@
       "name": "Stepped Gradient Panels",
       "url": "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout",
       "package": "native-css-grid",
-      "score": 8.8,
+      "score": 9.7,
       "when_to_use": [
+        "default",
         "hero-sections",
         "cta",
+        "saas",
+        "enterprise",
+        "marketing",
         "premium"
       ],
-      "avoid_when": [
-        "already-used-on-this-page",
-        "more-than-4-across-site"
-      ],
+      "avoid_when": [],
       "traits": [
         "zero-dependency",
         "anti-vibe-code",
@@ -2988,7 +2899,7 @@
           "with-content-overlay \u2014 text/cards floated over the strip grid via absolute positioning",
           "partial-coverage \u2014 strips cover part of the section, rest is solid color"
         ],
-        "usage_rule": "Stepped panels are ONE option, not THE default. Maximum 1 section per page, maximum 4 across the entire site. Do NOT use them on every hero and CTA — that creates visual monotony. For other sections, reach for: solid dark backgrounds with noise texture, full-bleed photography, frosted panels over imagery, or colored solid backgrounds with strong typography. Variety matters more than any single treatment being 'best'. Do NOT use CSS linear-gradient either — but don't replace every gradient with stepped panels.",
+        "usage_rule": "This is the PREFERRED gradient treatment for hero and CTA sections. Do NOT use CSS linear-gradient for backgrounds. Stepped panels look sophisticated and designed. Continuous gradients look AI-generated.",
         "palette_guidance": "WARM palettes (amber, gold, orange): use as PARTIAL coverage only (bottom 30% of section, or one side of a split). Never as full-section background \u2014 it flattens hierarchy and makes text hard to read. COOL palettes (blue, teal, navy): safe for full-section backgrounds. MIXED cool-to-warm: the most sophisticated \u2014 start cool on the left, shift to warm on the right. Creates visual movement. NEVER use your accent color as the dominant background color \u2014 it overwhelms. Each page must use a DIFFERENT palette for its stepped gradient."
       }
     }
@@ -3387,11 +3298,7 @@
     "feedback_loop_completeness_every_action_gets_visible_feedback",
     "mobile_interaction_patterns_drawers_on_mobile_dialogs_on_desktop",
     "data_visualization_appropriateness_right_chart_type_not_decorative",
-    "code_block_quality_syntax_highlighting_with_theme_and_line_numbers",
-    "consistent_quality_floor_no_section_below_adequate",
-    "every_section_has_interaction_or_state_change_not_just_fade_in",
-    "background_treatment_diversity_no_repeated_treatments_on_same_page",
-    "no_icon_card_grids_for_values_features_or_principles"
+    "code_block_quality_syntax_highlighting_with_theme_and_line_numbers"
   ],
   "banned_patterns": [
     "same-sized-3-column-card-grid-repeated",
@@ -3422,48 +3329,37 @@
     "countup-number-grid-as-the-only-social-proof-pattern",
     "same-stepped-gradient-palette-on-every-page-hero-vary-the-colors",
     "image-background-with-overlay-opacity-above-75-percent-image-becomes-invisible",
-    "centered-headline-on-plain-dark-rectangle-CTA-use-stepped-gradient-or-visible-image-instead",
-    "icon-heading-paragraph-card-grid-for-values-or-features-use-editorial-or-oversized-type-instead",
-    "static-faq-with-all-answers-visible-must-use-interactive-accordion",
-    "visible-native-scrollbar-on-horizontal-scroll-sections-hide-with-scrollbar-none",
-    "dot-grid-background-on-more-than-one-section-per-page",
-    "stepped-gradient-on-more-than-one-section-per-page",
-    "static-section-that-looks-identical-to-screenshot-every-section-needs-interaction-or-state-change",
-    "hero-with-decorative-widget-or-mockup-that-adds-no-information-prefer-text-dominant-heroes",
-    "marquee-with-fewer-than-15-unique-items-or-visible-loop-seam"
+    "centered-headline-on-plain-dark-rectangle-CTA-use-stepped-gradient-or-visible-image-instead"
   ],
   "content_type_guidance": {
     "product_walkthrough": {
       "lazy_defaults": [
         "sticky-left-panel-with-scrolling-steps",
         "numbered-list-with-side-image",
-        "tabbed-content-with-screenshot",
-        "static-alternating-text-left-image-right-repeating"
+        "tabbed-content-with-screenshot"
       ],
       "better_alternatives": [
-        "interactive-card-stepper \u2014 large ticket-style cards with navigation arrows (prev/next). Each card contains embedded UI mockups, bubble/pill status widgets, small charts. User clicks through or cards advance on scroll. See layout.interactive-card-stepper primitive.",
         "horizontal-scroll-panels \u2014 each step occupies a full viewport-width panel that scrolls left-to-right",
         "visual-pipeline \u2014 goods/data physically moves across screen with animated connectors between stages",
         "overlapping-reveal-cards \u2014 each step card overlaps the previous one as you scroll, creating depth",
+        "split-screen-progression \u2014 screen splits 50/50, each side tells a parallel story (before/after)",
         "full-bleed-stage-sections \u2014 each step is its own full-viewport section with unique visual treatment"
       ],
-      "composition_recipe": "Make each step feel INTERACTIVE, not like scrolling through a static brochure. A repeating pattern of text-on-left + image-on-right is boring \u2014 nothing changes as you scroll except the content swaps. Use the interactive-card-stepper for a dynamic feel where the user CLICKS or scrolls to advance through steps with visible state changes and transitions."
+      "composition_recipe": "Make each step feel like a DIFFERENT section, not items in a list. Vary the layout, background, and scale of each step dramatically."
     },
     "values_mission": {
       "lazy_defaults": [
         "icon-card-grid-2x2-or-3col",
         "icon-title-description-repeat",
-        "values-list-with-numbers",
-        "N-identical-rectangular-cards-with-icon-heading-paragraph"
+        "values-list-with-numbers"
       ],
       "better_alternatives": [
         "oversized-type-statements \u2014 each value is a massive headline (text-7xl+) with 2 lines of supporting text below, stacked vertically with generous spacing",
-        "full-bleed-alternating \u2014 each value gets its own full-width section alternating light/dark/image backgrounds, with real photography",
-        "editorial-pull-quotes \u2014 values as large serif italic quotes with attribution, interspersed with photography",
-        "single-value-per-viewport \u2014 one value fills the entire screen, scroll to the next",
-        "interactive-reveal \u2014 values reveal one at a time with scroll-triggered animation, each with a distinct visual treatment (not just fade-in)"
+        "full-bleed-alternating \u2014 each value gets its own full-width section alternating light/dark/image backgrounds",
+        "editorial-pull-quotes \u2014 values as large serif italic quotes with attribution",
+        "single-value-per-viewport \u2014 one value fills the entire screen, scroll to the next"
       ],
-      "composition_recipe": "Values are BELIEFS, not features. ANY section that is N cards of identical size with [icon + heading + paragraph] is BANNED. This includes 2-card, 3-card, and 4-card layouts. It is the single most overused AI pattern and signals zero design effort. Instead: use oversized type statements, editorial pull-quotes with real photography, or give each value its own full-width moment with distinct visual treatment. If you catch yourself creating identical rectangular cards with Tabler icons for values — stop and redesign."
+      "composition_recipe": "Values are BELIEFS, not features. Present them with the weight of beliefs \u2014 big type, emotional imagery, breathing room. Never as a card grid."
     },
     "investors_press": {
       "lazy_defaults": [
@@ -3539,44 +3435,15 @@
       "lazy_defaults": [
         "centered-headline-with-floating-dashboard-mockup",
         "badge-pill-then-headline-then-two-buttons",
-        "headline-over-gradient-with-product-screenshot",
-        "left-text-right-decorative-widget-that-adds-no-information"
+        "headline-over-gradient-with-product-screenshot"
       ],
       "better_alternatives": [
-        "editorial-statement \u2014 massive display type IS the section. Let typography + background carry it. No mockup needed. The headline overflows boldly, buttons below. Nothing else.",
-        "split-asymmetric \u2014 bold headline on 60%, rich visual element on 40%. The visual MUST add real information (actual product screenshot with real data, not a decorative widget).",
-        "full-bleed-visual \u2014 real photography fills the viewport, text overlaid with confidence",
+        "editorial-statement \u2014 massive display type IS the section. Let typography + background carry it. No mockup needed.",
+        "split-asymmetric \u2014 bold headline on 60%, rich visual element on 40%. The visual is NOT a generic dashboard.",
+        "full-bleed-visual \u2014 real photography or stepped gradient fills the viewport, text overlaid with confidence",
         "interactive-hero \u2014 the hero IS a mini-experience (calculator, demo, interactive element)"
       ],
-      "composition_recipe": "The hero sets the emotional tone. It should make the visitor feel something in 2 seconds. A bold statement on a rich background achieves this. A decorative widget or live-tracking mockup on the right that adds no real information WEAKENS the hero \u2014 it splits attention and dilutes the headline's impact. Default to text-dominant heroes. Only add a secondary visual if it genuinely tells the user something the headline cannot."
-    },
-    "faq": {
-      "lazy_defaults": [
-        "static-open-text-blocks-with-all-answers-visible",
-        "plain-list-of-question-answer-pairs",
-        "wall-of-text-faq-with-dead-space"
-      ],
-      "better_alternatives": [
-        "interactive-accordion \u2014 questions visible by default, answers expand on click with framer-motion animation. Use @radix-ui/react-accordion for accessibility.",
-        "search-filterable-faq \u2014 FAQ with a search input that filters questions in real-time",
-        "categorized-accordion \u2014 group questions by topic with collapsible category headers",
-        "card-flip-faq \u2014 question on front, answer reveals on click with a flip or expand animation"
-      ],
-      "composition_recipe": "FAQ MUST be interactive. A static wall of Q&A pairs is the laziest possible implementation and creates massive dead space. At minimum, use an accordion where only questions show by default and answers expand on click. The open/close animation should use framer-motion for smooth height transitions. Never show all answers at once."
-    },
-    "metrics_dashboard": {
-      "lazy_defaults": [
-        "chart-plus-sidebar-cards-no-animation",
-        "static-recharts-with-flat-metric-cards-beside-it",
-        "numbers-in-boxes-without-visual-hierarchy"
-      ],
-      "better_alternatives": [
-        "full-width-animated-chart \u2014 the chart is the HERO, spanning the full section width, with animated entry and scroll-triggered counter annotations overlaid",
-        "metric-as-background \u2014 the hero number is massive text at text-[10rem]+ with the chart integrated behind or below it",
-        "before-after-visualization \u2014 show the old state vs new state with an animated transition",
-        "interactive-metric-explorer \u2014 user can hover or click metrics to drill into detail cards"
-      ],
-      "composition_recipe": "Metrics sections must feel ALIVE. A static chart next to flat cards is the most common AI-generated pattern. The chart should animate on scroll entry. Every number should use counter-up animation. One metric dominates at 3x the size. Never give equal visual weight to all numbers."
+      "composition_recipe": "The hero sets the emotional tone. It should make the visitor feel something in 2 seconds. A bold statement on a rich background achieves this. A dashboard mockup does not."
     }
   }
 }
