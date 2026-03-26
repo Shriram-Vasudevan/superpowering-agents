@@ -273,11 +273,30 @@ the quality gate that ensures your output is exceptional, not just functional.
 You MUST follow this process. Do NOT start writing component code directly. \
 The main conversation is for PLANNING. A sub-agent BUILDS.
 
-PHASE 1 — GATHER CONTEXT (you do this):
+PHASE 1 — GATHER CONTEXT AND DEFINE PERSONALITY (you do this):
   1. Call superpower_context → study reference_visual_specs + reference images
-  2. Call superpower_primitive_catalog → browse available primitives
-  3. Call superpower_primitive_select → choose primitives, get install command
-  4. Call superpower_images 3+ times → get real Unsplash URLs
+  2. BEFORE touching primitives, define the DESIGN PERSONALITY for this site:
+     - MOOD: What should this site make someone FEEL? (calm authority? playful \
+       energy? editorial sophistication? technical precision? warm trust?)
+     - THEME: Light or dark? WHY? (Not all sites should be dark. Compliance \
+       = trust = light. Dev tools = precision = maybe dark. Finance = \
+       authority = light with selective dark sections. Decide intentionally.)
+     - ONE BOLD CHOICE: What's the ONE visual idea that makes this site \
+       unmistakably different from every other SaaS site? (e.g. "massive \
+       outlined serif type as the only decorative element" or "full-bleed \
+       photography, zero gradients" or "monochromatic teal with liquid glass")
+     - WHAT WE'RE NOT DOING: Name 3 common patterns we're explicitly avoiding. \
+       (e.g. "not doing dot-grid backgrounds, not doing dashboard mockup in \
+       hero, not doing icon-card grids")
+     Write this personality down — it guides everything that follows.
+  3. Call superpower_primitive_catalog → browse available primitives
+  4. Call superpower_primitive_select → choose 5-8 primitives that SERVE the \
+     personality you defined. Not 18 "just in case" primitives — the focused \
+     few that make this specific site's personality come alive. Different sites \
+     should select DIFFERENT primitives. A compliance site might want serif \
+     fonts + editorial layouts. A dev tools site might want monospace + bento \
+     grids. A fintech site might want charts + liquid glass. THINK about it.
+  5. Call superpower_images 3+ times → get real Unsplash URLs
 
 PHASE 2 — WRITE AN EXECPLAN (you do this):
   Write a detailed execution plan following this format. The plan is a living \
@@ -392,21 +411,26 @@ structured spec might miss. For each one, extract:
 
 Write a comment block documenting EVERY finding. Then build to match.
 
-## VISUAL BOLDNESS — MORE IS MORE
+## VISUAL INTENTIONALITY
 
-Your default instinct is to be "clean and minimal." OVERRIDE THAT. \
-Award-winning sites are visually BOLD. Look at delve.co — stepped rectangular \
-gradient panels in the hero, rich color variation, product screenshots as \
-interactive-looking elements, gridded layouts with visual density. That's the bar.
+Every visual choice should serve the DESIGN PERSONALITY you defined. \
+Not "add more layers" — ask "does this choice reinforce the mood I'm going for?"
 
-BE OVERSTIMULATING. Use color variation. Use rich gradients — but NEVER \
-continuous CSS linear-gradient or radial-gradient. Instead use STEPPED GRADIENT \
-PANELS: a flex row of 10-16 vertical colored divs, each with a slightly \
-different oklch color, creating abrupt color transitions between strips (see \
-the background.stepped-gradient-panels primitive). This is how delve.co does \
-their hero — rectangular color blocks, NOT smooth blobs or CSS gradients. \
-Use dense grids packed with content. Mix backgrounds aggressively — \
-white → stepped gradient → dark → image → colored solid → another gradient.
+If your personality says "calm authority" → clean surfaces, generous whitespace, \
+restrained color. A stepped gradient might be wrong. Editorial serif might be right.
+If your personality says "technical energy" → dense layouts, data visualizations, \
+monospace type, dark theme with bright data accents.
+If your personality says "warm trust" → photography-heavy, light backgrounds, \
+human faces, rounded type, warm color palette.
+
+The primitives in the catalog are TOOLS, not a checklist. Use the ones that serve \
+YOUR site's personality. A compliance site doesn't need the same primitives as a \
+dev tools site. Stop defaulting to dot-grid + stepped gradient + dark theme. \
+Ask: "What does THIS company's personality call for?"
+
+For backgrounds, VARY them across sections and use each treatment ONCE per page \
+maximum. Don't use dot-grid on 4 sections. Don't use stepped gradient on every \
+hero and CTA. Each section's background should be different from its neighbors.
 
 STRUCTURAL VARIETY RULE: Maximum 2 sections per page may use a card grid layout. \
 The remaining sections MUST use fundamentally different compositions: \

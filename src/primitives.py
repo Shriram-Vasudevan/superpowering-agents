@@ -414,11 +414,13 @@ def _provider_lines(category: str, provider: dict[str, Any]) -> list[str]:
 def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
     """Render injectable system-prompt addendum from a primitive bundle."""
     lines: list[str] = []
-    lines.append("## MANDATORY Primitive Stack — IMPLEMENT ALL OF THESE")
+    lines.append("## Your Primitive Toolkit")
     lines.append(
-        "These are not suggestions. Every primitive below MUST appear in your implementation. "
-        "Skipping any primitive is a failure. Use the listed variants creatively — combine "
-        "them in unexpected ways — but every one must be present and visible."
+        "These are the primitives selected for this site. Use them thoughtfully — "
+        "each one should serve your design personality. Not every primitive needs to "
+        "appear on every page. Focus on the 5-6 that make THIS site's personality "
+        "come alive. A compliance site uses different primitives than a dev tools site. "
+        "Think: what does this specific brand need?"
     )
 
     # Generate ready-to-paste npm install command and import statements
