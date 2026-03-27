@@ -570,18 +570,40 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
 
         "  FOLDER: name after company (lowercase). 'my-app' = failure.\n\n"
 
-        "  GRADIENTS: NO continuous CSS linear-gradient/radial-gradient for backgrounds.\n"
-        "     Use STEPPED GRADIENT PANELS (16-20 colored divs) on 2-3 sections ONLY.\n"
-        "     Each page's gradient must use a DIFFERENT color range — do not repeat\n"
-        "     the same palette on every page hero and CTA.\n\n"
+        "  BACKGROUNDS: Match the strategy to the industry.\n"
+        "     - Lifestyle / restaurant / fashion / beauty → full-bleed PHOTOGRAPHY\n"
+        "       with overlays and filters. Imagery is everything for these industries.\n"
+        "     - SaaS / dev tools / fintech → stepped gradients, mesh gradients, or\n"
+        "       abstract textures feel modern and technical.\n"
+        "     - NEVER default to one strategy for all sites. A restaurant with SaaS\n"
+        "       gradients looks wrong. A dev tool with food photography also looks wrong.\n"
+        "     NO continuous CSS linear-gradient/radial-gradient for backgrounds.\n"
+        "     Use 3-4 different treatments per page for rhythm and variety.\n"
+        "     No section should be just text on a flat solid color — add photography,\n"
+        "     texture, pattern, or typographic scale to EVERY section.\n\n"
+
+        "  VIEWPORT PRESENCE: Every full-viewport section (hero, CTA) must vertically\n"
+        "     CENTER its content using flex items-center justify-center. Content pushed\n"
+        "     to the bottom (items-end, large padding-top) looks broken — the user sees\n"
+        "     empty space above the fold. This is a critical layout failure.\n\n"
+
+        "  VISUAL DENSITY: Every viewport the user scrolls through should reward them —\n"
+        "     a new image, texture, or typographic moment. Dense visual information\n"
+        "     (photography, large type, textures, composition) makes sites feel premium.\n"
+        "     Empty space with nothing to look at makes them feel unfinished.\n\n"
 
         "  CORNERS: NO rounded-xl or rounded-2xl. Sharp corners only.\n\n"
 
         "  BRAND: bold text only for company name. No icon logos, no monograms.\n\n"
 
+        "  INDUSTRY-APPROPRIATE LAYOUTS: Match layout to content. Restaurant menus\n"
+        "     should look like MENUS (elegant rows with dividers, not card grids).\n"
+        "     Pricing should look like PRICING TABLES. Team sections should look like\n"
+        "     editorial PROFILES. The layout must feel native to the industry.\n\n"
+
         "  DESIGN CONFIDENCE — quality of statement, not quantity of layers:\n"
-        "     - A stepped gradient + massive headline IS a complete hero. It does NOT\n"
-        "       need a floating mockup, dot-grid overlay, and badge pill on top.\n"
+        "     - A strong background (photo, gradient, or texture) + massive headline\n"
+        "       IS a complete hero. It does NOT need extra floating elements on top.\n"
         "     - Features are a STORY, not a grid. Each feature should transform the\n"
         "       visual — change the image, shift the color, reveal a new element. If you\n"
         "       can swap the order of features and nothing changes visually, you've failed.\n"
@@ -592,9 +614,9 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
         "       to serve that feeling. Fewer elements, stronger. Not more elements, weaker.\n"
         "     - Check content_type_guidance in the primitive registry for per-section\n"
         "       alternatives to the lazy AI defaults.\n"
-        "     - Track background treatment usage: if dot-grid is on section 1, use\n"
-        "       noise-texture or stepped-gradient or image-bg on section 3. Never repeat\n"
-        "       the same background treatment twice on the same page.\n\n"
+        "     - Track background treatment usage: never repeat the same treatment\n"
+        "       twice on the same page. Vary between: photo-bg, dark-solid, textured,\n"
+        "       stepped-gradient, cream-with-prominent-photo.\n\n"
 
         "  TECH: Tailwind v4 — @theme inline { } for custom colors, NOT :root.\n"
         "     Node.js 25 — add NODE_OPTIONS='--localstorage-file=/tmp/nextls' to scripts.\n\n"
@@ -609,6 +631,10 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
         "  • Brand name is text only\n"
         "  • No two page heroes look the same\n"
         "  • No generic timeline, no logo-only marquee, no identical CTAs\n"
+        "  • Hero and CTA content is vertically CENTERED (items-center), never at bottom\n"
+        "  • No section is just text on a flat solid background — every section has visual treatment\n"
+        "  • Background strategy matches the industry (photos for lifestyle, gradients for tech, etc.)\n"
+        "  • Layouts match the industry (menus look like menus, not card grids)\n"
         "If any fails — go back and fix it. Do not declare complete."
     )
 

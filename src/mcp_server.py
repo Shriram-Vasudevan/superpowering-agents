@@ -585,10 +585,11 @@ def superpower_design_review(
     """
     # Template-grade indicators — things that signal lazy/safe design
     TEMPLATE_SIGNALS = [
-        "white background", "light background", "simple", "clean layout",
+        "simple", "clean layout",
         "basic", "standard", "normal", "bordered card", "rounded card",
         "left-aligned text", "text and button", "headline and subheadline",
         "centered text", "three columns", "three cards", "icon grid",
+        "items-end", "text on flat background", "no visual treatment",
     ]
 
     # Workflow enforcement
@@ -620,6 +621,11 @@ def superpower_design_review(
         "offset", "negative margin", "break out",
         "rhythm", "alternating", "dark section",
         "blob", "organic",
+        "photography", "photo background", "image background",
+        "items-center", "vertically centered",
+        "cinematic", "editorial", "warm-tone",
+        "vignette", "sepia", "color overlay",
+        "visual density", "large typography",
     ]
 
     section_scores: list[dict] = []

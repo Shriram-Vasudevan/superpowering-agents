@@ -17,7 +17,11 @@
     "prefer_native_css_first": true,
     "require_section_rhythm_variation": true,
     "require_filtered_gradients": true,
-    "max_plain_white_sections": 2
+    "max_plain_white_sections": 2,
+    "match_background_strategy_to_industry": true,
+    "require_viewport_centering_on_heroes_and_ctas": true,
+    "require_visual_density_every_viewport": true,
+    "no_flat_solid_bg_without_visual_treatment": true
   },
   "providers": [
     {
@@ -3329,7 +3333,12 @@
     "countup-number-grid-as-the-only-social-proof-pattern",
     "same-stepped-gradient-palette-on-every-page-hero-vary-the-colors",
     "image-background-with-overlay-opacity-above-75-percent-image-becomes-invisible",
-    "centered-headline-on-plain-dark-rectangle-CTA-use-stepped-gradient-or-visible-image-instead"
+    "centered-headline-on-plain-dark-rectangle-CTA-use-stepped-gradient-or-visible-image-instead",
+    "hero-or-cta-content-pushed-to-bottom-of-viewport-must-be-vertically-centered-with-items-center",
+    "any-section-with-only-text-on-flat-solid-background-and-no-visual-treatment-add-photo-texture-or-typography-scale",
+    "background-strategy-mismatched-to-industry-eg-saas-gradients-on-restaurant-or-food-photos-on-dev-tools",
+    "generic-card-grid-layout-for-industry-specific-content-like-menus-or-pricing-use-native-layout-patterns",
+    "100vh-section-with-empty-space-above-content-every-viewport-must-be-visually-filled"
   ],
   "content_type_guidance": {
     "product_walkthrough": {
@@ -3407,15 +3416,16 @@
       "lazy_defaults": [
         "centered-text-on-dark-bg",
         "gradient-bg-with-two-buttons",
-        "simple-headline-cta"
+        "simple-headline-cta",
+        "stepped-gradient-with-centered-text-only"
       ],
       "better_alternatives": [
-        "stepped-gradient-with-asymmetric-layout \u2014 gradient panels with text on one side, interactive element on the other",
-        "split-screen-cta \u2014 one half is a bold visual (gradient, image, animation), the other is the action",
+        "full-bleed-photography-with-dark-overlay \u2014 moody photo background (desaturated, grain, 50-60% dark overlay), massive centered headline, content vertically centered in viewport with items-center justify-center",
+        "split-screen-cta \u2014 one half is a full-bleed image, the other is the action with dark bg",
         "full-bleed-image-with-glassmorphic-card \u2014 real photography with a frosted CTA card floating over it",
-        "interactive-roi-calculator-as-cta \u2014 the CTA IS a mini-tool that demonstrates value"
+        "editorial-image-cta \u2014 large atmospheric photo fills viewport, text overlaid with mix-blend-difference or on dark overlay"
       ],
-      "composition_recipe": "The CTA should be the CLIMAX of the page, not an afterthought. It should be the most visually striking section. No two CTAs across the site should look the same."
+      "composition_recipe": "The CTA should be the CLIMAX of the page, not an afterthought. It must be visually striking AND have content vertically centered in the viewport (items-center justify-center). Full-bleed photography with dark overlays is the SAFEST high-impact choice. No two CTAs across the site should look the same."
     },
     "features": {
       "lazy_defaults": [
@@ -3435,13 +3445,14 @@
       "lazy_defaults": [
         "centered-headline-with-floating-dashboard-mockup",
         "badge-pill-then-headline-then-two-buttons",
-        "headline-over-gradient-with-product-screenshot"
+        "headline-over-gradient-with-product-screenshot",
+        "stepped-gradient-with-small-photo-on-side"
       ],
       "better_alternatives": [
-        "editorial-statement \u2014 massive display type IS the section. Let typography + background carry it. No mockup needed.",
-        "split-asymmetric \u2014 bold headline on 60%, rich visual element on 40%. The visual is NOT a generic dashboard.",
-        "full-bleed-visual \u2014 real photography or stepped gradient fills the viewport, text overlaid with confidence",
-        "interactive-hero \u2014 the hero IS a mini-experience (calculator, demo, interactive element)"
+        "full-bleed-photography \u2014 real image fills viewport with dark gradient overlay (heavier at bottom for legibility), parallax drift, grain texture. Content vertically centered with items-center. The photo IS the hero.",
+        "editorial-statement \u2014 massive display type on dark bg with texture/grain. Let typography + atmosphere carry it.",
+        "split-asymmetric \u2014 bold headline on 60%, LARGE photograph on 40% (not a small thumbnail). Image fills its half.",
+        "cinematic-dark \u2014 dark bg with atmospheric image at low opacity as texture, massive serif headline, warm accent color"
       ],
       "composition_recipe": "The hero sets the emotional tone. It should make the visitor feel something in 2 seconds. A bold statement on a rich background achieves this. A dashboard mockup does not."
     }

@@ -446,6 +446,58 @@ Every section should tell a STORY, not display data. Show transformation: \
 before → after, problem → solution, complexity → simplicity. If a section \
 is just "heading + paragraph + card grid" — redesign it until it evokes feeling.
 
+## EVERY SECTION MUST EARN ITS EXISTENCE
+
+No section should be just "text on a flat background." Whether the site is dark \
+or light, every section needs VISUAL RICHNESS — background treatment (photo, \
+gradient, texture, pattern), typography with scale and contrast, and at least one \
+element that makes the section feel designed rather than generated.
+
+This applies equally to light themes and dark themes: \
+- A LIGHT section can be rich: cream bg + large photography filling 50%+ of the \
+  area + noise texture + strong typographic scale + asymmetric layout. \
+- A DARK section can be rich: charcoal bg + photo with overlay + grain + large \
+  display type. \
+- A BLAND section is always wrong: any flat solid color with small text centered \
+  and nothing else, regardless of whether it's white or black.
+
+The measure is VISUAL DENSITY — every viewport the user scrolls through should \
+reward them with something engaging. Dense visual information (photography, large \
+typography, textures, asymmetric composition) is what makes sites feel premium. \
+Dead empty space with nothing to look at makes sites feel unfinished.
+
+## MATCH THE BACKGROUND STRATEGY TO THE BRAND
+
+Different sites call for different background strategies. Choose deliberately: \
+- Lifestyle / restaurant / fashion / beauty → full-bleed PHOTOGRAPHY with overlays \
+  and filters. These industries live and die on imagery. \
+- SaaS / developer tools / fintech → stepped gradients, mesh gradients, or abstract \
+  textures work well. These feel modern and technical. \
+- Editorial / agency / luxury → can go either way, but lean toward photography or \
+  bold color blocks with strong typography. \
+- NEVER default to one strategy for all sites. The background treatment should feel \
+  native to the industry. A restaurant with SaaS gradients looks wrong. A dev tool \
+  with food photography also looks wrong.
+
+Each background treatment is ONE tool. Use 3-4 different treatments per page for \
+rhythm and variety. No more than 2 sections with the same treatment on one page.
+
+## VIEWPORT PRESENCE
+
+Every full-viewport section (hero, CTA, editorial beats) must have content that \
+is VERTICALLY CENTERED using flex items-center justify-center. Content pushed to \
+the bottom of the viewport (items-end, excessive padding-top) makes the section \
+look broken — the user sees empty space above the fold and thinks nothing loaded. \
+This is universally true regardless of light/dark theme.
+
+## INDUSTRY-APPROPRIATE LAYOUTS
+
+Match the layout to the content. Restaurant menus should look like MENUS — \
+dish name, description, price in elegant rows with thin dividers — not cards \
+in a 3-column grid. Pricing pages should look like PRICING TABLES. Team \
+sections should look like editorial PROFILES. The layout should feel native \
+to the industry, not like a generic template that could hold any content.
+
 ## IMAGES — USE url_full FOR ALL HERO AND FULL-BLEED SECTIONS
 
 When you get images from superpower_images, each image has url, url_full, url_small. \

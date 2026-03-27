@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-charcoal: oklch(0.15 0.01 60);
+  --color-charcoal-light: oklch(0.20 0.01 60);
+  --color-cream: oklch(0.96 0.02 80);
+  --color-cream-dark: oklch(0.93 0.02 80);
+  --color-amber: oklch(0.72 0.14 60);
+  --color-amber-light: oklch(0.82 0.10 60);
+  --color-forest: oklch(0.35 0.08 150);
+  --color-forest-light: oklch(0.45 0.06 150);
+  --color-warm-white: oklch(0.98 0.01 80);
+  --font-display: var(--font-cormorant);
+  --font-body: var(--font-jost);
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+  color: oklch(0.96 0.02 80);
+  background: oklch(0.15 0.01 60);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Noise texture overlay */
+.noise-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  z-index: 1;
+}
+
+/* Image grain overlay */
+.grain-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Warm tone filter */
+.warm-tone {
+  filter: sepia(0.15) saturate(1.1) brightness(0.95);
+}
+
+/* Sepia filter */
+.sepia-filter {
+  filter: sepia(0.4) saturate(0.8);
+}
+
+/* Vignette */
+.vignette::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, oklch(0 0 0 / 0.5) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* High contrast */
+.high-contrast {
+  filter: contrast(1.15) brightness(0.9);
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Selection styling */
+::selection {
+  background: oklch(0.72 0.14 60 / 0.3);
+}
+
+/* Shimmer sweep animation for buttons */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.15), transparent);
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+.shimmer-btn:hover::after {
+  animation: shimmer-sweep 0.6s ease-out;
+}
+
+/* Ticker animation */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes ticker-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-ticker {
+  animation: ticker 30s linear infinite;
+}
+.animate-ticker-reverse {
+  animation: ticker-reverse 30s linear infinite;
+}
