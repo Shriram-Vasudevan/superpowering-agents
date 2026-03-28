@@ -1,14 +1,20 @@
 {
   "version": 1,
   "recent_layout_patterns": [
-    "fullscreen_media",
-    "hero_cta",
-    "split_screen",
     "single_column",
+    "hero_cta",
+    "fullscreen_media",
+    "split_screen",
     "card_grid",
     "form_centered"
   ],
   "recent_domains": [
+    "louisemertens.com",
+    "lumvin.ch",
+    "learn.forgooddesignlab.com",
+    "watchhouse.com",
+    "sohoskin.com",
+    "eatmangia.com",
     "natureofthings.com",
     "amritpalace.com",
     "promeat.chipsa.design",
@@ -42,13 +48,7 @@
     "jotform.com",
     "fruitful.com",
     "finta.com",
-    "helloaria.eu",
-    "spendesk.com",
-    "magicbeans.app",
-    "enterprise.chippercash.com",
-    "kokuyo.com",
-    "opti.ai",
-    "stripe.com"
+    "helloaria.eu"
   ],
-  "updated_at": "2026-03-27T01:37:32.711250+00:00"
+  "updated_at": "2026-03-28T21:20:27.142484+00:00"
 }
