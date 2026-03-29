@@ -501,7 +501,7 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
 
     archetype = bundle.get("variation_archetype") or {}
     if archetype:
-        lines.append("\n## MANDATORY Design Archetype — Build exactly this structure:")
+        lines.append("\n## Design Archetype — Use as inspiration, not a rigid blueprint:")
         lines.append(f"  archetype: {archetype.get('id', 'N/A')}")
         lines.append(f"  layout style: {archetype.get('layout', 'N/A')}")
         lines.append(f"  hero type: {archetype.get('hero', 'N/A')}")
@@ -509,7 +509,9 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
         lines.append(f"  background treatment: {archetype.get('background', 'N/A')}")
         moves = archetype.get("signature_moves", [])
         if moves:
-            lines.append(f"  signature moves (IMPLEMENT ALL): {', '.join(moves)}")
+            lines.append(f"  signature moves (incorporate these): {', '.join(moves)}")
+        lines.append("  NOTE: This archetype is a STARTING POINT. Adapt it to serve the")
+        lines.append("  industry and brand. Invent your own structural ideas beyond this.")
 
     motion = bundle.get("motion_primitives", [])
     if motion:
@@ -557,84 +559,60 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
         "  STEP 10. Verify every selected primitive is actually imported and used.\n"
         "  STEP 11. Only THEN declare complete.\n\n"
 
-        "## NON-NEGOTIABLE BUILD REQUIREMENTS\n\n"
+        "## BUILD REQUIREMENTS\n\n"
 
-        "  PAGES: 4 separate pages minimum, each SUBSTANTIAL:\n"
-        "     - app/page.tsx: home — 8-12 sections, each one must JUSTIFY ITS EXISTENCE.\n"
-        "       Ask: what emotional beat does this section deliver that no other section\n"
-        "       does? If two sections deliver the same beat (e.g. 'trust'), merge them.\n"
-        "       7 powerful sections > 12 mediocre ones.\n"
-        "     - app/pricing/page.tsx: full pricing with substance\n"
-        "     - app/about/page.tsx: tell the company story VISUALLY, not as a timeline\n"
-        "     - app/integrations/page.tsx: dedicated integrations with real detail\n\n"
+        "  PAGES: Multiple pages that make sense for THIS business. NOT a rigid\n"
+        "     template of 'home + pricing + about.' An aerospace company needs\n"
+        "     vehicles, missions, facilities. A restaurant needs menu, reservations.\n"
+        "     A law firm needs practice areas, cases, team. Choose pages that FIT\n"
+        "     the industry. Home page should have 8+ visually distinct sections.\n"
+        "     7 powerful sections > 12 mediocre ones.\n\n"
 
         "  FOLDER: name after company (lowercase). 'my-app' = failure.\n\n"
 
-        "  BACKGROUNDS: Match the strategy to the industry.\n"
-        "     - Lifestyle / restaurant / fashion / beauty → full-bleed PHOTOGRAPHY\n"
-        "       with overlays and filters. Imagery is everything for these industries.\n"
-        "     - SaaS / dev tools / fintech → stepped gradients, mesh gradients, or\n"
-        "       abstract textures feel modern and technical.\n"
-        "     - NEVER default to one strategy for all sites. A restaurant with SaaS\n"
-        "       gradients looks wrong. A dev tool with food photography also looks wrong.\n"
-        "     NO continuous CSS linear-gradient/radial-gradient for backgrounds.\n"
-        "     Use 3-4 different treatments per page for rhythm and variety.\n"
-        "     No section should be just text on a flat solid color — add photography,\n"
-        "     texture, pattern, or typographic scale to EVERY section.\n\n"
+        "  DESIGN LANGUAGE: The ENTIRE site — navigation, section transitions,\n"
+        "     micro-copy, metadata, footer — should feel NATIVE to the industry.\n"
+        "     An aerospace site should feel like mission control. A law firm should\n"
+        "     feel like a legal brief. Do NOT use the same navbar/footer/hero pattern\n"
+        "     on every site. INVENT navigation and structure that serves THIS brand.\n\n"
 
-        "  VIEWPORT PRESENCE: Every full-viewport section (hero, CTA) must vertically\n"
-        "     CENTER its content using flex items-center justify-center. Content pushed\n"
-        "     to the bottom (items-end, large padding-top) looks broken — the user sees\n"
-        "     empty space above the fold. This is a critical layout failure.\n\n"
+        "  PHOTOGRAPHY: Images should DOMINATE — 60-70% of visual area in key\n"
+        "     sections, not thumbnails in card grids. Use url_full for heroes.\n"
+        "     Dark overlays must stay below 40% opacity so images remain visible.\n\n"
 
-        "  VISUAL DENSITY: Every viewport the user scrolls through should reward them —\n"
-        "     a new image, texture, or typographic moment. Dense visual information\n"
-        "     (photography, large type, textures, composition) makes sites feel premium.\n"
-        "     Empty space with nothing to look at makes them feel unfinished.\n\n"
+        "  TYPOGRAPHY: Hero headings should be MASSIVE — viewport-spanning when\n"
+        "     possible. Use the full width. Think text-[10vw] or text-[12vw], not\n"
+        "     text-5xl centered in a narrow column. Mixed weights (thin + black)\n"
+        "     in the same heading creates editorial sophistication.\n\n"
 
-        "  CORNERS: NO rounded-xl or rounded-2xl. Sharp corners only.\n\n"
+        "  VISUAL DENSITY: Every viewport should reward the user — a new image,\n"
+        "     texture, or typographic moment. No section is just text on flat color.\n\n"
 
-        "  BRAND: bold text only for company name. No icon logos, no monograms.\n\n"
+        "  CORNERS: Prefer sharp corners (0-4px). NO rounded-xl or rounded-2xl.\n\n"
 
-        "  INDUSTRY-APPROPRIATE LAYOUTS: Match layout to content. Restaurant menus\n"
-        "     should look like MENUS (elegant rows with dividers, not card grids).\n"
-        "     Pricing should look like PRICING TABLES. Team sections should look like\n"
-        "     editorial PROFILES. The layout must feel native to the industry.\n\n"
+        "  BRAND: Bold text only for company name. No icon logos.\n\n"
 
-        "  DESIGN CONFIDENCE — quality of statement, not quantity of layers:\n"
-        "     - A strong background (photo, gradient, or texture) + massive headline\n"
-        "       IS a complete hero. It does NOT need extra floating elements on top.\n"
-        "     - Features are a STORY, not a grid. Each feature should transform the\n"
-        "       visual — change the image, shift the color, reveal a new element. If you\n"
-        "       can swap the order of features and nothing changes visually, you've failed.\n"
-        "     - For social proof, reach for the LESS COMMON pattern first. A full-bleed\n"
-        "       single testimonial at text-5xl is more confident than a marquee of logos.\n"
-        "     - Every page hero must feel COMPLETELY DIFFERENT from every other page hero.\n"
-        "     - Think about what FEELING the site should evoke. Then make BOLD CHOICES\n"
-        "       to serve that feeling. Fewer elements, stronger. Not more elements, weaker.\n"
-        "     - Check content_type_guidance in the primitive registry for per-section\n"
-        "       alternatives to the lazy AI defaults.\n"
+        "  DESIGN CONFIDENCE:\n"
+        "     - Features are a STORY, not a grid. Each should transform the visual.\n"
+        "     - Every page hero must feel COMPLETELY DIFFERENT from every other.\n"
         "     - Track background treatment usage: never repeat the same treatment\n"
-        "       twice on the same page. Vary between: photo-bg, dark-solid, textured,\n"
-        "       stepped-gradient, cream-with-prominent-photo.\n\n"
+        "       twice on the same page.\n\n"
 
         "  TECH: Tailwind v4 — @theme inline { } for custom colors, NOT :root.\n"
         "     Node.js 25 — add NODE_OPTIONS='--localstorage-file=/tmp/nextls' to scripts.\n\n"
 
-        "## COMPLIANCE — all must be true before finishing\n"
-        "  • 4 separate pages with 8+ sections each (home has 12+)\n"
-        "  • Every selected primitive is imported and visibly used in the code\n"
-        "  • superpower_design_review was called and returned PASS\n"
-        "  • superpower_check_layout was run on every page\n"
-        "  • Zero continuous CSS gradients\n"
-        "  • Zero rounded-xl on containers\n"
-        "  • Brand name is text only\n"
+        "## QUALITY CHECK — verify before finishing\n"
+        "  • Does the site feel CUSTOM and INDUSTRY-NATIVE, not like a swapped template?\n"
+        "  • Is there a coherent design language throughout (not just sections stitched together)?\n"
+        "  • Is photography PROMINENT — large, full-bleed, dominant in key sections?\n"
+        "  • Are hero headings MASSIVE — viewport-spanning, not small centered text?\n"
+        "  • Does the navigation feel invented for THIS brand, not generic?\n"
+        "  • npx next build succeeds with zero errors\n"
+        "  • Real Unsplash images in every image slot\n"
+        "  • Brand name is text only — no icon logos\n"
         "  • No two page heroes look the same\n"
-        "  • No generic timeline, no logo-only marquee, no identical CTAs\n"
-        "  • Hero and CTA content is vertically CENTERED (items-center), never at bottom\n"
-        "  • No section is just text on a flat solid background — every section has visual treatment\n"
-        "  • Background strategy matches the industry (photos for lifestyle, gradients for tech, etc.)\n"
-        "  • Layouts match the industry (menus look like menus, not card grids)\n"
+        "  • Hero and CTA content is vertically centered, not pushed to bottom\n"
+        "  • No section is just text on flat solid background\n"
         "If any fails — go back and fix it. Do not declare complete."
     )
 

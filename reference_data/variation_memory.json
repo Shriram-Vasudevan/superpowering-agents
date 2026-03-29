@@ -1,14 +1,20 @@
 {
   "version": 1,
   "recent_layout_patterns": [
-    "single_column",
     "hero_cta",
+    "single_column",
     "fullscreen_media",
     "split_screen",
     "card_grid",
     "form_centered"
   ],
   "recent_domains": [
+    "cohere.com",
+    "volta.net",
+    "juro.com",
+    "entreautre.com",
+    "dhero.studio",
+    "trendingpeaceindex.com",
     "louisemertens.com",
     "lumvin.ch",
     "learn.forgooddesignlab.com",
@@ -42,13 +48,7 @@
     "everest-systems.com",
     "optimism.io",
     "championstore.com",
-    "ambiq.com",
-    "orthofx.com",
-    "fidesoak.com",
-    "jotform.com",
-    "fruitful.com",
-    "finta.com",
-    "helloaria.eu"
+    "ambiq.com"
   ],
-  "updated_at": "2026-03-28T21:20:27.142484+00:00"
+  "updated_at": "2026-03-29T01:18:03.818475+00:00"
 }

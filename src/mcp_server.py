@@ -1161,7 +1161,7 @@ async def superpower_check_layout(
     2. VISUAL RICHNESS DETECTION — finds template-grade sections: sections
        without background treatments, missing surface depth (no glassmorphism,
        shadows, or spotlight effects), small typography, lack of animation
-       attributes, and overall page monotony. Sections scoring 2/10 or below
+       attributes, and overall page monotony. Sections scoring 5/10 or below
        on richness are flagged as needing more visual ambition.
 
     Each issue gets a numbered colored box in the screenshot:
