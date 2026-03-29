@@ -13,9 +13,12 @@ import os
 from typing import Callable
 
 import json
+import base64
 
 from mcp.server.fastmcp import FastMCP, Image
 from mcp.server.transport_security import TransportSecuritySettings
+
+from src.config import settings
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -210,16 +213,26 @@ def superpower_context(
     # Track workflow state
     _workflow.context_called = True
     _workflow.context_domains = [r.domain for r in results]
-    system_prompt = ""
+
+    # Import the disposition prompt — this MUST always be returned so the LLM
+    # gets the design personality, quality standards, and visual density guidance
+    # regardless of whether primitives are auto-selected or manually chosen.
+    from src.pipeline import CONTEXT_SYSTEM_PROMPT
+
     primitive_bundle = None
     if auto_primitives:
         system_prompt, primitive_bundle = build_context_system_prompt(prompt, intent, results)
+    else:
+        # Even in manual mode, the disposition / personality / quality guidance
+        # is critical. Without it the LLM produces generic SaaS-looking output.
+        system_prompt = CONTEXT_SYSTEM_PROMPT
 
     instructions = (
-        "Follow the system_prompt. The server enforces workflow order — it will "
-        "block you if you skip steps. Study reference_surface_analysis to match "
-        "the visual richness of your references. Install and use the actual npm "
-        "packages from your primitive selection."
+        "Follow the system_prompt CAREFULLY — it contains your design disposition, "
+        "quality standards, and mandatory workflow. The server enforces workflow "
+        "order — it will block you if you skip steps. Study reference_surface_analysis "
+        "to match the visual richness of your references. Install and use the actual "
+        "npm packages from your primitive selection."
     )
 
     # Build aggregate DOM surface analysis for all references
@@ -1099,8 +1112,8 @@ A "C" section is average/forgettable. "B" is good but not memorable. "A" is exce
 Return ONLY the JSON object."""
 
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=1500,
+            model="claude-sonnet-4-6-20250627",
+            max_tokens=4096,
             messages=[{
                 "role": "user",
                 "content": [
@@ -1118,7 +1131,7 @@ Return ONLY the JSON object."""
         if text.startswith("json"):
             text = text[4:].strip()
 
-        review = _json.loads(text)
+        review = json.loads(text)
         review["url"] = url
         review["instructions"] = (
             "Fix ALL critical_issues and any section graded D or F. "

@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     anthropic_api_key: str = ""
     unsplash_access_key: str = ""
-    model_name: str = "claude-sonnet-4-20250514"
+    model_name: str = "claude-sonnet-4-6-20250627"
     max_references: int = 5
     max_screenshot_width: int = 1200
 

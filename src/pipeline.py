@@ -74,7 +74,7 @@ def analyze_reference_screenshot(image_bytes: bytes, domain: str) -> dict[str, s
         img_b64 = base64.b64encode(image_bytes).decode("utf-8")
 
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model="claude-sonnet-4-6-20250627",
             max_tokens=600,
             messages=[
                 {
