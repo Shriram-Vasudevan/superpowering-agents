@@ -13,7 +13,6 @@ import os
 from typing import Callable
 
 import json
-import base64
 
 from mcp.server.fastmcp import FastMCP, Image
 from mcp.server.transport_security import TransportSecuritySettings
@@ -93,6 +92,9 @@ class _WorkflowState:
         self.design_reviewed: bool = False
         self.design_review_passed: bool = False
         self.images_called: int = 0
+        self.review_build_called: bool = False
+        self.review_build_grade: str | None = None
+        self.review_build_iterations: int = 0
 
     def check_prerequisite(self, step: str) -> str | None:
         """Return an error message if prerequisites for a step aren't met, else None."""
@@ -567,44 +569,40 @@ def superpower_primitive_select(
 @mcp.tool()
 def superpower_design_review(
     sections: list[str],
+    sub_agent_verdict: str | None = None,
     reference_domains: list[str] | None = None,
     selected_primitives: list[str] | None = None,
 ) -> dict:
-    """Pre-build visual quality gate — call this BEFORE writing any code.
+    """Pre-build creative quality gate — uses YOUR sub-agent as the design critic.
 
-    Describe each planned section's visual treatment in natural language, and
-    this tool will score whether your plan is ambitious enough relative to your
-    references. This prevents the most common failure mode: planning a "clean"
-    design that's actually just empty and template-grade.
+    TWO MODES:
 
-    WHAT TO DESCRIBE FOR EACH SECTION:
-    - Background treatment (gradient, texture, color, image, pattern)
-    - Typography choices (scale, weight, contrast, effects)
-    - Surface depth (shadows, glassmorphism, spotlight, borders)
-    - Layout approach (asymmetric, bento, full-bleed, split, overlapping)
-    - Animation intent (parallax, reveal, hover effects)
-    - Image treatment (grain, filters, duotone, overlay)
+    MODE 1 — GET REVIEW PROMPT (no sub_agent_verdict):
+      Pass your section descriptions. Returns a critic disposition prompt.
+      You MUST spawn a sub-agent with this prompt to review your plan.
+      The sub-agent is a fresh perspective — it catches the boring patterns
+      you've gone blind to. Do NOT skip the sub-agent. Do NOT review your
+      own work — you are biased toward what you just designed.
 
-    BAD example:  "Hero section with headline and CTA button"
-    GOOD example: "Full-viewport hero with mesh gradient background transitioning
-    from deep teal to warm amber, oversized display text at text-9xl with
-    text-reveal-clip animation, glassmorphic floating product card with
-    spotlight hover effect, noise texture overlay at 4% opacity"
+    MODE 2 — RECORD VERDICT (with sub_agent_verdict):
+      After your review sub-agent reports back, call this tool again with
+      sub_agent_verdict set to "PASS", "NEEDS WORK", or "FAIL".
+      This updates workflow state so you can proceed to building.
+      If the verdict is not PASS, revise your plan and repeat.
+
+    The sub-agent pattern:
+      1. Call superpower_design_review(sections=[...]) → get critic_prompt
+      2. Spawn a sub-agent with the critic_prompt as its task
+      3. Read the sub-agent's response — it grades each section
+      4. If PASS → call superpower_design_review(sections=[...], sub_agent_verdict="PASS")
+      5. If not PASS → revise sections based on feedback, go to step 1
 
     Args:
-        sections: List of natural-language descriptions of each section's visual plan.
+        sections: Natural-language descriptions of each section's visual plan.
+        sub_agent_verdict: "PASS", "NEEDS WORK", or "FAIL" from your review sub-agent.
         reference_domains: Domains from superpower_context (for comparison scoring).
         selected_primitives: Provider IDs from superpower_primitive_select.
     """
-    # Template-grade indicators — things that signal lazy/safe design
-    TEMPLATE_SIGNALS = [
-        "simple", "clean layout",
-        "basic", "standard", "normal", "bordered card", "rounded card",
-        "left-aligned text", "text and button", "headline and subheadline",
-        "centered text", "three columns", "three cards", "icon grid",
-        "items-end", "text on flat background", "no visual treatment",
-    ]
-
     # Workflow enforcement
     prereq_error = _workflow.check_prerequisite("design_review")
     if prereq_error:
@@ -616,260 +614,89 @@ def superpower_design_review(
     if not selected_primitives and _workflow.selected_primitive_ids:
         selected_primitives = _workflow.selected_primitive_ids
 
-    # Visual richness indicators — things that signal ambitious design
-    RICHNESS_SIGNALS = [
-        "gradient", "mesh", "aurora", "glassmorphism", "glassmorphic",
-        "blur", "noise", "grain", "texture", "parallax", "spotlight",
-        "oversized", "full-bleed", "full-viewport", "overlapping",
-        "asymmetric", "bento", "split-screen", "duotone", "film",
-        "radial", "mask", "clip-path", "reveal", "stagger",
-        "floating", "layered", "depth", "3d", "perspective",
-        "animated", "typewriter", "counter", "marquee", "ticker",
-        "outlined", "stroke", "decorative numeral",
-        "frosted", "backdrop-blur", "mix-blend", "compositing",
-        "inner glow", "inset shadow", "filtered gradient", "sand texture",
-        "feturbulence", "contrast(", "saturate(",
-        "color shift", "color morph", "tilt",
-        "highlight", "weight contrast", "accent word",
-        "offset", "negative margin", "break out",
-        "rhythm", "alternating", "dark section",
-        "blob", "organic",
-        "photography", "photo background", "image background",
-        "items-center", "vertically centered",
-        "cinematic", "editorial", "warm-tone",
-        "vignette", "sepia", "color overlay",
-        "visual density", "large typography",
-    ]
+    # ── MODE 2: Record verdict from sub-agent ──
+    if sub_agent_verdict:
+        verdict = sub_agent_verdict.upper().strip()
+        _workflow.design_reviewed = True
+        _workflow.design_review_passed = verdict == "PASS"
 
-    section_scores: list[dict] = []
-    total_richness = 0
-    total_template = 0
-
-    for i, desc in enumerate(sections, 1):
-        desc_lower = desc.lower()
-        words = len(desc.split())
-
-        # Count richness and template signals
-        richness_found = [s for s in RICHNESS_SIGNALS if s in desc_lower]
-        template_found = [s for s in TEMPLATE_SIGNALS if s in desc_lower]
-
-        richness_score = len(richness_found)
-        template_score = len(template_found)
-
-        # Penalize very short descriptions — they indicate under-thinking
-        if words < 15:
-            template_score += 2
-
-        # Count distinct visual LAYERS (background + layout + interactive + typography)
-        layer_categories = {
-            "background": ["gradient", "noise", "texture", "image", "photo", "dark section", "stepped"],
-            "layout": ["asymmetric", "split", "bento", "magazine", "overlap", "offset", "horizontal scroll", "sticky"],
-            "interactive": ["tilt", "spotlight", "hover", "parallax", "scroll-triggered", "animated"],
-            "typography": ["oversized", "serif", "display", "reveal", "split-type", "weight contrast"],
-            "depth": ["glassmorphism", "frosted", "blur", "shadow", "inner glow", "layered"],
-        }
-        layers_present = 0
-        for cat, keywords in layer_categories.items():
-            if any(kw in desc_lower for kw in keywords):
-                layers_present += 1
-
-        # Determine verdict — requires LAYERED treatments, not just keyword presence
-        if layers_present >= 3 and richness_score >= 4 and template_score == 0:
-            verdict = "STRONG"
-            note = f"This section has {layers_present} visual layers. Ambitious."
-        elif layers_present >= 2 and richness_score >= 2:
-            verdict = "ADEQUATE"
-            note = (
-                f"Has {layers_present} visual layers but could use more. "
-                f"Add a {'background' if not any(kw in desc_lower for kw in layer_categories['background']) else 'layout'} "
-                f"treatment to make it richer."
-            )
+        if verdict == "PASS":
+            return {
+                "status": "DESIGN REVIEW PASSED",
+                "instructions": "Your design plan passed review. Proceed to building.",
+            }
         else:
-            verdict = "TEMPLATE-GRADE"
-            note = (
-                f"Only {layers_present} visual layer(s). Sections need 3+ layers: "
-                "background treatment + layout composition + interactive element + "
-                "typography effect. 'Counters on dark bg' is one layer. Add photography, "
-                "asymmetric layout, overlapping elements, or interactive depth."
-            )
+            return {
+                "status": f"DESIGN REVIEW: {verdict}",
+                "instructions": (
+                    "Your design plan did not pass. Revise your section descriptions "
+                    "based on the sub-agent's feedback, then call superpower_design_review "
+                    "again with the updated sections (without sub_agent_verdict) to get "
+                    "a new review. Keep iterating until the sub-agent says PASS."
+                ),
+            }
 
-        total_richness += richness_score
-        total_template += template_score
+    # ── MODE 1: Generate critic prompt for sub-agent ──
 
-        section_scores.append({
-            "section": i,
-            "description_preview": desc[:120] + ("..." if len(desc) > 120 else ""),
-            "word_count": words,
-            "verdict": verdict,
-            "richness_signals": richness_found,
-            "template_signals": template_found,
-            "note": note,
-        })
-
-    # Check for lazy AI defaults per content type
-    lazy_pattern_checks = {
-        "walkthrough": (
-            ["sticky left", "sticky panel", "scrolling steps", "numbered list", "step 1", "step 2", "step 3"],
-            "LAZY PATTERN: Sticky-scroll walkthrough is overused by AI. Try: horizontal-scroll-panels, "
-            "visual-pipeline-diagram, overlapping-reveal-cards, or split-screen-progression instead."
-        ),
-        "values": (
-            ["icon card grid", "2x2 grid", "icon title description", "four cards", "values grid", "value card"],
-            "LAZY PATTERN: Icon-card-grid for values is the #1 AI cliche. Values are BELIEFS — present them "
-            "as oversized type statements, full-bleed alternating sections, or editorial pull quotes. Never as cards."
-        ),
-        "investors": (
-            ["text only grid", "investor grid", "name cards", "logo grid", "backed by"],
-            "LAZY PATTERN: Text-only investor grid looks boring. Use oversized fund names in display typography, "
-            "marquee ticker with frosted treatment, or editorial layout with varied sizes."
-        ),
-        "timeline": (
-            ["our journey", "timeline", "milestones", "founded in", "series a", "series b"],
-            "LAZY PATTERN: Generic company timeline is overused. Tell the story visually — oversized year numbers, "
-            "full-bleed milestone images, pull quotes from founders. Not a vertical dotted line."
-        ),
-    }
-    for pattern_name, (keywords, warning) in lazy_pattern_checks.items():
-        for s in section_scores:
-            desc_lower = sections[s["section"] - 1].lower() if s["section"] <= len(sections) else ""
-            if any(kw in desc_lower for kw in keywords):
-                if s["verdict"] != "TEMPLATE-GRADE":
-                    s["verdict"] = "NEEDS WORK"
-                    s["note"] = warning
-                break
-
-    # Check structural repetition — max 2 grid sections per page
-    grid_keywords = ["grid", "card grid", "three columns", "four columns", "card layout",
-                     "grid of cards", "grid of features", "feature cards"]
-    grid_sections = []
+    section_block = ""
     for i, desc in enumerate(sections, 1):
-        desc_lower = desc.lower()
-        if any(kw in desc_lower for kw in grid_keywords):
-            grid_sections.append(i)
-    if len(grid_sections) > 2:
-        for s in section_scores:
-            if s["section"] in grid_sections[2:]:
-                s["verdict"] = "TEMPLATE-GRADE"
-                s["note"] = (
-                    f"STRUCTURAL REPETITION: This is grid section #{grid_sections.index(s['section'])+1} "
-                    f"on this page (max 2 allowed). Replace with: split/asymmetric, sticky-scroll, "
-                    f"full-bleed image, horizontal scroll, overlap-offset, or magazine layout."
-                )
+        section_block += f"\n--- SECTION {i} ---\n{desc}\n"
 
-    # Check primitive coverage
-    primitive_notes: list[str] = []
+    primitives_context = ""
     if selected_primitives:
-        # Check if the section descriptions actually mention using the primitives
-        all_descs = " ".join(sections).lower()
-        primitive_keywords = {
-            "glassmorphism": ["glass", "blur", "frosted", "translucent"],
-            "mesh-gradient": ["mesh", "gradient mesh", "multi-color gradient"],
-            "noise-texture": ["noise", "grain", "texture overlay"],
-            "dot-grid": ["dot grid", "dot pattern", "grid pattern"],
-            "spotlight": ["spotlight", "cursor follow", "radial glow"],
-            "typewriter": ["typewriter", "typing", "character reveal"],
-            "oversized-numerals": ["oversized", "large number", "decorative number", "counter"],
-            "marquee": ["marquee", "ticker", "infinite scroll", "logo scroll"],
-            "bento": ["bento", "asymmetric grid", "varied tiles"],
-            "recharts": ["chart", "graph", "area chart", "visualization"],
-            "filtered-gradient": ["filtered gradient", "grain overlay", "textured gradient", "feturbulence", "sand texture", "pixelat"],
-            "frosted-panel": ["frosted", "backdrop-blur", "frost", "frosted panel", "frosted nav", "frosted card"],
-            "mix-blend-compositing": ["mix-blend", "blend mode", "multiply", "screen blend", "difference", "compositing"],
-            "gradient-blur-blobs": ["blur blob", "blurred blob", "color blob", "gradient blob", "soft blob"],
-            "card-with-inner-glow": ["inner glow", "inset shadow", "inner light", "inset glow"],
-            "gradient-text": ["gradient text", "text gradient", "gradient word"],
-            "overlap-offset": ["overlap", "offset", "breaking grid", "break out", "negative margin", "overlapping"],
-            "color-shift-scroll": ["color shift", "color morph", "theme shift", "bg shift", "scroll color"],
-            "split-highlight": ["highlight", "highlighted", "weight contrast", "accent word", "split word", "emphasis word"],
-            "alternating-rhythm": ["rhythm", "alternating", "section background", "dark section", "background variation"],
-        }
-        for prim_id in selected_primitives:
-            prim_short = prim_id.split(".")[-1] if "." in prim_id else prim_id
-            keywords = primitive_keywords.get(prim_short, [prim_short.replace("-", " ")])
-            mentioned = any(kw in all_descs for kw in keywords)
-            if not mentioned:
-                primitive_notes.append(
-                    f"You selected '{prim_id}' but none of your section descriptions "
-                    f"mention using it. Make sure every selected primitive has a visible "
-                    f"home in your design."
-                )
-
-    # Compare against reference DOM data
-    reference_gap_notes: list[str] = []
-    if reference_domains:
-        surface_analysis = build_reference_surface_analysis(reference_domains)
-        technique_freq = surface_analysis.get("technique_frequency", {})
-        n_refs = len(surface_analysis.get("per_reference", {})) or 1
-
-        all_descs_lower = " ".join(sections).lower()
-        technique_keywords = {
-            "glassmorphism": ["glass", "blur", "frosted", "translucent", "backdrop"],
-            "mesh-gradient": ["mesh gradient", "gradient", "aurora"],
-            "noise-grain": ["noise", "grain", "texture"],
-            "dot-grid": ["dot", "grid pattern"],
-            "image-filters": ["filter", "grain", "duotone", "sepia", "grayscale"],
-            "outlined-text": ["outlined", "stroke text", "hollow text"],
-        }
-        for technique, count in technique_freq.items():
-            ratio = count / n_refs
-            if ratio < 0.4:
-                continue
-            keywords = technique_keywords.get(technique, [technique])
-            mentioned = any(kw in all_descs_lower for kw in keywords)
-            if not mentioned:
-                reference_gap_notes.append(
-                    f"{count}/{n_refs} of your references use '{technique}' but your section "
-                    f"descriptions don't mention it. You're under-designing relative to "
-                    f"your references."
-                )
-
-    # Overall assessment
-    template_sections = [s for s in section_scores if s["verdict"] == "TEMPLATE-GRADE"]
-    strong_sections = [s for s in section_scores if s["verdict"] == "STRONG"]
-
-    if len(template_sections) >= len(sections) * 0.5:
-        overall = "FAIL"
-        overall_note = (
-            f"{len(template_sections)}/{len(sections)} sections are template-grade. "
-            f"This will produce generic output. Go back and add specific visual "
-            f"treatments to each section — background techniques, surface depth, "
-            f"typography effects, and layout ambition. Study your reference images "
-            f"and DOM analysis data for inspiration."
+        primitives_context = (
+            f"\nThe designer selected these primitives: {', '.join(selected_primitives)}. "
+            "Consider whether the section plans use them in meaningful, creative ways "
+            "or just as checkboxes.\n"
         )
-    elif len(template_sections) >= 2:
-        overall = "NEEDS WORK"
-        overall_note = (
-            f"{len(template_sections)} section(s) still template-grade. Fix these "
-            f"before writing code. {len(strong_sections)}/{len(sections)} sections "
-            f"are visually ambitious — bring the weak ones up to the same standard."
-        )
-    elif len(strong_sections) >= len(sections) * 0.6:
-        overall = "PASS"
-        overall_note = (
-            f"{len(strong_sections)}/{len(sections)} sections are visually ambitious. "
-            f"This plan should produce output that matches the reference quality."
-        )
-    else:
-        overall = "PASS (MARGINAL)"
-        overall_note = "Adequate but not exceptional. Consider pushing further on 1-2 sections."
 
-    # Track workflow state
-    _workflow.design_reviewed = True
-    _workflow.design_review_passed = overall in ("PASS", "PASS (MARGINAL)")
+    critic_prompt = f"""You are a ruthlessly honest creative director at a world-class design agency.
+
+A designer on your team has written a section-by-section plan for a website. They have NOT built it yet — this is your chance to catch boring, safe, template-grade thinking BEFORE it becomes hours of wasted work.
+
+Here are their planned sections:
+{section_block}
+{primitives_context}
+For EACH section, evaluate on these five dimensions:
+
+1. **Would this turn heads?** If someone scrolled past this on Awwwards, would they stop or keep scrolling?
+
+2. **Is this DESIGN or just LAYOUT?** Cards in a grid with icons is layout. A creative idea expressed through visual technique is design. Does this section have an IDEA?
+
+3. **Does it have sensory richness?** Can you imagine the texture, the depth, the light? Or is it flat shapes on flat colors? Great sections layer: background treatment + surface depth + interactive response + typographic drama.
+
+4. **Is it structurally surprising?** Does the layout break expectations or is it the predictable grid-and-columns?
+
+5. **Could any AI have generated this?** The harshest test. What makes this specific to THIS brand?
+
+Grade each section:
+- **STRONG**: Has a creative idea that would look distinctive on Awwwards
+- **ADEQUATE**: Competent but safe. One more bold choice would elevate it
+- **NEEDS WORK**: Generic. Seen it a thousand times. Content without design
+- **TEMPLATE-GRADE**: What a free website builder produces
+
+Then give an overall verdict:
+- **PASS**: No template-grade sections, majority strong/adequate, at least 2 sections are genuinely exciting
+- **NEEDS WORK**: Some sections are template-grade or the plan lacks creative ambition overall
+- **FAIL**: Most sections are generic. Needs a creative rethink, not tweaks
+
+Be direct and constructive. For every section that needs work, say SPECIFICALLY what would elevate it — not "add more visual richness" but what KIND, what technique, what creative idea would transform it.
+
+End with your overall verdict: PASS, NEEDS WORK, or FAIL."""
 
     return {
-        "overall_verdict": overall,
-        "overall_note": overall_note,
-        "sections": section_scores,
-        "primitive_coverage_gaps": primitive_notes if primitive_notes else None,
-        "reference_technique_gaps": reference_gap_notes if reference_gap_notes else None,
-        "total_richness_signals": total_richness,
-        "total_template_signals": total_template,
+        "critic_prompt": critic_prompt,
+        "num_sections": len(sections),
         "instructions": (
-            "If overall_verdict is FAIL or NEEDS WORK, revise your section descriptions "
-            "to add more visual ambition, then call this tool again. Do NOT start writing "
-            "code until this tool returns PASS. Template-grade sections produce template-grade "
-            "output — the references show what 'good' looks like, match them."
+            "MANDATORY: Spawn a sub-agent with the critic_prompt above as its task. "
+            "The sub-agent acts as a fresh creative director reviewing your plan. "
+            "Do NOT review your own work — you are biased toward what you just designed.\n\n"
+            "After the sub-agent reports back:\n"
+            "  - If verdict is PASS → call superpower_design_review(sections=..., sub_agent_verdict='PASS')\n"
+            "  - If verdict is NEEDS WORK or FAIL → revise your sections based on the feedback, "
+            "then call superpower_design_review again with the new sections (no sub_agent_verdict) "
+            "to get a fresh review. Keep iterating until PASS.\n\n"
+            "Do NOT skip this step. Do NOT start building until the review passes."
         ),
     }
 
@@ -1029,28 +856,64 @@ def superpower_images(
     }
 
 
-@mcp.tool()
+@mcp.tool(structured_output=False)
 async def superpower_review_build(
     url: str,
     company_name: str = "",
-) -> dict:
-    """MANDATORY post-build quality review. Takes a screenshot of each page, analyzes
-    it with AI vision, and returns specific section-by-section critiques with
-    actionable fixes. This is your design review partner — it sees what you built
-    and tells you what needs to be better.
+    sub_agent_verdict: str | None = None,
+) -> list | dict:
+    """MANDATORY post-build quality review — screenshots the page, then YOU review it.
 
-    Call this AFTER building and starting the dev server. It will:
-    1. Screenshot the page
-    2. Analyze every visible section for visual quality
-    3. Return specific, actionable critiques
+    TWO MODES:
 
-    You MUST fix the issues it finds and rebuild. Then call it again to verify.
-    Keep iterating until it returns no critical issues.
+    MODE 1 — SCREENSHOT + CRITIC PROMPT (no sub_agent_verdict):
+      Screenshots the built page and returns:
+      - screenshot_path: Read this image to see the actual rendered page
+      - critic_prompt: The disposition for your review sub-agent
+
+      You MUST:
+      1. Read the screenshot with your Read tool
+      2. Spawn a review sub-agent that also reads the screenshot
+      3. The sub-agent evaluates every visible section as a design critic
+      4. Report the verdict back via MODE 2
+
+    MODE 2 — RECORD VERDICT (with sub_agent_verdict):
+      Pass "PASS" or "FAIL" to update workflow state.
+      - PASS: overall grade B+ equivalent, no terrible sections. Proceed.
+      - FAIL: sections need fixing. Fix them, rebuild, call MODE 1 again.
+      The iteration loop continues until PASS.
 
     Args:
         url: The localhost URL to review (e.g. http://localhost:3000)
         company_name: The company name for context
+        sub_agent_verdict: "PASS" or "FAIL" from your review sub-agent.
     """
+    # ── MODE 2: Record verdict ──
+    if sub_agent_verdict:
+        verdict = sub_agent_verdict.upper().strip()
+        _workflow.review_build_called = True
+        _workflow.review_build_iterations += 1
+        _workflow.review_build_grade = "B" if verdict == "PASS" else "D"
+
+        if verdict == "PASS":
+            return {
+                "review_status": "PASSED",
+                "iteration": _workflow.review_build_iterations,
+                "instructions": "Review PASSED. Proceed to check other pages.",
+            }
+        else:
+            return {
+                "review_status": "FAILED — MUST ITERATE",
+                "iteration": _workflow.review_build_iterations,
+                "instructions": (
+                    f"Review FAILED (iteration {_workflow.review_build_iterations}). "
+                    "Fix the issues your review sub-agent identified, rebuild, then "
+                    "call superpower_review_build again (without sub_agent_verdict) "
+                    "to get a fresh screenshot and re-review. Keep iterating until PASS."
+                ),
+            }
+
+    # ── MODE 1: Take screenshot + return critic prompt ──
     import asyncio
 
     try:
@@ -1070,78 +933,74 @@ async def superpower_review_build(
     except Exception as e:
         return {"error": f"Could not screenshot {url}: {e}"}
 
-    if not settings.anthropic_api_key:
-        return {"error": "No ANTHROPIC_API_KEY set — cannot run vision review"}
+    # Save screenshot to temp file for the agent to read
+    import tempfile
+    screenshot_path = tempfile.NamedTemporaryFile(
+        suffix=".jpg", prefix="review_build_", delete=False
+    ).name
+    with open(screenshot_path, "wb") as f:
+        f.write(screenshot_bytes)
 
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    critic_prompt = f"""You are a brutally honest senior design critic at a top-tier agency.
 
-        img_b64 = base64.b64encode(screenshot_bytes).decode("utf-8")
+You are looking at a screenshot of a built website for "{company_name or 'a company'}".
+Read the screenshot at: {screenshot_path}
 
-        review_prompt = f"""You are a brutally honest senior design critic reviewing a marketing website for "{company_name or 'a SaaS company'}".
+For EACH visible section on the page, evaluate it as a creative director would:
 
-Look at this full-page screenshot. For EACH visible section (hero, features, metrics, testimonials, CTA, etc.), rate it and give specific feedback:
+- Does this section make you FEEL something, or is it just filling space?
+- Is there a creative IDEA here, or is it just content organized into rectangles?
+- Does it have sensory richness — texture, depth, layering, typographic drama?
+- Is the layout surprising or predictable?
+- Would you be proud to put this in your agency's portfolio?
 
-Return a JSON object:
-{{
-  "overall_grade": "A/B/C/D/F",
-  "overall_notes": "2-3 sentence summary of the biggest problems",
-  "sections": [
-    {{
-      "name": "what this section is (e.g. 'Hero', 'Features grid', 'Testimonials')",
-      "grade": "A/B/C/D/F",
-      "problems": ["specific problem 1", "specific problem 2"],
-      "fixes": ["specific fix 1 (be concrete — mention CSS classes, layout changes, colors)", "specific fix 2"]
-    }}
-  ],
-  "critical_issues": ["the 1-3 things that MUST be fixed before this ships"]
-}}
+Grade each section A through F:
+- A: Exceptional. Portfolio-worthy. Has a distinctive creative idea.
+- B: Good. Polished and intentional. Not generic.
+- C: Average. Forgettable. Could be any website.
+- D: Below average. Generic cards, flat backgrounds, no visual thinking.
+- F: Broken or embarrassingly template-grade.
 
-Be BRUTAL. Grade on these criteria:
-- Visual impact: Does this section make you FEEL something? Or is it just filling space?
-- Layout quality: Is the spacing right? Is content properly aligned? Any awkward gaps?
-- Variety: Does this section look DIFFERENT from its neighbors? Or is it the same pattern repeated?
-- Interactivity: Does the section feel alive or static?
-- Typography: Is the type hierarchy clear? Are headings large and bold enough?
-- Color: Is color used intentionally or just defaulting to dark-bg + accent?
+After grading every section, give an OVERALL verdict:
+- PASS: No D/F sections, overall quality is B or better
+- FAIL: Has D/F sections or the overall quality is C or below
 
-A "C" section is average/forgettable. "B" is good but not memorable. "A" is exceptional.
-"D" means actively hurting the site. "F" means broken or embarrassingly bad.
+For every section graded C or below, give SPECIFIC fixes — not "make it better" but
+exactly what change (CSS, layout, technique) would elevate it.
 
-Return ONLY the JSON object."""
+Be harsh. The designer needs honest feedback, not encouragement."""
 
-        response = client.messages.create(
-            model="claude-sonnet-4-6-20250627",
-            max_tokens=4096,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": img_b64}},
-                    {"type": "text", "text": review_prompt},
-                ],
-            }],
-        )
+    # In remote mode, embed the image directly
+    if _remote_mode:
+        payload = {
+            "url": url,
+            "critic_prompt": critic_prompt,
+            "instructions": (
+                "MANDATORY: Read the screenshot, then spawn a review sub-agent with the "
+                "critic_prompt. The sub-agent reads the same screenshot and critiques every "
+                "section. Based on its feedback:\n"
+                "  - If PASS → call superpower_review_build(url=..., sub_agent_verdict='PASS')\n"
+                "  - If FAIL → fix the issues, rebuild, call superpower_review_build again\n"
+                "Keep iterating until PASS."
+            ),
+        }
+        return [json.dumps(payload), Image(data=screenshot_bytes, format="jpeg")]
 
-        text = response.content[0].text.strip()
-        if text.startswith("```"):
-            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
-        if text.endswith("```"):
-            text = text[:-3].strip()
-        if text.startswith("json"):
-            text = text[4:].strip()
-
-        review = json.loads(text)
-        review["url"] = url
-        review["instructions"] = (
-            "Fix ALL critical_issues and any section graded D or F. "
-            "Then call superpower_review_build again to verify. "
-            "Keep iterating until overall_grade is B or higher and no sections are D/F."
-        )
-        return review
-
-    except Exception as e:
-        return {"error": f"Vision review failed: {e}"}
+    return {
+        "url": url,
+        "screenshot_path": screenshot_path,
+        "critic_prompt": critic_prompt,
+        "instructions": (
+            f"MANDATORY: Read the screenshot at {screenshot_path} with your Read tool. "
+            "Then spawn a review sub-agent with the critic_prompt above. The sub-agent "
+            "should also read the screenshot and critique every visible section.\n\n"
+            "Based on its feedback:\n"
+            "  - If PASS → call superpower_review_build(url=..., sub_agent_verdict='PASS')\n"
+            "  - If FAIL → fix the issues it identified, rebuild, then call "
+            "superpower_review_build again (without sub_agent_verdict) for a fresh screenshot.\n\n"
+            "Keep iterating until PASS. Do NOT declare the site complete until every page passes."
+        ),
+    }
 
 
 @mcp.tool(structured_output=False)

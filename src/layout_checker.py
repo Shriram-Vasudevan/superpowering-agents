@@ -351,6 +351,22 @@ _RICHNESS_JS = """
     if (hasGrid) sectionSignals.push('uses-grid');
     if (hasAsymmetric) sectionSignals.push('asymmetric-layout');
 
+    // 8. Ambitious visual techniques (strong signals)
+    const hasCanvas = section.querySelector('canvas');
+    if (hasCanvas) sectionSignals.push('shader-canvas');
+    const hasTilt = section.querySelector('[class*="tilt"], [class*="perspective"], [style*="perspective"]');
+    if (hasTilt) sectionSignals.push('3d-tilt');
+    const hasClipPath = section.querySelector('[style*="clip-path"], [class*="clip"]');
+    if (hasClipPath) sectionSignals.push('clip-path');
+    const hasMixBlend = section.querySelector('[class*="mix-blend"], [style*="mix-blend"]');
+    if (hasMixBlend) sectionSignals.push('mix-blend-compositing');
+    const hasOverlap = section.querySelector('[class*="negative"], [class*="-mt-"], [class*="-ml-"], [class*="z-"]');
+    if (hasOverlap) sectionSignals.push('visual-layering');
+    const hasSvgFilter = section.querySelector('svg filter, [class*="filter"], [style*="filter"]');
+    if (hasSvgFilter) sectionSignals.push('svg-filter-effect');
+    const hasOutlinedText = section.querySelector('[class*="text-stroke"], [style*="-webkit-text-stroke"]');
+    if (hasOutlinedText) sectionSignals.push('outlined-text');
+
     // Compute richness score (0-10)
     // Subtle treatments (noise, dot-grid alone) count as partial credit
     const subtleOnlySignals = ['has-texture-overlay', 'border-treatment', 'has-animation', 'uses-grid'];
