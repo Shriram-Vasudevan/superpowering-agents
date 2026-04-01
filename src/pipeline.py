@@ -460,8 +460,10 @@ CENTERED. Content pushed to the bottom of the viewport looks broken.
 
 ## IMAGES — USE url_full FOR ALL HERO AND FULL-BLEED SECTIONS
 
-Use url_full (original resolution) for ANY image used as a section background \
-or fill + object-cover. Use url for content images. url_small for avatars only.
+Use url_full (pre-capped at 1920px) for ANY image used as a section background \
+or fill + object-cover. Use url (1080px) for content images. url_small for avatars only. \
+All URLs are pre-optimized — do NOT add extra width params. Also set \
+minimumCacheTTL: 86400 in next.config images config to cache optimized images.
 
 ## PRIMITIVES — USE THE PACKAGES
 
@@ -810,6 +812,18 @@ def build_context_payload(
     )
 
 
+def _cap_unsplash_width(url: str, max_w: int = 1920) -> str:
+    """Append &w= to an Unsplash URL so the CDN delivers a pre-resized image.
+
+    Without this, url_full returns the original (often 5000-9000px),
+    and next/image must download the full file before resizing — very slow.
+    """
+    if not url or "unsplash.com" not in url:
+        return url
+    sep = "&" if "?" in url else "?"
+    return f"{url}{sep}w={max_w}"
+
+
 def search_images(query: str, count: int = 10, orientation: str | None = None) -> list[dict]:
     """Search Unsplash for images and return URLs + metadata.
 
@@ -860,7 +874,7 @@ def search_images(query: str, count: int = 10, orientation: str | None = None) -
         results.append({
             "url": urls.get("regular", ""),  # 1080px wide, good for web
             "url_small": urls.get("small", ""),  # 400px wide, thumbnails
-            "url_full": urls.get("full", ""),  # original resolution
+            "url_full": _cap_unsplash_width(urls.get("full", ""), 1920),  # capped at 1920px
             "width": photo.get("width", 0),
             "height": photo.get("height", 0),
             "description": photo.get("description") or photo.get("alt_description") or "",
