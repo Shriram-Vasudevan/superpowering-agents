@@ -1,14 +1,17 @@
 {
   "version": 1,
   "recent_layout_patterns": [
-    "hero_cta",
+    "card_grid",
     "fullscreen_media",
+    "hero_cta",
     "single_column",
     "split_screen",
-    "card_grid",
     "form_centered"
   ],
   "recent_domains": [
+    "deepmind.google",
+    "tier-ii.com",
+    "nordiskamuseet.se",
     "vitalinabender.com",
     "telkom-ot.si",
     "inkfishnyc.com",
@@ -45,10 +48,7 @@
     "entreautre.com",
     "dhero.studio",
     "trendingpeaceindex.com",
-    "louisemertens.com",
-    "lumvin.ch",
-    "learn.forgooddesignlab.com",
-    "watchhouse.com"
+    "louisemertens.com"
   ],
-  "updated_at": "2026-03-31T20:11:30.201137+00:00"
+  "updated_at": "2026-04-01T02:04:03.891904+00:00"
 }

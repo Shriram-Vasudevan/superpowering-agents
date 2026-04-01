@@ -95,9 +95,16 @@ class _WorkflowState:
         self.review_build_called: bool = False
         self.review_build_grade: str | None = None
         self.review_build_iterations: int = 0
+        self.check_layout_called: bool = False
+        self.check_layout_issues_high: int = 0
 
     def check_prerequisite(self, step: str) -> str | None:
-        """Return an error message if prerequisites for a step aren't met, else None."""
+        """Return an error message if prerequisites for a step aren't met, else None.
+
+        Hard blocks (WORKFLOW ERROR) prevent the tool from executing.
+        Every step in the mandatory workflow is enforced — skipping any step
+        returns an error and the tool refuses to proceed.
+        """
         if step == "primitive_catalog":
             if not self.context_called:
                 return (
@@ -122,7 +129,9 @@ class _WorkflowState:
                     "Call superpower_primitive_select first."
                 )
         elif step == "build":
-            # This check is advisory — returned in the images/check_layout tools
+            # HARD BLOCK — every prerequisite must be completed before building,
+            # reviewing, or checking layout. No advisory warnings — these are
+            # mandatory steps that cannot be skipped.
             missing: list[str] = []
             if not self.context_called:
                 missing.append("superpower_context (retrieve design references)")
@@ -131,17 +140,29 @@ class _WorkflowState:
             if not self.primitives_selected:
                 missing.append("superpower_primitive_select (select primitives)")
             if not self.design_reviewed:
-                missing.append("superpower_design_review (validate design plan)")
+                missing.append(
+                    "superpower_design_review (validate design plan — you MUST run design "
+                    "review and get a PASS verdict before building)"
+                )
             elif not self.design_review_passed:
-                missing.append("superpower_design_review PASSING (your last review did not pass)")
+                missing.append(
+                    "superpower_design_review PASSING (your last design review did NOT pass — "
+                    "revise your section plan based on the critic's feedback and re-submit "
+                    "until the verdict is PASS)"
+                )
             if self.images_called < 2:
-                missing.append(f"superpower_images (called {self.images_called}x, need 2+ calls)")
+                missing.append(
+                    f"superpower_images (called {self.images_called}x, need at least 2 calls — "
+                    "you need hero images, people/team photos, and industry-specific imagery)"
+                )
             if missing:
                 return (
-                    "WORKFLOW WARNING: You are building/checking before completing the full "
-                    "workflow. Missing steps:\n" +
+                    "WORKFLOW ERROR: You cannot build, review, or check layout until ALL "
+                    "mandatory workflow steps are completed. Missing steps:\n" +
                     "\n".join(f"  - {m}" for m in missing) +
-                    "\n\nGo back and complete these steps for higher quality output."
+                    "\n\nThese are HARD REQUIREMENTS, not suggestions. Go back and complete "
+                    "every missing step before proceeding. The workflow exists to prevent "
+                    "generic, template-grade output."
                 )
         return None
 
@@ -914,6 +935,12 @@ async def superpower_review_build(
             }
 
     # ── MODE 1: Take screenshot + return critic prompt ──
+
+    # Hard block: all pre-build workflow steps must be completed
+    prereq_error = _workflow.check_prerequisite("build")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
+
     import asyncio
 
     try:
@@ -1052,8 +1079,10 @@ async def superpower_check_layout(
     if mobile:
         viewport_width = 390
 
-    # Check if the full workflow was completed before building
-    build_warning = _workflow.check_prerequisite("build")
+    # Hard block: all pre-build workflow steps must be completed
+    prereq_error = _workflow.check_prerequisite("build")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
 
     instructions = (
         "READ THE SCREENSHOT FIRST using your Read tool (it has vision). "
@@ -1111,6 +1140,14 @@ async def superpower_check_layout(
         }
         return [json.dumps(payload), Image(data=screenshot_bytes, format="png")]
 
+    # Track layout check completion and high-severity issue count
+    _workflow.check_layout_called = True
+    high_count = sum(
+        1 for issue in result.get("issues", [])
+        if issue.get("severity") == "high"
+    )
+    _workflow.check_layout_issues_high = high_count
+
     return {
         "url": result["url"],
         "viewport_width": result["viewport_width"],
@@ -1119,7 +1156,6 @@ async def superpower_check_layout(
         "issues": result["issues"],
         "screenshot_path": result["screenshot_path"],
         "instructions": instructions,
-        "workflow_warning": build_warning,
     }
 
 
