@@ -27,7 +27,11 @@ from src.pipeline import (
     build_context_system_prompt,
     build_reference_images_for_remote,
     build_reference_surface_analysis,
+    build_section_builder_prompt,
+    format_industry_context,
+    generate_creative_provocations,
     get_dom_summaries_for_domains,
+    get_industry_vocab,
     intent_to_info,
     run_diverse_retrieval,
     run_retrieval,
@@ -97,72 +101,66 @@ class _WorkflowState:
         self.review_build_iterations: int = 0
         self.check_layout_called: bool = False
         self.check_layout_issues_high: int = 0
+        # Rich context stored from superpower_context for section builders
+        self.font_pair: dict = {}
+        self.color_palette: str = ""
+        self.primitive_bundle: dict = {}
+        self.primitive_addendum: str = ""
+        self.industry: str | None = None
+        self.vision_specs: list[dict] = []
 
     def check_prerequisite(self, step: str) -> str | None:
         """Return an error message if prerequisites for a step aren't met, else None.
 
-        Hard blocks (WORKFLOW ERROR) prevent the tool from executing.
-        Every step in the mandatory workflow is enforced — skipping any step
-        returns an error and the tool refuses to proceed.
+        Enforces a lightweight sequence: context must come first, design review
+        requires context, and build/review tools require context + images.
+        Primitive catalog/select are available but not hard-gated.
         """
         if step == "primitive_catalog":
             if not self.context_called:
                 return (
-                    "WORKFLOW ERROR: You must call superpower_context (or superpower_retrieve) "
-                    "BEFORE browsing the primitive catalog. The context provides reference images "
-                    "and DOM analysis that should inform your primitive selection. "
-                    "Call superpower_context first."
+                    "Call superpower_context (or superpower_retrieve) first to get "
+                    "design references. The context informs primitive selection."
                 )
         elif step == "primitive_select":
-            if not self.catalog_browsed:
+            if not self.context_called:
                 return (
-                    "WORKFLOW ERROR: You must call superpower_primitive_catalog BEFORE selecting "
-                    "primitives. Browse the full catalog (including discovery_spotlight) to make "
-                    "informed selections. Call superpower_primitive_catalog first."
+                    "Call superpower_context first. You need references before "
+                    "selecting primitives."
                 )
         elif step == "design_review":
-            if not self.primitives_selected:
+            if not self.context_called:
                 return (
-                    "WORKFLOW ERROR: You must call superpower_primitive_select BEFORE running "
-                    "design review. Select your primitives first so the review can check if "
-                    "your section descriptions mention using them. "
-                    "Call superpower_primitive_select first."
+                    "Call superpower_context first. The design review needs "
+                    "reference context to evaluate your brief."
+                )
+        elif step == "section_context":
+            if not self.context_called:
+                return (
+                    "Call superpower_context first. Section context builds on "
+                    "the references and primitives from context."
                 )
         elif step == "build":
-            # HARD BLOCK — every prerequisite must be completed before building,
-            # reviewing, or checking layout. No advisory warnings — these are
-            # mandatory steps that cannot be skipped.
             missing: list[str] = []
             if not self.context_called:
                 missing.append("superpower_context (retrieve design references)")
-            if not self.catalog_browsed:
-                missing.append("superpower_primitive_catalog (browse primitives)")
-            if not self.primitives_selected:
-                missing.append("superpower_primitive_select (select primitives)")
             if not self.design_reviewed:
                 missing.append(
-                    "superpower_design_review (validate design plan — you MUST run design "
-                    "review and get a PASS verdict before building)"
+                    "superpower_design_review (validate your design brief before building)"
                 )
             elif not self.design_review_passed:
                 missing.append(
-                    "superpower_design_review PASSING (your last design review did NOT pass — "
-                    "revise your section plan based on the critic's feedback and re-submit "
-                    "until the verdict is PASS)"
+                    "superpower_design_review PASSING (revise your brief until it passes)"
                 )
             if self.images_called < 2:
                 missing.append(
-                    f"superpower_images (called {self.images_called}x, need at least 2 calls — "
-                    "you need hero images, people/team photos, and industry-specific imagery)"
+                    f"superpower_images (called {self.images_called}x, need at least 2 — "
+                    "hero backgrounds, team photos, and industry imagery)"
                 )
             if missing:
                 return (
-                    "WORKFLOW ERROR: You cannot build, review, or check layout until ALL "
-                    "mandatory workflow steps are completed. Missing steps:\n" +
-                    "\n".join(f"  - {m}" for m in missing) +
-                    "\n\nThese are HARD REQUIREMENTS, not suggestions. Go back and complete "
-                    "every missing step before proceeding. The workflow exists to prevent "
-                    "generic, template-grade output."
+                    "Cannot build/review until these steps are done:\n" +
+                    "\n".join(f"  - {m}" for m in missing)
                 )
         return None
 
@@ -183,47 +181,25 @@ def superpower_context(
     auto_primitives: bool = False,
     include_catalog: bool = False,
 ) -> list | dict:
-    """Get design references + mandatory primitive palette for building world-class websites.
+    """Get design references, industry vocabulary, and creative provocations for building websites.
 
-    Returns award-winning reference screenshots (study them deeply), metadata, and the
-    full mandatory primitive catalog. You MUST follow this exact sequence — skipping
-    any step is a failure:
+    This is the starting point. Returns:
+    - Award-winning reference screenshots (study them deeply)
+    - Visual specs extracted from each reference (CSS parameters, typography, color)
+    - Industry-specific design vocabulary and creative provocations
+    - Primitive toolkit (packages available for this project)
 
-    STEP 1 — STUDY EVERY REFERENCE IMAGE: Analyze each image carefully. Identify the
-    exact spacing, typography scale, color palette, border treatment, layout rhythm,
-    and what makes each site feel premium. Write a comment block naming specific visual
-    elements you'll reproduce before writing any code.
+    After calling this, follow the multi-agent workflow in the system_prompt:
+    1. Study references and industry vocabulary
+    2. Call superpower_images 3+ times for real Unsplash photos
+    3. Write a design brief (section-by-section concepts with visual metaphors)
+    4. Call superpower_design_review to validate the brief
+    5. Spawn section-builder sub-agents (call superpower_section_context for each)
+    6. Assemble, review with superpower_review_build, iterate
 
-    STEP 2 — BROWSE PRIMITIVES: Call superpower_primitive_catalog (no args) to see all
-    ~60 available primitives. Study categories: layout (bento, masonry, sticky-narrative,
-    horizontal-scroll), surface (glassmorphism, spotlight-card, elevated-card), text-effects
-    (outlined-text, oversized-numerals, typewriter), background (mesh-gradient, noise-texture,
-    aurora-gradient), buttons (cva variants), image-effects (grain, duotone).
-
-    STEP 3 — SELECT PRIMITIVES: Call superpower_primitive_select with your chosen IDs.
-    Pick from ALL categories. The primitives you select become MANDATORY — you must
-    implement every single one you pick. Aim for 8+ primitives across 6+ categories.
-
-    STEP 4 — GET REAL IMAGES: Call superpower_images MULTIPLE TIMES with specific queries:
-    - Hero/section backgrounds (e.g., "dark abstract architectural texture")
-    - People/team photos (e.g., "professional woman smiling office")
-    - Industry imagery specific to the site's domain
-    - Texture/ambient images for visual depth
-    Every image slot in the site needs a real Unsplash URL. No placeholders.
-
-    STEP 5 — BUILD THE SITE: Multi-page Next.js App Router with:
-    - app/page.tsx: home page with 8+ visually distinct sections
-    - app/about/page.tsx: full about page
-    - app/services/page.tsx or domain-relevant third page
-    - app/layout.tsx: shared Navbar + Footer, AnimatePresence
-    - Every section uses framer-motion (useInView entrance, useScroll parallax, hover)
-    - All images are real Unsplash URLs in next/image components
-    - All content is realistic (real names, prices, stats, quotes)
-    - Everything is properly centered with max-w-7xl mx-auto containers
-
-    QUALITY MANDATE: This must look like a top design agency built it. 8+ sections,
-    varied layouts, real images everywhere, framer-motion on every element, realistic
-    content throughout. Generic template output is failure.
+    The system_prompt contains your creative disposition — internalize it.
+    The industry_vocabulary and creative_provocations give you industry-native
+    metaphors to think in. Use them as starting points, then go further.
     """
     # Reset workflow for new context call (new project)
     _workflow.reset()
@@ -237,35 +213,61 @@ def superpower_context(
     _workflow.context_called = True
     _workflow.context_domains = [r.domain for r in results]
 
-    # Import the disposition prompt — this MUST always be returned so the LLM
-    # gets the design personality, quality standards, and visual density guidance
-    # regardless of whether primitives are auto-selected or manually chosen.
+    # Build the system prompt (disposition + industry context + primitives if auto)
     from src.pipeline import CONTEXT_SYSTEM_PROMPT
 
     primitive_bundle = None
     if auto_primitives:
         system_prompt, primitive_bundle = build_context_system_prompt(prompt, intent, results)
     else:
-        # Even in manual mode, the disposition / personality / quality guidance
-        # is critical. Without it the LLM produces generic SaaS-looking output.
-        system_prompt = CONTEXT_SYSTEM_PROMPT
+        # Industry context and provocations are always included
+        industry_context = format_industry_context(intent.industry)
+        provocations = generate_creative_provocations(intent.industry, results)
+        parts = [CONTEXT_SYSTEM_PROMPT]
+        if industry_context:
+            parts.append(f"## INDUSTRY DESIGN VOCABULARY\n\n{industry_context}")
+        if provocations:
+            parts.append(
+                "## CREATIVE PROVOCATIONS\n\n"
+                "Use these as starting points — then go further:\n"
+                + "\n".join(f"- {p}" for p in provocations)
+            )
+        system_prompt = "\n\n".join(parts)
 
-    instructions = (
-        "Follow the system_prompt CAREFULLY — it contains your design disposition, "
-        "quality standards, and mandatory workflow. The server enforces workflow "
-        "order — it will block you if you skip steps. Study reference_surface_analysis "
-        "to match the visual richness of your references. Install and use the actual "
-        "npm packages from your primitive selection."
-    )
-
-    # Build aggregate DOM surface analysis for all references
+    # Build aggregate DOM surface analysis
     ref_domains = [r.domain for r in results]
     surface_analysis = build_reference_surface_analysis(ref_domains)
 
-    # Vision-based reference analysis: extract structured CSS parameters from screenshots
-    # This is the key insight — text-based visual specs get followed 100% of the time,
-    # while image-based references get ignored. So we convert images → text specs.
+    # Vision-based reference analysis: CSS parameters from screenshots
     vision_specs = analyze_all_references(results)
+
+    # Industry vocabulary for the response
+    vocab = get_industry_vocab(intent.industry)
+    provocations_list = generate_creative_provocations(intent.industry, results)
+
+    # Store rich context for section builders (superpower_section_context)
+    _workflow.industry = intent.industry
+    _workflow.vision_specs = vision_specs
+    if primitive_bundle:
+        _workflow.primitive_bundle = primitive_bundle
+        _workflow.font_pair = primitive_bundle.get("font_pair", {})
+        _workflow.primitive_addendum = build_primitive_prompt_addendum(primitive_bundle)
+        # Extract color palette from vision specs
+        colors = set()
+        for spec in vision_specs:
+            vs = spec.get("visual_spec", {})
+            palette = vs.get("color_palette", "")
+            if palette:
+                colors.add(palette)
+        if colors:
+            _workflow.color_palette = " | ".join(list(colors)[:3])
+
+    instructions = (
+        "Read the system_prompt — it contains your creative disposition and the "
+        "multi-agent build workflow. Study every reference image. Use the "
+        "industry_vocabulary and creative_provocations to think in industry-native "
+        "metaphors when writing your design brief."
+    )
 
     if _remote_mode:
         references, image_bytes_list = build_reference_images_for_remote(results)
@@ -277,6 +279,8 @@ def superpower_context(
             "references": references,
             "reference_visual_specs": vision_specs,
             "reference_surface_analysis": surface_analysis,
+            "industry_vocabulary": vocab,
+            "creative_provocations": provocations_list,
             "primitives": primitive_bundle,
             "instructions": instructions,
         }
@@ -294,6 +298,8 @@ def superpower_context(
         "references": references,
         "reference_visual_specs": vision_specs,
         "reference_surface_analysis": surface_analysis,
+        "industry_vocabulary": vocab,
+        "creative_provocations": provocations_list,
         "primitives": primitive_bundle,
         "instructions": instructions,
     }
@@ -392,20 +398,17 @@ def superpower_primitives(
 
 @mcp.tool()
 def superpower_primitive_catalog(category: str | None = None) -> dict:
-    """Expose primitive catalog entries for client-side LLM selection.
+    """Browse the full primitive catalog to customize your toolkit.
 
-    IMPORTANT: Read discovery_spotlight FIRST before browsing the full provider list.
-    These are the primitives most developers never reach for but that produce the
-    biggest visible differentiation from generic output. If you skip discovery_spotlight
-    and only use animation/icons/forms (your defaults), the output will look like
-    every other AI-generated site.
+    OPTIONAL — superpower_context auto-selects primitives based on your industry
+    and references. Use this tool if you want to explore alternatives or add
+    packages from categories not auto-selected.
 
-    After reviewing discovery_spotlight, browse all_providers for the full selection.
-    Then call superpower_primitive_select with your chosen IDs.
+    Check discovery_spotlight first — these are high-impact categories that make
+    the difference between template-looking and custom-feeling output (text-effects,
+    background shaders, image effects, surface treatments).
 
-    NOTE: This returns lean summaries (id, name, category, score, traits) to keep
-    the payload small. Full variant details and implementation recipes are returned
-    by superpower_primitive_select for the primitives you actually choose.
+    Returns lean summaries. Call superpower_primitive_select to lock in your choices.
     """
     # Workflow enforcement
     prereq_error = _workflow.check_prerequisite("primitive_catalog")
@@ -483,12 +486,13 @@ def superpower_primitive_select(
     tags: list[str] | None = None,
     reference_domains: list[str] | None = None,
 ) -> dict:
-    """Build a primitive bundle from explicit primitive IDs chosen by the client LLM.
+    """Override auto-selected primitives with explicit choices.
 
-    If reference_domains is provided (list of domains from superpower_context),
-    this tool will compare your selection against what those references actually
-    use in their DOM and warn you about high-frequency techniques you're missing.
-    This prevents under-designing relative to your references.
+    OPTIONAL — superpower_context auto-selects a toolkit. Use this to customize:
+    swap a font pair, add a specific package, or choose a different archetype.
+
+    If reference_domains is provided, compares your selection against what those
+    references actually use in their DOM and warns about gaps.
     """
     # Workflow enforcement
     prereq_error = _workflow.check_prerequisite("primitive_select")
@@ -511,6 +515,10 @@ def superpower_primitive_select(
     # Track workflow state
     _workflow.primitives_selected = True
     _workflow.selected_primitive_ids = list(provider_ids)
+    # Store for section builders
+    _workflow.primitive_bundle = bundle
+    _workflow.primitive_addendum = addendum
+    _workflow.font_pair = bundle.get("font_pair", {})
 
     result: dict = {
         "primitives": bundle,
@@ -591,51 +599,53 @@ def superpower_primitive_select(
 def superpower_design_review(
     sections: list[str],
     sub_agent_verdict: str | None = None,
+    review_type: str = "brief",
     reference_domains: list[str] | None = None,
     selected_primitives: list[str] | None = None,
 ) -> dict:
-    """Pre-build creative quality gate — uses YOUR sub-agent as the design critic.
+    """Pre-build creative quality gate — a sub-agent reviews your design brief.
 
     TWO MODES:
 
     MODE 1 — GET REVIEW PROMPT (no sub_agent_verdict):
-      Pass your section descriptions. Returns a critic disposition prompt.
-      You MUST spawn a sub-agent with this prompt to review your plan.
-      The sub-agent is a fresh perspective — it catches the boring patterns
-      you've gone blind to. Do NOT skip the sub-agent. Do NOT review your
-      own work — you are biased toward what you just designed.
+      Pass your section descriptions. Returns a critic_prompt.
+      Spawn a sub-agent with this prompt — it reviews your brief as a
+      fresh creative director. Don't review your own work.
 
     MODE 2 — RECORD VERDICT (with sub_agent_verdict):
-      After your review sub-agent reports back, call this tool again with
-      sub_agent_verdict set to "PASS", "NEEDS WORK", or "FAIL".
-      This updates workflow state so you can proceed to building.
-      If the verdict is not PASS, revise your plan and repeat.
+      After your review sub-agent reports back, call again with
+      sub_agent_verdict="PASS", "NEEDS WORK", or "FAIL".
 
-    The sub-agent pattern:
-      1. Call superpower_design_review(sections=[...]) → get critic_prompt
-      2. Spawn a sub-agent with the critic_prompt as its task
-      3. Read the sub-agent's response — it grades each section
-      4. If PASS → call superpower_design_review(sections=[...], sub_agent_verdict="PASS")
-      5. If not PASS → revise sections based on feedback, go to step 1
+    review_type options:
+      "brief" — Reviews the design BRIEF before any code (default).
+                Checks: Are concepts creative? Industry-native metaphors?
+                Would this turn heads on Awwwards?
+      "section" — Reviews individual BUILT sections against the brief.
+                  Checks: Does the code match the concept? Is it ambitious?
+
+    Flow:
+      1. Call with sections=[...] → get critic_prompt
+      2. Spawn sub-agent with critic_prompt
+      3. If PASS → call with sub_agent_verdict="PASS" to unlock building
+      4. If not PASS → revise and repeat
 
     Args:
-        sections: Natural-language descriptions of each section's visual plan.
+        sections: Section descriptions (brief mode) or section summaries (section mode).
         sub_agent_verdict: "PASS", "NEEDS WORK", or "FAIL" from your review sub-agent.
-        reference_domains: Domains from superpower_context (for comparison scoring).
-        selected_primitives: Provider IDs from superpower_primitive_select.
+        review_type: "brief" (pre-build) or "section" (post-build per-section).
+        reference_domains: Domains from superpower_context (auto-filled if omitted).
+        selected_primitives: Provider IDs (auto-filled if omitted).
     """
-    # Workflow enforcement
     prereq_error = _workflow.check_prerequisite("design_review")
     if prereq_error:
         return {"workflow_error": prereq_error}
 
-    # Auto-fill from workflow state if not provided
     if not reference_domains and _workflow.context_domains:
         reference_domains = _workflow.context_domains
     if not selected_primitives and _workflow.selected_primitive_ids:
         selected_primitives = _workflow.selected_primitive_ids
 
-    # ── MODE 2: Record verdict from sub-agent ──
+    # ── MODE 2: Record verdict ──
     if sub_agent_verdict:
         verdict = sub_agent_verdict.upper().strip()
         _workflow.design_reviewed = True
@@ -644,80 +654,91 @@ def superpower_design_review(
         if verdict == "PASS":
             return {
                 "status": "DESIGN REVIEW PASSED",
-                "instructions": "Your design plan passed review. Proceed to building.",
+                "instructions": "Your design brief passed review. Proceed to building with sub-agents.",
             }
-        else:
-            return {
-                "status": f"DESIGN REVIEW: {verdict}",
-                "instructions": (
-                    "Your design plan did not pass. Revise your section descriptions "
-                    "based on the sub-agent's feedback, then call superpower_design_review "
-                    "again with the updated sections (without sub_agent_verdict) to get "
-                    "a new review. Keep iterating until the sub-agent says PASS."
-                ),
-            }
+        return {
+            "status": f"DESIGN REVIEW: {verdict}",
+            "instructions": (
+                "Revise your section concepts based on the critic's feedback, then "
+                "call superpower_design_review again with updated sections."
+            ),
+        }
 
-    # ── MODE 1: Generate critic prompt for sub-agent ──
-
+    # ── MODE 1: Generate critic prompt ──
     section_block = ""
     for i, desc in enumerate(sections, 1):
         section_block += f"\n--- SECTION {i} ---\n{desc}\n"
 
-    primitives_context = ""
-    if selected_primitives:
-        primitives_context = (
-            f"\nThe designer selected these primitives: {', '.join(selected_primitives)}. "
-            "Consider whether the section plans use them in meaningful, creative ways "
-            "or just as checkboxes.\n"
-        )
+    # Get industry vocabulary for the critic
+    industry_vocab = ""
+    if _workflow.context_domains:
+        vocab = get_industry_vocab(None)  # Will be overridden below if we have intent
+        industry_vocab = "\nConsider whether sections use industry-native metaphors.\n"
 
-    critic_prompt = f"""You are a ruthlessly honest creative director at a world-class design agency.
+    if review_type == "section":
+        # Post-build section review — checks code against brief
+        critic_prompt = f"""You are reviewing BUILT sections against their design brief.
 
-A designer on your team has written a section-by-section plan for a website. They have NOT built it yet — this is your chance to catch boring, safe, template-grade thinking BEFORE it becomes hours of wasted work.
+For each section below, evaluate:
 
-Here are their planned sections:
+1. **Does the code match the concept?** The brief described a specific visual metaphor. Did the builder execute it or fall back to generic patterns?
+
+2. **Is it ambitious enough?** Would this section stand out on Awwwards? Or could any AI have produced this?
+
+3. **Visual density** — Is every viewport filled with engaging content (photography, texture, typography at scale)? Or are there flat sections with just text on solid backgrounds?
+
+4. **Does it feel industry-native?** The section should feel like it belongs to this specific industry, not a generic template.
+
+Sections to review:
 {section_block}
-{primitives_context}
-For EACH section, evaluate on these five dimensions:
 
-1. **Would this turn heads?** If someone scrolled past this on Awwwards, would they stop or keep scrolling?
+For each section, grade STRONG / ADEQUATE / NEEDS WORK / TEMPLATE-GRADE.
+For anything below STRONG, give a SPECIFIC suggestion — what technique, what visual idea would fix it.
 
-2. **Is this DESIGN or just LAYOUT?** Cards in a grid with icons is layout. A creative idea expressed through visual technique is design. Does this section have an IDEA?
+Overall verdict: PASS, NEEDS WORK, or FAIL."""
 
-3. **Does it have sensory richness?** Can you imagine the texture, the depth, the light? Or is it flat shapes on flat colors? Great sections layer: background treatment + surface depth + interactive response + typographic drama.
+    else:
+        # Brief review — pre-build creative quality check
+        critic_prompt = f"""You are a ruthlessly honest creative director reviewing a design brief BEFORE any code is written.
 
-4. **Is it structurally surprising?** Does the layout break expectations or is it the predictable grid-and-columns?
+Your job: catch boring, safe, template-grade thinking before it becomes wasted work.
 
-5. **Could any AI have generated this?** The harshest test. What makes this specific to THIS brand?
+The designer's planned sections:
+{section_block}
+{industry_vocab}
+For EACH section, evaluate:
+
+1. **Does it have a CONCEPT?** Not "hero with heading and CTA" but a visual METAPHOR. "The features section is a flight manifest." "The menu uses actual menu typography with dot leaders." A section without a concept is just layout.
+
+2. **Would this turn heads on Awwwards?** If someone scrolled past this, would they stop?
+
+3. **Is it structurally surprising?** Does the layout break expectations or is it the predictable grid-and-columns approach?
+
+4. **Can you imagine the sensory quality?** Texture, depth, light, motion. Great sections layer: background treatment + surface depth + interaction + typographic drama. If you can't visualize it being remarkable, it won't be.
+
+5. **Could any AI have generated this?** The harshest test. What makes this SPECIFIC to this brand and industry?
 
 Grade each section:
-- **STRONG**: Has a creative idea that would look distinctive on Awwwards
-- **ADEQUATE**: Competent but safe. One more bold choice would elevate it
-- **NEEDS WORK**: Generic. Seen it a thousand times. Content without design
+- **STRONG**: Has a creative concept that would look distinctive on Awwwards
+- **ADEQUATE**: Competent but safe. One bolder choice would elevate it
+- **NEEDS WORK**: Generic. Content without design thinking
 - **TEMPLATE-GRADE**: What a free website builder produces
 
-Then give an overall verdict:
-- **PASS**: No template-grade sections, majority strong/adequate, at least 2 sections are genuinely exciting
-- **NEEDS WORK**: Some sections are template-grade or the plan lacks creative ambition overall
-- **FAIL**: Most sections are generic. Needs a creative rethink, not tweaks
+For every section below STRONG, say SPECIFICALLY what would elevate it — not "be more creative" but WHAT creative idea, WHAT technique, WHAT metaphor would transform it.
 
-Be direct and constructive. For every section that needs work, say SPECIFICALLY what would elevate it — not "add more visual richness" but what KIND, what technique, what creative idea would transform it.
-
-End with your overall verdict: PASS, NEEDS WORK, or FAIL."""
+Overall verdict: PASS (no template-grade, majority strong, 2+ genuinely exciting), NEEDS WORK, or FAIL.
+End your response with exactly one of: PASS, NEEDS WORK, or FAIL."""
 
     return {
         "critic_prompt": critic_prompt,
         "num_sections": len(sections),
+        "review_type": review_type,
         "instructions": (
-            "MANDATORY: Spawn a sub-agent with the critic_prompt above as its task. "
-            "The sub-agent acts as a fresh creative director reviewing your plan. "
-            "Do NOT review your own work — you are biased toward what you just designed.\n\n"
-            "After the sub-agent reports back:\n"
-            "  - If verdict is PASS → call superpower_design_review(sections=..., sub_agent_verdict='PASS')\n"
-            "  - If verdict is NEEDS WORK or FAIL → revise your sections based on the feedback, "
-            "then call superpower_design_review again with the new sections (no sub_agent_verdict) "
-            "to get a fresh review. Keep iterating until PASS.\n\n"
-            "Do NOT skip this step. Do NOT start building until the review passes."
+            "Spawn a sub-agent with the critic_prompt as its task. "
+            "The sub-agent reviews your plan with fresh eyes.\n\n"
+            "After it reports back:\n"
+            "  - PASS → call superpower_design_review(sections=..., sub_agent_verdict='PASS')\n"
+            "  - NEEDS WORK/FAIL → revise sections, call again without sub_agent_verdict"
         ),
     }
 
@@ -795,6 +816,85 @@ def superpower_industry_profiles(industry: str | None = None) -> dict:
             "superpower_retrieve to activate combined industry+style scoring."
         ),
     }
+
+
+@mcp.tool()
+def superpower_section_context(
+    section_briefs: list[dict],
+    include_references: bool = True,
+) -> dict:
+    """Get focused context for a section-builder sub-agent.
+
+    Call this when spawning sub-agents to build specific sections. Returns a
+    SHORT, focused prompt (~80 lines) with everything the sub-agent needs:
+    the section concepts from your brief, font/color spec, and available packages.
+
+    Each section_brief dict should have:
+      - name: Section name (e.g. "Hero", "Features", "Team")
+      - concept: The visual metaphor (e.g. "flight manifest with designation codes")
+      - layout: Layout approach (e.g. "asymmetric 60/40 split")
+      - interaction: Motion/interaction design (e.g. "scroll-triggered reveal with parallax")
+      - mood: Emotional target (e.g. "technical precision, quiet confidence")
+      - images: List of Unsplash URLs to use (optional)
+
+    Returns a builder_prompt that you pass directly to the sub-agent.
+
+    Args:
+        section_briefs: List of section brief dicts (2-4 sections per builder)
+        include_references: Whether to include reference image paths (default True)
+    """
+    prereq_error = _workflow.check_prerequisite("section_context")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
+
+    # Build the primitive toolkit string from stored state
+    if _workflow.primitive_addendum:
+        # Use the full addendum from context/select — it has install commands and imports
+        toolkit_str = _workflow.primitive_addendum
+    elif _workflow.selected_primitive_ids:
+        toolkit_lines = []
+        for pid in _workflow.selected_primitive_ids:
+            provider = find_provider(pid)
+            if provider:
+                pkg = provider.get("package", "")
+                name = provider.get("name", pid)
+                toolkit_lines.append(f"  - {name} ({pkg})")
+        toolkit_str = "\n".join(toolkit_lines)
+    else:
+        toolkit_str = (
+            "Core toolkit: framer-motion, @tabler/icons-react, Tailwind CSS v4.\n"
+            "Use 'npm install framer-motion @tabler/icons-react' as baseline."
+        )
+
+    builder_prompt = build_section_builder_prompt(
+        section_briefs=section_briefs,
+        font_spec=_workflow.font_pair,
+        color_palette=_workflow.color_palette,
+        primitive_toolkit=toolkit_str,
+    )
+
+    result: dict = {
+        "builder_prompt": builder_prompt,
+        "num_sections": len(section_briefs),
+        "instructions": (
+            "Pass the builder_prompt to a sub-agent as its task. The sub-agent "
+            "builds ONLY these sections — focused work produces better results "
+            "than one agent building everything."
+        ),
+    }
+
+    # Include reference image paths and visual specs if available
+    if include_references and _workflow.context_domains:
+        result["reference_domains"] = _workflow.context_domains[:3]
+        result["note"] = (
+            "Share 1-2 reference images with the sub-agent (use image_path "
+            "from superpower_context results) so it can see the quality bar."
+        )
+    if _workflow.vision_specs:
+        # Give section builders the visual specs so they match the reference quality
+        result["reference_visual_specs"] = _workflow.vision_specs[:2]
+
+    return result
 
 
 @mcp.tool()
@@ -968,34 +1068,44 @@ async def superpower_review_build(
     with open(screenshot_path, "wb") as f:
         f.write(screenshot_bytes)
 
+    # Build industry context for the critic
+    industry_note = ""
+    if _workflow.industry:
+        industry_note = (
+            f"\nThis is a {_workflow.industry} website. Sections should feel native to "
+            f"this industry — using industry-specific metaphors and visual language, "
+            f"not generic marketing patterns.\n"
+        )
+
     critic_prompt = f"""You are a brutally honest senior design critic at a top-tier agency.
 
 You are looking at a screenshot of a built website for "{company_name or 'a company'}".
 Read the screenshot at: {screenshot_path}
+{industry_note}
+For EACH visible section, evaluate as a creative director:
 
-For EACH visible section on the page, evaluate it as a creative director would:
+1. **Does it have a CONCEPT?** Can you identify the visual metaphor, or is it just content in rectangles?
+2. **Typography** — Are headlines massive and confident (80px+, viewport-spanning)? Or small and timid?
+3. **Photography** — Does imagery dominate (60-70% of area) or is it thumbnails in cards?
+4. **Surfaces** — Sharp corners (0-4px)? Texture and depth? Or rounded-xl template look?
+5. **Variation** — Does each section look DIFFERENT from its neighbors? Or same pattern repeated?
+6. **Density** — Every viewport filled with engaging content? Or dead space with text on flat bg?
 
-- Does this section make you FEEL something, or is it just filling space?
-- Is there a creative IDEA here, or is it just content organized into rectangles?
-- Does it have sensory richness — texture, depth, layering, typographic drama?
-- Is the layout surprising or predictable?
-- Would you be proud to put this in your agency's portfolio?
-
-Grade each section A through F:
-- A: Exceptional. Portfolio-worthy. Has a distinctive creative idea.
-- B: Good. Polished and intentional. Not generic.
+Grade each section A-F:
+- A: Portfolio-worthy. Has a distinctive creative concept. Industry-native.
+- B: Good. Polished, intentional, not generic.
 - C: Average. Forgettable. Could be any website.
-- D: Below average. Generic cards, flat backgrounds, no visual thinking.
+- D: Generic cards, flat backgrounds, no design thinking.
 - F: Broken or embarrassingly template-grade.
 
-After grading every section, give an OVERALL verdict:
-- PASS: No D/F sections, overall quality is B or better
-- FAIL: Has D/F sections or the overall quality is C or below
+Overall verdict:
+- PASS: No D/F sections, overall B or better, site feels custom-designed
+- FAIL: Has D/F sections, or overall C or below, or feels like a template
 
-For every section graded C or below, give SPECIFIC fixes — not "make it better" but
-exactly what change (CSS, layout, technique) would elevate it.
+For every section C or below, give SPECIFIC fixes — which CSS property, which technique,
+which layout change would transform it. Not "add more richness" but WHAT specifically.
 
-Be harsh. The designer needs honest feedback, not encouragement."""
+Be harsh. Honest feedback prevents mediocre output."""
 
     # In remote mode, embed the image directly
     if _remote_mode:

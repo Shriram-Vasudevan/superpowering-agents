@@ -1,0 +1,700 @@
+{
+  "version": "1.0",
+  "description": "Industry-specific design vocabulary for creative provocation and concept generation. Used by the MCP to inject industry-native metaphors and section concepts into the agent's creative brief.",
+
+  "industries": {
+    "aerospace": {
+      "native_vocabulary": [
+        "mission control displays", "telemetry readouts", "flight manifests",
+        "crew assignments", "departure boards", "tracking numbers",
+        "status indicators", "countdown timers", "orbital trajectories",
+        "launch designations", "vehicle class labels", "payload specifications",
+        "mission patches", "altitude gauges", "trajectory plots"
+      ],
+      "section_concepts": {
+        "hero": "Mission control interface — oversized tracking number or launch designation spanning the viewport, thin ruled lines, monospace status readout ('MISSION STATUS: NOMINAL'), countdown or telemetry data strip at the bottom",
+        "features": "Flight manifest — each capability is a row with a designation code, status badge, and technical description. Not cards in a grid, but a structured document like actual mission planning paperwork",
+        "about": "Mission briefing document — split layout with organization seal/insignia on one side, briefing text on the other, key personnel listed like crew assignments with role designations",
+        "team": "Crew assignments board — personnel displayed like a mission crew roster with role designations, clearance levels, and mission patches. Photography dominant with data overlays",
+        "pricing": "Launch configuration panel — tiers presented like vehicle configurations with payload capacity, orbit options, and mission parameters. Technical, not commercial",
+        "cta": "Launch sequence — final call-to-action styled like a mission go/no-go decision panel with status checks and a prominent launch button",
+        "testimonials": "Mission logs — client quotes styled as after-action reports or mission debrief entries with dates, mission codes, and outcomes"
+      },
+      "premium_signals": [
+        "monospace typography for data labels", "thin ruled lines as separators",
+        "dark backgrounds with high-contrast accent colors", "precise grid alignment",
+        "status indicator dots (green/amber/red)", "technical metadata woven into UI"
+      ],
+      "provocations": [
+        "What if the navigation felt like a mission control status bar with system readouts?",
+        "What if the features section was literally a flight manifest with designation codes and status badges?",
+        "What if the team section looked like crew assignments on a mission board with role patches?",
+        "What if the pricing page was a launch configuration panel where you spec out your mission?",
+        "What if section transitions used telemetry-style data strips between content blocks?",
+        "What if the footer was a ground station status display showing uplink/downlink metrics?"
+      ]
+    },
+
+    "restaurant": {
+      "native_vocabulary": [
+        "physical menus with dividers", "reservation books", "kitchen passes",
+        "tasting notes", "wine lists", "ingredient labels", "recipe cards",
+        "table settings", "chalkboard specials", "menu categories",
+        "prix fixe courses", "chef's table", "sommelier notes",
+        "plating guides", "seasonal calendars"
+      ],
+      "section_concepts": {
+        "hero": "Editorial food photography — a single stunning dish photograph dominating 80% of the viewport, restaurant name in elegant serif overlaid with low opacity, minimal text, the image does all the talking",
+        "features": "The menu itself — not cards with icons, but actual menu typography. Dishes listed with descriptions in italic, prices right-aligned with dot leaders, organized by course with elegant dividers",
+        "about": "Chef's story — editorial layout like a food magazine profile. Large portrait photograph, pull quotes in display serif, the story told through food philosophy not corporate milestones",
+        "team": "Kitchen brigade — the team presented like a magazine editorial spread with large individual portraits, role titles in small caps, specialties listed like tasting notes",
+        "pricing": "Prix fixe menu — pricing tiers presented like tasting menus with course descriptions, wine pairings, and seasonal notes. The format IS the content",
+        "cta": "Reservation — styled like opening a physical reservation book. Warm, inviting, with a sense of occasion. Not a form, an experience",
+        "testimonials": "Critic reviews — quotes styled like actual restaurant reviews from food publications with star ratings, publication names, and review dates"
+      },
+      "premium_signals": [
+        "elegant serif typography", "food photography that dominates the viewport",
+        "warm color temperature", "minimal UI chrome", "generous whitespace",
+        "dot leaders for menu-style listings", "small caps for categories"
+      ],
+      "provocations": [
+        "What if the entire site felt like paging through a beautifully printed menu?",
+        "What if the about section read like a food magazine profile of the chef?",
+        "What if the menu section used actual menu typography — dot leaders, courses, and wine pairing notes?",
+        "What if testimonials were styled like restaurant critic reviews from major publications?",
+        "What if the reservation section felt like the moment a host opens the reservation book?",
+        "What if seasonal dishes were presented on a rotating seasonal calendar with ingredient illustrations?"
+      ]
+    },
+
+    "fintech": {
+      "native_vocabulary": [
+        "trading terminals", "ticker displays", "account statements",
+        "currency exchange boards", "ledger entries", "market dashboards",
+        "portfolio views", "transaction records", "compliance badges",
+        "security certificates", "financial instruments", "audit trails",
+        "rate tables", "risk indicators", "settlement timelines"
+      ],
+      "section_concepts": {
+        "hero": "Trading terminal aesthetic — live-feeling data visualization, numbers that feel real-time, dark background with precise accent colors, the value proposition stated with the confidence of a Bloomberg terminal",
+        "features": "Market dashboard — each feature presented like a financial instrument with its own data visualization, performance metrics, and status indicators. Information-dense but beautifully organized",
+        "about": "Annual report opening — the company story told with the authority and precision of financial documentation. Key metrics prominent, timeline of milestones presented like a market history chart",
+        "team": "Board of directors page — professional photography with titles and credentials displayed with the formality of financial filings. Clean, trustworthy, authoritative",
+        "pricing": "Rate table — pricing displayed like a financial comparison with precise decimal values, feature matrices, and compliance notes. The precision signals trustworthiness",
+        "cta": "Account opening — styled like the beginning of a secure financial transaction. Trust badges, encryption indicators, the sense that this is a serious decision handled by serious infrastructure",
+        "testimonials": "Analyst reports — client quotes presented like financial analyst endorsements with firm names, titles, and the weight of institutional credibility"
+      },
+      "premium_signals": [
+        "precise decimal typography", "data visualization as decoration",
+        "trust badges and compliance indicators", "dark themes with teal/green accents",
+        "tabular data displayed beautifully", "monospace for numbers"
+      ],
+      "provocations": [
+        "What if the hero felt like a Bloomberg terminal — data-dense but beautifully designed?",
+        "What if the features section was a live market dashboard showing each capability as a financial instrument?",
+        "What if pricing was displayed like a rate table with the precision of a trading floor?",
+        "What if the about page read like the opening of a premium annual report?",
+        "What if trust was communicated through compliance badges and security indicators woven into every section?",
+        "What if section transitions showed ticker-style data strips with live-feeling metrics?"
+      ]
+    },
+
+    "saas": {
+      "native_vocabulary": [
+        "product interfaces", "dashboard previews", "workflow diagrams",
+        "integration logos", "API documentation", "onboarding flows",
+        "analytics charts", "notification panels", "settings screens",
+        "user avatars", "status badges", "activity feeds",
+        "kanban boards", "metric cards", "deployment pipelines"
+      ],
+      "section_concepts": {
+        "hero": "Product in context — not a centered dashboard mockup, but an editorial presentation of the product's most compelling screen, angled or layered with depth, typography that communicates the core value in one bold statement",
+        "features": "Workflow narrative — each feature shown as a step in a story. The user sees their problem, then the product solving it. Not icon grids but before/after, or a scrollable sequence where each feature transforms the previous state",
+        "about": "Origin story — told through the problem that inspired the product. The founding team's frustration made visible. Metrics that prove the problem is real, then the solution as a revelation",
+        "team": "Builders at work — candid photography of the team in their environment. Not corporate headshots but editorial portraits that show personality. Roles as brief descriptors, not corporate titles",
+        "pricing": "Decision architecture — pricing designed to make the right choice obvious. Visual hierarchy that guides. Feature comparison that tells a story, not just checks and crosses",
+        "cta": "The unlock moment — styled like the first screen after signup. The promise of what's on the other side. Not 'start your free trial' but the beginning of a transformation",
+        "testimonials": "Case studies in miniature — each testimonial is a before/after story with real metrics. Company logos, person names, specific numbers that changed"
+      },
+      "premium_signals": [
+        "product screenshots with depth and context", "metric visualizations",
+        "gradient treatments (filtered, not raw)", "integration ecosystem displays",
+        "real interface previews", "specific numbers and metrics"
+      ],
+      "provocations": [
+        "What if the hero showed the product's most compelling moment, not a generic dashboard screenshot?",
+        "What if features were told as a workflow story — each one transforming the previous state?",
+        "What if the pricing section was designed as decision architecture that makes the right choice obvious?",
+        "What if testimonials were miniature case studies with before/after metrics?",
+        "What if the integration section felt like a living ecosystem map rather than a logo grid?",
+        "What if each section revealed a new layer of the product, like peeling back an interface?"
+      ]
+    },
+
+    "developer_tools": {
+      "native_vocabulary": [
+        "terminal interfaces", "code blocks", "CLI outputs",
+        "API responses", "git diffs", "deployment logs",
+        "package registries", "documentation pages", "error traces",
+        "build pipelines", "container orchestration", "config files",
+        "syntax highlighting", "version numbers", "changelog entries"
+      ],
+      "section_concepts": {
+        "hero": "Terminal session — the value prop demonstrated through a code example or CLI interaction that runs before your eyes. Dark background, syntax highlighting, the product proving itself in the developer's native environment",
+        "features": "Documentation-style — each feature is a code example with explanation. Not marketing copy but technical demonstration. Show the API, the config, the output. Let the code speak",
+        "about": "README.md — the about section structured like a great open-source README. Problem statement, solution, architecture diagram, contributor credits. Developers trust this format",
+        "team": "Git contributors — the team shown like open-source maintainers. GitHub-style contribution graphs, areas of expertise as tags, the team's technical credibility on display",
+        "pricing": "Tiered like API pricing — usage-based metrics, rate limits, request quotas. Developers understand this language. Show exactly what you get at each level with technical precision",
+        "cta": "Quick start — the CTA is literally 'copy this command and you're running in 30 seconds.' Terminal-style, one line, immediate value",
+        "testimonials": "GitHub stars and tweets — social proof from the developer community. Code snippets that show real usage, tweets from respected developers, star counts and download metrics"
+      },
+      "premium_signals": [
+        "syntax-highlighted code blocks", "terminal/CLI aesthetics",
+        "monospace typography", "dark themes as default", "technical precision",
+        "copy-to-clipboard interactions", "version badges"
+      ],
+      "provocations": [
+        "What if the hero was a live terminal session showing the product in action?",
+        "What if the features section was structured like great API documentation?",
+        "What if the about page was literally a beautifully rendered README.md?",
+        "What if the CTA was a single terminal command that gets you started in 30 seconds?",
+        "What if the team section showed git contribution graphs and areas of expertise?",
+        "What if pricing was displayed like API rate limits — usage-based, technically precise?"
+      ]
+    },
+
+    "fashion": {
+      "native_vocabulary": [
+        "lookbook layouts", "editorial spreads", "runway photography",
+        "collection names", "season labels", "fabric swatches",
+        "size guides", "mood boards", "styling notes",
+        "fashion week dates", "campaign imagery", "designer sketches",
+        "material descriptions", "garment details", "trend forecasts"
+      ],
+      "section_concepts": {
+        "hero": "Campaign editorial — a single striking photograph that IS the brand. Full-bleed, atmospheric, model in environment. Brand name in refined typography overlaid minimally. The image carries everything",
+        "features": "Collection showcase — products presented like a lookbook spread. Large photography with styling context, not product thumbnails on white backgrounds. Each piece styled, photographed, and presented as editorial content",
+        "about": "Brand manifesto — the story told through imagery and poetic copy. Not corporate history but creative vision. Photography of the design process, atelier, materials. The craft behind the brand",
+        "team": "Creative directors and designers — presented like a fashion magazine feature. Large editorial portraits, minimal text, their work speaking through imagery",
+        "pricing": "Collection pieces — pricing integrated into the product presentation naturally. Not a comparison table but individual pieces with their stories and prices",
+        "cta": "Shop the collection — styled like the opening page of a luxury catalog. Aspirational, not transactional. The act of shopping is elevated to curation",
+        "testimonials": "Press features — quotes from Vogue, Elle, fashion critics. Styled as magazine pull quotes with publication mastheads"
+      },
+      "premium_signals": [
+        "full-bleed editorial photography", "refined serif typography",
+        "generous whitespace", "monochromatic or muted color palettes",
+        "minimal UI chrome", "small caps and letterspacing"
+      ],
+      "provocations": [
+        "What if the entire site felt like paging through a luxury fashion magazine?",
+        "What if products were presented as editorial spreads rather than e-commerce listings?",
+        "What if the about section was a visual essay on the brand's creative process?",
+        "What if the navigation was as minimal as a magazine's table of contents?",
+        "What if the collection was presented as a seasonal story with chapters?",
+        "What if the site's scrolling felt like turning pages in a lookbook?"
+      ]
+    },
+
+    "real_estate": {
+      "native_vocabulary": [
+        "floor plans", "property listings", "neighborhood maps",
+        "square footage", "price per sqft", "property types",
+        "virtual tours", "aerial views", "interior photography",
+        "amenity lists", "building specifications", "market data",
+        "open house schedules", "comparable sales", "zoning maps"
+      ],
+      "section_concepts": {
+        "hero": "Architectural photography — a single stunning property photograph at full viewport, the kind that makes you want to live there. Property details overlaid with precision typography, like an architectural drawing title block",
+        "features": "Property showcase — each property presented as an architectural experience. Large photography with floor plan overlays, key metrics (sqft, beds, price) displayed with the precision of technical drawings",
+        "about": "Market authority — the firm's track record presented through market data and sold properties. A map of the city with their portfolio marked. Numbers that prove expertise",
+        "team": "Agent profiles — large professional photography with personal market stats. Properties sold, average price point, neighborhoods of expertise. The data builds trust",
+        "pricing": "Market analysis — not pricing tiers but market insights. Comparative data, neighborhood trends, price-per-sqft visualizations that demonstrate knowledge",
+        "cta": "Schedule a viewing — styled like entering a property. The sense of opening a door, stepping into possibility. Warm, inviting, aspirational",
+        "testimonials": "Homeowner stories — before and after. The search journey. Large photography of the home they found, the family in their space. Emotional, not transactional"
+      },
+      "premium_signals": [
+        "architectural photography at scale", "floor plan aesthetics",
+        "map integrations", "precise numeric typography", "property data overlays",
+        "editorial interior photography", "warm lighting in imagery"
+      ],
+      "provocations": [
+        "What if listings were presented like architectural portfolio pieces rather than catalog entries?",
+        "What if the hero made you feel like you were standing in the property's best room?",
+        "What if market data was visualized as a beautiful neighborhood map with overlaid insights?",
+        "What if the site scrolled like a virtual tour through a stunning property?",
+        "What if agent profiles showed their market territory and track record as an interactive map?",
+        "What if testimonials were presented as homeowner stories with before/after photography?"
+      ]
+    },
+
+    "creative_agency": {
+      "native_vocabulary": [
+        "project case studies", "creative process", "client logos",
+        "awards and recognition", "studio photography", "design systems",
+        "brand guidelines", "mood boards", "creative briefs",
+        "portfolio grids", "art direction", "campaign results",
+        "studio culture", "design philosophy", "collaboration process"
+      ],
+      "section_concepts": {
+        "hero": "The work speaks — a bold typographic statement or a single stunning project image that proves capability. No explanation needed. Confidence so extreme it borders on arrogance",
+        "features": "Case study gallery — each project presented as a visual story. Not thumbnails but immersive previews. The portfolio IS the features section. Each case study a different layout",
+        "about": "Studio manifesto — written like a creative director's vision statement. Bold opinions about design. Not 'we make websites' but 'we believe design should make you uncomfortable'",
+        "team": "Studio culture — candid shots of the workspace, the team in creative mode. Not corporate headshots. The environment tells the story of who they are",
+        "pricing": "Engagement models — not price lists but 'how we work.' The process presented as a narrative: discovery, concept, execution, launch. Each phase with its deliverables",
+        "cta": "Let's make something — an invitation to collaborate, not a sales form. The CTA should feel like the start of a creative conversation",
+        "testimonials": "Client impact — before/after of the brand work. Metrics that prove the creative work drove business results. Not just praise but proof"
+      },
+      "premium_signals": [
+        "bold experimental typography", "asymmetric layouts", "project imagery at scale",
+        "confident use of whitespace", "animation as design expression",
+        "breaking grid conventions", "oversized display type"
+      ],
+      "provocations": [
+        "What if the portfolio was a single scrollable narrative where each project bleeds into the next?",
+        "What if the hero was just one word — the studio's philosophy — in 20vw type?",
+        "What if the about section was a design manifesto with controversial opinions?",
+        "What if the site itself was the best case study — proving the agency's capabilities by existing?",
+        "What if project thumbnails were interactive and revealed depth on hover?",
+        "What if the navigation was completely unconventional — a sidebar, a wheel, a search-first interface?"
+      ]
+    },
+
+    "health": {
+      "native_vocabulary": [
+        "vital signs", "wellness metrics", "treatment plans",
+        "patient journeys", "clinical data", "health assessments",
+        "care protocols", "recovery timelines", "medical imagery",
+        "certification badges", "practitioner credentials",
+        "appointment scheduling", "patient portals", "health scores"
+      ],
+      "section_concepts": {
+        "hero": "Human warmth with clinical precision — a genuine photograph of care in action, warm but not saccharine. The value proposition stated simply, backed by a trust-building credential or metric",
+        "features": "Patient journey — each feature presented as a step in the care experience. Not bullet points but a narrative: what happens first, what comes next, what the outcome looks like",
+        "about": "Mission and evidence — the organization's purpose backed by data. Not vague wellness language but specific outcomes: patients helped, conditions treated, success rates",
+        "team": "Practitioners with credentials — warm professional photography with real credentials displayed prominently. Board certifications, specializations, years of experience. Trust through transparency",
+        "pricing": "Care plans — pricing as treatment pathways. What's included in each level of care, presented with the clarity of a medical information sheet",
+        "cta": "Begin your journey — warm, reassuring, with a sense of being welcomed into care. Not 'sign up' but 'take the first step'",
+        "testimonials": "Patient stories — real journeys with before/after, told with dignity and hope. Photography of real people in real health moments"
+      },
+      "premium_signals": [
+        "warm but professional photography", "clean trustworthy layouts",
+        "credential and certification displays", "calming color palettes",
+        "accessible typography", "clear information hierarchy"
+      ],
+      "provocations": [
+        "What if the site felt like walking into a warm, modern clinic — calming but precise?",
+        "What if the patient journey was visualized as an interactive timeline of care?",
+        "What if practitioner profiles felt like the bio cards you see in a top hospital?",
+        "What if health outcomes were displayed as honest, beautiful data visualizations?",
+        "What if the site communicated trust through transparency rather than stock imagery?",
+        "What if the booking flow felt like a concierge welcoming you, not a form?"
+      ]
+    },
+
+    "education": {
+      "native_vocabulary": [
+        "curricula", "course catalogs", "syllabi", "learning paths",
+        "academic calendars", "campus maps", "lecture halls",
+        "student work", "research papers", "faculty directories",
+        "graduation statistics", "course modules", "lab environments",
+        "library stacks", "seminar rooms"
+      ],
+      "section_concepts": {
+        "hero": "The campus experience — a photograph that captures the energy of learning. Students in an inspiring environment, or a striking architectural shot of the campus. The institution's character in one image",
+        "features": "Course catalog — programs presented like a beautifully designed academic catalog. Each program with its focus, duration, outcomes, and a representative image",
+        "about": "Institutional legacy — history told through milestones, founding stories, and the evolution of the campus. Photography that shows decades of tradition meeting modern facilities",
+        "team": "Faculty showcase — professors presented with their research specialties, publications, and teaching philosophy. Academic photography with scholarly warmth",
+        "pricing": "Tuition and value — not just numbers but the full picture: scholarships, ROI, career outcomes post-graduation. The investment case presented clearly",
+        "cta": "Apply or explore — styled like the welcome packet you receive when accepted. Warm, exciting, the beginning of a new chapter",
+        "testimonials": "Alumni success — graduates in their careers, with their degree and year prominently shown. Where they are now and how the education got them there"
+      },
+      "premium_signals": [
+        "campus and facility photography", "academic typography traditions",
+        "structured information hierarchy", "warm institutional colors",
+        "student and faculty photography", "statistical proof points"
+      ],
+      "provocations": [
+        "What if the site felt like walking through a beautiful campus on the best day of the year?",
+        "What if programs were presented as learning journeys with visual progression?",
+        "What if faculty pages felt like academic publication profiles?",
+        "What if student work was showcased as a gallery that proves the education's quality?",
+        "What if the application flow felt like the excitement of receiving an acceptance letter?",
+        "What if the curriculum was interactive — letting prospective students explore courses?"
+      ]
+    },
+
+    "ecommerce": {
+      "native_vocabulary": [
+        "product photography", "shopping carts", "wish lists",
+        "size guides", "color swatches", "product details",
+        "customer reviews", "bestsellers", "new arrivals",
+        "collection drops", "limited editions", "brand collaborations",
+        "shipping information", "return policies", "loyalty programs"
+      ],
+      "section_concepts": {
+        "hero": "Product as art — the flagship product photographed with the care of a still life painting. Dramatic lighting, editorial composition. The product is the hero, not the text",
+        "features": "Collection story — products grouped by narrative, not category. 'Weekend Essentials' not 'Shirts.' Each collection with its own visual mood and editorial photography",
+        "about": "Craft story — how the products are made. Workshop photography, material close-ups, the hands that make them. Quality communicated through process, not claims",
+        "team": "Founders and makers — the people behind the brand, shown in their element. Not corporate headshots but editorial portraits in workshops, studios, fields",
+        "pricing": "Product highlights — individual products presented with enough detail and photography to sell themselves. Multiple angles, context shots, material details",
+        "cta": "Shop the drop — urgency and exclusivity. Limited availability, new arrivals, seasonal collections. The CTA feels like an invitation to something special",
+        "testimonials": "Customer photos — real people with real products in real life. User-generated content aesthetic but curated. Social proof that feels authentic"
+      },
+      "premium_signals": [
+        "product photography as editorial art", "lifestyle context shots",
+        "material and texture close-ups", "clean product detail layouts",
+        "collection-based storytelling", "minimal purchase friction"
+      ],
+      "provocations": [
+        "What if products were photographed and presented like art pieces in a gallery?",
+        "What if collections were presented as editorial stories rather than category pages?",
+        "What if the about section was a visual documentary of the making process?",
+        "What if the product page felt like unwrapping something precious?",
+        "What if customer photos were curated into a living lookbook?",
+        "What if the entire shopping experience felt like visiting a beautifully designed boutique?"
+      ]
+    },
+
+    "travel": {
+      "native_vocabulary": [
+        "destination photography", "itineraries", "booking interfaces",
+        "travel guides", "maps and routes", "accommodation galleries",
+        "experience descriptions", "local culture", "seasonal calendars",
+        "travel advisories", "packing lists", "visa information",
+        "flight schedules", "hotel amenities", "excursion options"
+      ],
+      "section_concepts": {
+        "hero": "Destination immersion — a full-bleed photograph so compelling it triggers wanderlust. The destination name in bold typography overlaid. You should feel the warmth, taste the air",
+        "features": "Experience catalog — each offering presented as a mini-adventure. Rich photography with itinerary snippets, duration, difficulty level, and the one image that sells the experience",
+        "about": "Our story through places — the company's history told through the destinations they've explored. A map of everywhere they operate, with photography from each location",
+        "team": "Local guides — the people who make the experiences real. Environmental portraits in their destinations. Their local knowledge as their credential",
+        "pricing": "Journey packages — pricing as complete experience descriptions. What you'll see, do, eat, and feel at each tier. Not a feature matrix but a narrative of the trip",
+        "cta": "Book your adventure — styled like opening a passport to a new stamp. Excitement, possibility, the world awaiting",
+        "testimonials": "Traveler stories — guests in destinations, with their trip details and the moment that defined their experience. Photography-led with personal quotes"
+      },
+      "premium_signals": [
+        "destination photography at massive scale", "warm editorial typography",
+        "map integrations", "seasonal and time-based content",
+        "immersive full-bleed imagery", "cultural authenticity in visuals"
+      ],
+      "provocations": [
+        "What if scrolling through the site felt like flipping through a premium travel magazine?",
+        "What if each destination was introduced with a full-viewport photograph that transported you there?",
+        "What if itineraries were presented as visual timelines with photography for each stop?",
+        "What if the booking flow felt like planning an adventure, not filling out a form?",
+        "What if the site used ambient sound or video to immerse visitors in the destination?",
+        "What if testimonials were travel diary entries with photographs and route maps?"
+      ]
+    },
+
+    "gaming": {
+      "native_vocabulary": [
+        "game interfaces", "character art", "level design",
+        "score displays", "achievement badges", "inventory systems",
+        "loading screens", "cutscene aesthetics", "pixel art",
+        "health bars", "minimap overlays", "loot drops",
+        "leaderboards", "tournament brackets", "patch notes"
+      ],
+      "section_concepts": {
+        "hero": "Cinematic opening — like a game's title screen. Full-bleed key art or rendered scene, the title in the game's native typography, atmospheric and immersive. You should feel like you're about to press Start",
+        "features": "Gameplay showcase — each feature demonstrated through in-game footage or art. Not bullet points but visual proof of the experience. Each feature feels like a level preview",
+        "about": "Development story — behind-the-scenes of game creation. Concept art evolution, studio photography, the creative vision. Developers as the characters behind the game",
+        "team": "The studio — developers shown in their creative environment. Not corporate but authentic. Their roles as game-native titles: 'Level Designer' not 'Senior Product Manager'",
+        "pricing": "Edition comparison — game editions presented like in-game loot tiers. Visual hierarchy that makes the collector's edition feel irresistible. Include exclusive content previews",
+        "cta": "Enter the world — not 'buy now' but an invitation to step into the game's universe. Pre-order, early access, the excitement of launch",
+        "testimonials": "Player community — streamers, reviews, community content. The game's cultural impact shown through its players"
+      },
+      "premium_signals": [
+        "cinematic key art", "game-native UI elements", "atmospheric lighting",
+        "immersive dark themes", "dynamic visual effects", "community-driven content"
+      ],
+      "provocations": [
+        "What if the site felt like the game's main menu — fully atmospheric and immersive?",
+        "What if features were presented as level previews with gameplay footage?",
+        "What if the about section showed the evolution from concept art to final render?",
+        "What if the site had subtle game-like interactions — hover effects that feel like UI feedback?",
+        "What if patch notes and updates were styled like in-game event announcements?",
+        "What if the community section was a living leaderboard of player-created content?"
+      ]
+    },
+
+    "architecture": {
+      "native_vocabulary": [
+        "blueprints", "elevations", "section drawings", "material palettes",
+        "scale indicators", "site plans", "rendering visualizations",
+        "construction details", "structural grids", "facade studies",
+        "model photography", "plan views", "axonometric projections",
+        "material specifications", "environmental analysis"
+      ],
+      "section_concepts": {
+        "hero": "The definitive project — one building photograph so striking it becomes the firm's identity. Full-bleed, dramatic lighting, architectural photography at its finest. The firm name in clean sans-serif, minimal",
+        "features": "Project portfolio — each project as an architectural case study. Site plan, key photograph, materials used, design philosophy in one paragraph. Each project gets a unique layout",
+        "about": "Design philosophy — written like a manifesto about space, light, and material. Not corporate history but intellectual position. Illustrated with process photographs — models, sketches, construction",
+        "team": "Principals and associates — clean portrait photography against architectural backdrops. Education, notable projects, awards. The professional credibility of licensed architects",
+        "pricing": "Services and scope — engagement types presented with the precision of project specifications. Schematic design, design development, construction documents. Professional, not commercial",
+        "cta": "Commission a project — the gravity of architectural commissioning. Not a contact form but the beginning of a multi-year creative partnership",
+        "testimonials": "Awards and recognition — AIA awards, publications, built project photography with completion dates and recognition received"
+      },
+      "premium_signals": [
+        "architectural photography at massive scale", "blueprint and drawing aesthetics",
+        "clean sans-serif typography", "precise geometric layouts",
+        "material textures as backgrounds", "black and white with selective color"
+      ],
+      "provocations": [
+        "What if the site's grid system was as precise as an architectural drawing?",
+        "What if projects were presented as blueprint-to-reality progressions?",
+        "What if the navigation felt like navigating a building — floor by floor, room by room?",
+        "What if materials and textures from the projects were used as section backgrounds?",
+        "What if the about section included actual architectural sketches and process work?",
+        "What if the site's proportions followed architectural golden ratios?"
+      ]
+    },
+
+    "legal": {
+      "native_vocabulary": [
+        "legal briefs", "case citations", "court documents",
+        "practice area descriptions", "attorney credentials",
+        "bar admissions", "landmark cases", "legal precedents",
+        "client confidentiality", "jurisdictions", "regulatory filings",
+        "partnership structures", "pro bono commitments"
+      ],
+      "section_concepts": {
+        "hero": "Institutional authority — a dramatic photograph of the firm's environment (library, office, courthouse steps). The firm name in authoritative serif typography. Confidence through restraint",
+        "features": "Practice areas — each area presented like the opening of a legal brief. The practice described with the precision of legal writing, backed by representative case types and outcomes",
+        "about": "Firm history — told like the history of a venerable institution. Founded dates, landmark cases, growth milestones. Photography of the firm's spaces that convey permanence and tradition",
+        "team": "Attorney directory — professional photography with full credentials. Bar admissions, education (law school, clerkships), notable cases. The depth of expertise on display",
+        "pricing": "Engagement structure — not prices but how the firm works. Retainer, hourly, contingency. Each model explained with the clarity of a client engagement letter",
+        "cta": "Schedule a consultation — styled with the gravitas of a legal proceeding. Professional, confidential, reassuring",
+        "testimonials": "Case outcomes — not quotes but results. 'Successfully defended...' 'Secured $X in...' The outcomes speak louder than praise"
+      },
+      "premium_signals": [
+        "authoritative serif typography", "dark wood and leather textures",
+        "institutional photography", "precise credential displays",
+        "restrained color palettes", "formal document aesthetics"
+      ],
+      "provocations": [
+        "What if the site felt like opening a beautifully bound legal document?",
+        "What if practice areas were introduced like chapters in a casebook?",
+        "What if the attorney directory showed depth of expertise through case history?",
+        "What if the firm's history was told through its landmark cases on a visual timeline?",
+        "What if the consultation booking felt like the formality of retaining counsel?",
+        "What if the site's typography and spacing conveyed the precision of legal drafting?"
+      ]
+    },
+
+    "crypto_web3": {
+      "native_vocabulary": [
+        "blockchain visualizations", "token metrics", "wallet interfaces",
+        "smart contract displays", "network graphs", "governance dashboards",
+        "staking interfaces", "transaction histories", "protocol diagrams",
+        "token distribution charts", "validator nodes", "DeFi yields"
+      ],
+      "section_concepts": {
+        "hero": "Protocol visualization — an abstract representation of the network or technology. Not generic blockchain imagery but a custom visualization that explains what makes this protocol unique. Bold typography with technical confidence",
+        "features": "Protocol mechanics — each feature explained through technical diagrams and data flows. Show how value moves through the system. Technical depth signals credibility in this space",
+        "about": "Whitepaper distilled — the core innovation explained visually. Not marketing language but the actual technical breakthrough in accessible form. Links to the full technical documentation",
+        "team": "Core contributors — shown with their technical contributions and public profiles. GitHub, research papers, previous protocols built. Pseudonyms acceptable. Technical credibility is everything",
+        "pricing": "Token economics — not pricing but tokenomics. Distribution charts, vesting schedules, utility flows. The economic model visualized with precision",
+        "cta": "Join the network — not 'buy tokens' but 'participate in the protocol.' The CTA should feel like joining something technically meaningful",
+        "testimonials": "Ecosystem adoption — projects building on the protocol, TVL metrics, validator count, integration partners. Technical adoption as social proof"
+      },
+      "premium_signals": [
+        "custom data visualizations", "dark themes with neon accents",
+        "technical diagram aesthetics", "real-time metric displays",
+        "network topology graphics", "code-level transparency"
+      ],
+      "provocations": [
+        "What if the hero was a live visualization of the network's activity?",
+        "What if features were explained through interactive protocol flow diagrams?",
+        "What if tokenomics were displayed as a beautiful, interactive distribution visualization?",
+        "What if the site surfaced real-time on-chain data as a trust signal?",
+        "What if the about section was a visual distillation of the whitepaper?",
+        "What if the ecosystem section showed a living map of everything built on the protocol?"
+      ]
+    },
+
+    "nonprofit": {
+      "native_vocabulary": [
+        "impact metrics", "mission statements", "beneficiary stories",
+        "donation levels", "program descriptions", "annual reports",
+        "volunteer opportunities", "campaign milestones", "partner logos",
+        "field photography", "progress indicators", "community events"
+      ],
+      "section_concepts": {
+        "hero": "Human impact — a single powerful photograph of the people or cause the organization serves. Not a stock photo but a real moment. The mission stated in clear, emotional language",
+        "features": "Programs as stories — each program presented through the lens of someone it helped. Real photography, real names (with permission), real outcomes. Not abstract descriptions but lived experiences",
+        "about": "Origin and purpose — why this organization exists, told through the founder's encounter with the problem. The moment of 'someone has to do something.' Authentic, not polished",
+        "team": "People on the ground — staff and volunteers in the field. Environmental photography that shows the work happening. Not office headshots but mission-driven imagery",
+        "pricing": "Impact tiers — donation levels shown as specific outcomes. '$50 provides clean water for a family for a month.' Each tier with a photograph of the exact impact it enables",
+        "cta": "Make a difference — the CTA should create urgency and connection. A specific current need, a specific way to help, a specific outcome from helping",
+        "testimonials": "Beneficiary voices — the people served telling their own stories. Photography-led, dignified, empowering. Their words, not the organization's interpretation"
+      },
+      "premium_signals": [
+        "authentic field photography", "impact data visualizations",
+        "warm human-centered color palettes", "clear mission typography",
+        "progress indicators and goal tracking", "transparent financial reporting"
+      ],
+      "provocations": [
+        "What if the site opened with the face of someone whose life changed because of this work?",
+        "What if donation tiers showed the exact photograph of the impact each level creates?",
+        "What if the annual report was an interactive data story on the site?",
+        "What if the volunteer section felt like a personal invitation from someone in the field?",
+        "What if the site tracked progress toward a current goal with live-updating metrics?",
+        "What if every section connected back to a real person's real story?"
+      ]
+    },
+
+    "automotive": {
+      "native_vocabulary": [
+        "vehicle specifications", "performance metrics", "engine details",
+        "aerodynamic profiles", "interior photography", "paint options",
+        "configurators", "test drive experiences", "motorsport heritage",
+        "safety ratings", "technology packages", "trim levels"
+      ],
+      "section_concepts": {
+        "hero": "The vehicle as sculpture — a cinematic photograph of the car in an environment that amplifies its character. A sports car on a mountain road at dawn. An SUV in dramatic terrain. The car IS the hero",
+        "features": "Specification theater — each feature demonstrated through close-up photography and precise data. Not bullet points but immersive detail. Zoom into the engine, the interior stitching, the wheel design",
+        "about": "Heritage and vision — the brand's automotive lineage. Historic vehicles alongside current models. Racing heritage, engineering milestones, design evolution across decades",
+        "team": "Engineers and designers — the people behind the machine, shown with their work. In the wind tunnel, at the clay model, on the test track. Technical passion visible",
+        "pricing": "Configuration — not a price list but a build-your-own experience. Start with the base, add packages, see the price evolve. The configurator IS the pricing page",
+        "cta": "Experience it — test drive booking that feels like an invitation to an event. Not a form but an experience beginning",
+        "testimonials": "Owner stories and press — automotive journalists' quotes alongside owner adventures. The car in its owners' lives"
+      },
+      "premium_signals": [
+        "cinematic vehicle photography", "performance data displays",
+        "precision engineering aesthetics", "high-contrast dramatic lighting",
+        "detail close-ups", "configurator-style interactions"
+      ],
+      "provocations": [
+        "What if the site felt like sitting in the driver's seat for the first time?",
+        "What if specifications were presented like the readouts on the vehicle's own dashboard?",
+        "What if the brand story was told through the evolution of their most iconic model?",
+        "What if scrolling simulated driving through different terrains?",
+        "What if the configurator section let you build the car layer by layer?",
+        "What if each vehicle feature was revealed through a dramatic close-up sequence?"
+      ]
+    },
+
+    "media": {
+      "native_vocabulary": [
+        "editorial layouts", "article typography", "bylines",
+        "pull quotes", "column layouts", "masthead designs",
+        "publication dates", "category tags", "featured stories",
+        "photo essays", "long-form narratives", "breaking news banners",
+        "podcast players", "video embeds", "newsletter signups"
+      ],
+      "section_concepts": {
+        "hero": "The front page — the most important story presented with newspaper-level editorial design. Bold headline, striking photograph, the promise of a compelling read",
+        "features": "Editorial grid — stories laid out like a magazine spread. Mixed sizes, featured stories larger, supporting stories arranged asymmetrically. Each story with a compelling image and excerpt",
+        "about": "The masthead — the publication's identity, editorial stance, and the people who make it. Styled like the inside cover of a respected magazine",
+        "team": "Contributors and editors — presented like magazine contributor bios. Small portraits, brief credentials, their beat or specialty. The intellectual authority of the newsroom",
+        "pricing": "Subscription — presented like a membership in an exclusive intellectual community. Not 'pay for articles' but 'support independent journalism / join the conversation'",
+        "cta": "Subscribe or read — the CTA should feel like being handed a beautiful publication. The promise of insight, not just content",
+        "testimonials": "Reader impact — letters to the editor style. How the publication's work affected its readers, influenced policy, or broke important stories"
+      },
+      "premium_signals": [
+        "editorial serif typography", "column-based layouts",
+        "byline and dateline formatting", "pull quote typography",
+        "story photography at scale", "masthead-style branding"
+      ],
+      "provocations": [
+        "What if the homepage felt like the front page of a beautifully designed broadsheet?",
+        "What if stories were laid out with the asymmetric elegance of a magazine spread?",
+        "What if the about page was styled like a magazine's masthead and editor's letter?",
+        "What if the subscription page felt like joining an exclusive intellectual salon?",
+        "What if long-form articles used editorial typography that makes reading a pleasure?",
+        "What if the site's rhythm of content felt like flipping through a physical magazine?"
+      ]
+    },
+
+    "biotech": {
+      "native_vocabulary": [
+        "molecular structures", "research pipelines", "clinical trials",
+        "protein visualizations", "gene sequences", "lab environments",
+        "peer-reviewed data", "FDA stages", "cell imagery",
+        "research publications", "patent portfolios", "trial phases"
+      ],
+      "section_concepts": {
+        "hero": "Scientific visualization — a stunning molecular or cellular image that represents the core technology. The company's breakthrough stated with scientific precision and typographic confidence",
+        "features": "Research pipeline — each product or therapy presented as a stage in the pipeline. Clinical trial phases, target conditions, mechanism of action. Scientific rigor as design aesthetic",
+        "about": "Scientific founding — the research discovery that led to the company. Published papers, institutional origins, the 'aha moment' in the lab. Photography of the actual research environment",
+        "team": "Scientific advisory board — credentials that matter in science. MD, PhD, institutional affiliations, publication counts, research specialties. The intellectual firepower on display",
+        "pricing": "Pipeline stages — not commercial pricing but the portfolio of therapies in development. Phase 1/2/3, target indications, expected timelines. Investor-grade information",
+        "cta": "Partner or invest — styled for the audience that matters: other scientists, investors, potential partners. Professional, data-driven, serious",
+        "testimonials": "Publications and partnerships — peer-reviewed papers, institutional partnerships, grant awards. Scientific credibility, not marketing praise"
+      },
+      "premium_signals": [
+        "scientific visualization", "clean clinical aesthetics",
+        "data-rich presentations", "research institution photography",
+        "pipeline stage diagrams", "peer-review credibility signals"
+      ],
+      "provocations": [
+        "What if the hero featured a custom visualization of the molecule or technology at the company's core?",
+        "What if the pipeline was an interactive journey from discovery to patient impact?",
+        "What if the team section displayed publication networks and research connections?",
+        "What if data from clinical trials was visualized as beautiful, trustworthy charts?",
+        "What if the site communicated scientific rigor through precision in every pixel?",
+        "What if the about section took you inside the lab where the breakthrough happened?"
+      ]
+    }
+  },
+
+  "fallback": {
+    "description": "Used when no specific industry match is found. Generates generic but still creative provocations based on the business type.",
+    "section_concepts": {
+      "hero": "Bold typographic statement — the company's core value in massive, viewport-spanning type. A single striking photograph that embodies what they do. Minimal but confident",
+      "features": "Narrative showcase — each capability presented as a story, not a grid. Scrollable, each feature transforms the visual landscape. Photography-dominant with supporting text",
+      "about": "Origin story — the founding moment, the problem that needed solving, the vision for the future. Told through photography and honest language",
+      "team": "People with depth — not headshots on cards but editorial portraits with real information about each person's role and contribution",
+      "pricing": "Clear value communication — pricing that makes the right choice obvious through visual hierarchy and honest comparison",
+      "cta": "The invitation — a call to action that feels like the beginning of a relationship, not a transaction",
+      "testimonials": "Real impact — specific stories from specific people with specific outcomes. Photography-led, data-backed"
+    },
+    "provocations": [
+      "What if every section had a visual metaphor rooted in the company's actual work?",
+      "What if the site's typography was so bold it became architectural?",
+      "What if the navigation was invented specifically for this brand's needs?",
+      "What if each section used a completely different layout approach?",
+      "What if the site had one 'screenshot moment' that people would share?"
+    ]
+  },
+
+  "industry_aliases": {
+    "banking": "fintech",
+    "finance": "fintech",
+    "insurance": "fintech",
+    "defi": "crypto_web3",
+    "web3": "crypto_web3",
+    "blockchain": "crypto_web3",
+    "fitness_wellness": "health",
+    "mental_health": "health",
+    "medical": "biotech",
+    "pharmaceutical": "biotech",
+    "food_beverage": "restaurant",
+    "hospitality": "travel",
+    "hotel": "travel",
+    "luxury_premium": "fashion",
+    "beauty": "fashion",
+    "design_studio": "creative_agency",
+    "photography": "creative_agency",
+    "ai_ml": "saas",
+    "technology": "saas",
+    "devops": "developer_tools",
+    "security": "developer_tools",
+    "open_source": "developer_tools",
+    "edtech": "education",
+    "esports": "gaming",
+    "news": "media",
+    "podcast": "media",
+    "publishing": "media",
+    "immigration": "legal",
+    "law_firm": "legal",
+    "logistics": "ecommerce",
+    "hr": "saas",
+    "recruiting": "saas",
+    "dating": "saas",
+    "social_media": "saas",
+    "defense": "aerospace",
+    "engineering": "aerospace"
+  }
+}

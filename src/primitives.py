@@ -135,15 +135,24 @@ def infer_design_tags(intent: UserIntent, results: list[RetrievalResult]) -> set
 
 
 def _score_provider(provider: dict[str, Any], tags: set[str]) -> float:
-    base = float(provider.get("score", 0))
+    """Score a provider against inferred tags.
+
+    Normalizes the base score to a 0-1 range so tag matches have real impact.
+    A provider with 3 tag matches beats one with a slightly higher base score.
+    """
+    raw_base = float(provider.get("score", 0))
+    # Normalize: compress the 7.0-9.7 range into 0-1 so tags dominate
+    base = max(0.0, (raw_base - 7.0) / 3.0)  # 7.0→0.0, 8.5→0.5, 10.0→1.0
     gains = 0.0
     for item in provider.get("when_to_use", []):
-        if _safe_slug(item) in tags:
+        if item == "default":
+            gains += 0.1  # "default" is weak signal, not a real match
+        elif _safe_slug(item) in tags:
             gains += 1.0
     penalties = 0.0
     for item in provider.get("avoid_when", []):
         if _safe_slug(item) in tags:
-            penalties += 2.0
+            penalties += 1.5
     return base + gains - penalties
 
 
@@ -220,15 +229,47 @@ def choose_archetype(
     results: list[RetrievalResult],
     registry: dict[str, Any],
 ) -> dict[str, Any]:
-    """Deterministically pick one variation archetype for the request."""
+    """Pick a variation archetype by semantic tag matching, with hash tiebreaker.
+
+    Scores each archetype against the inferred tags. If two archetypes tie,
+    uses SHA-256 hash of the prompt to break the tie deterministically.
+    """
     archetypes = registry.get("variation_archetypes", [])
     if not archetypes:
         return {}
 
+    # Build a scoring function from archetype metadata
+    def _archetype_score(arch: dict[str, Any]) -> float:
+        score = 0.0
+        arch_id = _safe_slug(arch.get("id", ""))
+        # Match archetype id parts against tags
+        for part in arch_id.split("-"):
+            if part in tags:
+                score += 2.0
+        # Match description keywords against tags
+        desc = _safe_slug(arch.get("description", ""))
+        for tag in tags:
+            if tag != "default" and tag in desc:
+                score += 1.0
+        # Match signature_moves — bonus if tags overlap
+        for move in arch.get("signature_moves", []):
+            if _safe_slug(move) in tags:
+                score += 0.5
+        return score
+
+    # Score all archetypes
+    scored = [(a, _archetype_score(a)) for a in archetypes]
+    best_score = max(s for _, s in scored)
+
+    # Among the best-scoring, use hash to pick deterministically
+    top_archetypes = [a for a, s in scored if s >= best_score - 0.5]
+    if len(top_archetypes) == 1:
+        return top_archetypes[0]
+
     seed_input = prompt + "|" + "|".join(r.domain for r in results[:5]) + "|" + "|".join(sorted(tags))
     digest = hashlib.sha256(seed_input.encode("utf-8")).hexdigest()
-    idx = int(digest[:8], 16) % len(archetypes)
-    return archetypes[idx]
+    idx = int(digest[:8], 16) % len(top_archetypes)
+    return top_archetypes[idx]
 
 
 def choose_motion_primitives(tags: set[str], registry: dict[str, Any]) -> list[dict[str, Any]]:
@@ -412,15 +453,19 @@ def _provider_lines(category: str, provider: dict[str, Any]) -> list[str]:
 
 
 def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
-    """Render injectable system-prompt addendum from a primitive bundle."""
+    """Render injectable system-prompt addendum from a primitive bundle.
+
+    Presents primitives as a toolkit (what's available, how to import) rather
+    than a mandatory checklist. The creative brief determines which primitives
+    serve each section — not every primitive needs to appear.
+    """
     lines: list[str] = []
-    lines.append("## Your Primitive Toolkit")
+    lines.append("## PRIMITIVE TOOLKIT")
     lines.append(
-        "These are the primitives selected for this site. Use them thoughtfully — "
-        "each one should serve your design personality. Not every primitive needs to "
-        "appear on every page. Focus on the 5-6 that make THIS site's personality "
-        "come alive. A compliance site uses different primitives than a dev tools site. "
-        "Think: what does this specific brand need?"
+        "These packages are available for this project. Use the ones that serve "
+        "your design concepts. Not every package needs to appear — pick what fits "
+        "each section's concept. But DO use the actual packages rather than writing "
+        "lesser CSS equivalents."
     )
 
     # Generate ready-to-paste npm install command and import statements
@@ -455,8 +500,6 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
     seen_packages: set[str] = set()
     for provider in providers.values():
         pkg = provider.get("package", "")
-        # Handle composite packages like "@paper-design/shaders-react OR native-css"
-        # and "react-hook-form + zod + @hookform/resolvers"
         for p in pkg.replace(" OR ", "|").replace(" + ", "|").split("|"):
             p = p.strip()
             if p and p.lower() not in _skip_packages and p not in seen_packages and not p.startswith("@radix"):
@@ -465,174 +508,75 @@ def build_primitive_prompt_addendum(bundle: dict[str, Any]) -> str:
                 if p in _import_map:
                     import_lines.append(_import_map[p])
 
-    # Also add framer-motion always (core requirement)
     if "framer-motion" not in seen_packages:
         installable_packages.insert(0, "framer-motion")
         import_lines.insert(0, _import_map["framer-motion"])
         seen_packages.add("framer-motion")
 
     if installable_packages:
-        lines.append(f"\n## INSTALL COMMAND — run this FIRST, before writing any code:")
+        lines.append(f"\n### Install (run before writing code):")
         lines.append(f"npm install {' '.join(installable_packages)}")
         lines.append("")
-        lines.append("## IMPORT STATEMENTS — copy these into your components:")
+        lines.append("### Imports:")
         lines.extend(import_lines)
         lines.append("")
+
+    # List available providers by category
+    lines.append("### Available packages by category:")
     for category in _ALL_PROVIDER_CATEGORIES:
         provider = providers.get(category)
         if provider:
             lines.extend(_provider_lines(category, provider))
 
+    # Font pair
     font_pair = bundle.get("font_pair") or {}
     if font_pair:
         display_font = font_pair.get('display', 'Inter')
         body_font = font_pair.get('body', 'Inter')
         note = font_pair.get("usage_note", "")
-        # Generate the exact next/font/google import
         display_import = display_font.replace(' ', '_')
         body_import = body_font.replace(' ', '_')
         lines.append(
-            f"- [fonts] MANDATORY: {display_font} (display) + {body_font} (body)"
+            f"\n### Font pairing: {display_font} (display) + {body_font} (body)"
             + (f" — {note}" if note else "")
         )
         lines.append(
-            f"  Import: import {{ {display_import}, {body_import} }} from 'next/font/google'"
+            f"  import {{ {display_import}, {body_import} }} from 'next/font/google'"
         )
 
+    # Archetype as inspiration
     archetype = bundle.get("variation_archetype") or {}
     if archetype:
-        lines.append("\n## Design Archetype — Use as inspiration, not a rigid blueprint:")
-        lines.append(f"  archetype: {archetype.get('id', 'N/A')}")
-        lines.append(f"  layout style: {archetype.get('layout', 'N/A')}")
-        lines.append(f"  hero type: {archetype.get('hero', 'N/A')}")
-        lines.append(f"  section rhythm: {archetype.get('section_rhythm', 'N/A')}")
-        lines.append(f"  background treatment: {archetype.get('background', 'N/A')}")
+        lines.append(f"\n### Design archetype (inspiration, not blueprint): {archetype.get('id', 'N/A')}")
+        lines.append(f"  Layout: {archetype.get('layout', 'N/A')}")
+        lines.append(f"  Hero approach: {archetype.get('hero', 'N/A')}")
+        lines.append(f"  Section rhythm: {archetype.get('section_rhythm', 'N/A')}")
+        lines.append(f"  Background: {archetype.get('background', 'N/A')}")
         moves = archetype.get("signature_moves", [])
         if moves:
-            lines.append(f"  signature moves (incorporate these): {', '.join(moves)}")
-        lines.append("  NOTE: This archetype is a STARTING POINT. Adapt it to serve the")
-        lines.append("  industry and brand. Invent your own structural ideas beyond this.")
+            lines.append(f"  Signature moves to consider: {', '.join(moves)}")
 
+    # Motion primitives as suggestions
     motion = bundle.get("motion_primitives", [])
     if motion:
         lines.append(
-            "\n## MANDATORY Motion Primitives — every one of these MUST be implemented. "
-            "No static sections. No missing hover states. Implement ALL:"
+            "\n### Suggested animations (every section should have motion — "
+            "pick what serves each concept):"
         )
         for item in motion:
             lines.append(f"  - {item.get('id')}: {item.get('description')}")
 
-    banned = bundle.get("banned_patterns", [])
-    if banned:
-        lines.append("\n## BANNED PATTERNS — using any of these is instant failure:")
-        for pattern in banned:
-            lines.append(f"  ✗ {pattern}")
-
-    rubric = bundle.get("critique_rubric", [])
-    if rubric:
-        lines.append("\n## Pre-output self-critique checklist (ALL must pass):")
-        for item in rubric:
-            lines.append(f"  [ ] {item}")
-
+    # Patterns that award-winning sites avoid (identity-based, not ban-list)
     lines.append(
-        "\n## MANDATORY WORKFLOW — follow EVERY step. Skipping ANY = failure.\n\n"
-        "  STEP 1. Study reference images with Read tool. Extract exact visual parameters.\n"
-        "  STEP 2. Study reference_visual_specs. These are your design spec.\n"
-        "  STEP 3. Run the npm install command above.\n"
-        "  STEP 4. Call superpower_images 3+ times for real Unsplash photos.\n"
-        "  STEP 5. BEFORE BUILDING — call superpower_design_review with a description\n"
-        "          of every planned section. If it returns FAIL — revise your plan.\n"
-        "          Do NOT start writing code until design review PASSES.\n"
-        "          Use ToolSearch to fetch the tool schema if needed.\n"
-        "  STEP 6. Build the full site. Take your time. Quality > speed. If building\n"
-        "          takes 30 minutes, that's fine. Rushing produces generic output.\n"
-        "  STEP 7. After building, start dev server. Call superpower_review_build\n"
-        "          on the homepage URL. This tool enforces an ITERATION LOOP:\n"
-        "          - It screenshots the page and grades EVERY section (A-F)\n"
-        "          - If review_status is 'FAILED — MUST ITERATE', you MUST:\n"
-        "            a) Fix ALL critical_issues and D/F sections using the specific fixes provided\n"
-        "            b) Rebuild the page\n"
-        "            c) Call superpower_review_build AGAIN on the same URL\n"
-        "            d) Repeat until review_status is 'PASSED'\n"
-        "          - DO NOT skip this loop. DO NOT declare complete while review is failing.\n"
-        "          - Expect 2-3 iterations. This is where quality happens.\n"
-        "          Use ToolSearch to fetch the tool schema if needed.\n"
-        "  STEP 8. Call superpower_check_layout on every page for structural issues.\n"
-        "  STEP 9. Call superpower_review_build on EVERY subpage too (/pricing, /about, etc).\n"
-        "          Run the same iteration loop on each — fix D/F sections, re-review.\n"
-        "  STEP 10. Verify every selected primitive is actually imported and used.\n"
-        "  STEP 11. Only THEN declare complete. The site is NOT done until ALL pages\n"
-        "           have passed superpower_review_build with grade B+ and no D/F sections.\n\n"
-
-        "## BUILD REQUIREMENTS\n\n"
-
-        "  PAGES: Multiple pages that make sense for THIS business. NOT a rigid\n"
-        "     template of 'home + pricing + about.' An aerospace company needs\n"
-        "     vehicles, missions, facilities. A restaurant needs menu, reservations.\n"
-        "     A law firm needs practice areas, cases, team. Choose pages that FIT\n"
-        "     the industry. Home page should have 8+ visually distinct sections.\n"
-        "     7 powerful sections > 12 mediocre ones.\n\n"
-
-        "  FOLDER: name after company (lowercase). 'my-app' = failure.\n\n"
-
-        "  DESIGN LANGUAGE: The ENTIRE site — navigation, section transitions,\n"
-        "     micro-copy, metadata, footer — should feel NATIVE to the industry.\n"
-        "     An aerospace site should feel like mission control. A law firm should\n"
-        "     feel like a legal brief. Do NOT use the same navbar/footer/hero pattern\n"
-        "     on every site. INVENT navigation and structure that serves THIS brand.\n\n"
-
-        "  PHOTOGRAPHY: Images should DOMINATE — 60-70% of visual area in key\n"
-        "     sections, not thumbnails in card grids. Use url_full for heroes.\n"
-        "     Dark overlays must stay below 40% opacity so images remain visible.\n\n"
-
-        "  TYPOGRAPHY: Hero headings should be MASSIVE — viewport-spanning when\n"
-        "     possible. Use the full width. Think text-[10vw] or text-[12vw], not\n"
-        "     text-5xl centered in a narrow column. Mixed weights (thin + black)\n"
-        "     in the same heading creates editorial sophistication.\n\n"
-
-        "  VISUAL DENSITY: Every viewport should reward the user — a new image,\n"
-        "     texture, or typographic moment. No section is just text on flat color.\n\n"
-
-        "  CORNERS: Prefer sharp corners (0-4px). NO rounded-xl or rounded-2xl.\n\n"
-
-        "  BRAND: Bold text only for company name. No icon logos.\n\n"
-
-        "  DESIGN CONFIDENCE:\n"
-        "     - Features are a STORY, not a grid. Each should transform the visual.\n"
-        "     - Every page hero must feel COMPLETELY DIFFERENT from every other.\n"
-        "     - Track background treatment usage: never repeat the same treatment\n"
-        "       twice on the same page.\n\n"
-
-        "  TECH: Tailwind v4 — @theme inline { } for custom colors, NOT :root.\n"
-        "     Node.js 25 — add NODE_OPTIONS='--localstorage-file=/tmp/nextls' to scripts.\n\n"
-
-        "  SCROLL RESET: MANDATORY for multi-page sites. Add a ScrollToTop component\n"
-        "     that uses usePathname() to detect route changes and scrolls to top.\n"
-        "     If using Lenis, call lenis.scrollTo(0, { immediate: true }).\n"
-        "     Without this, users arrive at the MIDDLE of new pages — a critical UX bug.\n\n"
-
-        "  VISUAL AMBITION: Every section must have a creative IDEA, not just content\n"
-        "     in boxes. Ask: would someone screenshot this? If you find yourself making\n"
-        "     uniform cards with icons, stop and think about what would make this section\n"
-        "     genuinely surprising. The design_review and review_build tools will reject\n"
-        "     safe, template-grade work.\n\n"
-
-        "## QUALITY CHECK — verify before finishing\n"
-        "  • Does the site feel CUSTOM and INDUSTRY-NATIVE, not like a swapped template?\n"
-        "  • Is there a coherent design language throughout (not just sections stitched together)?\n"
-        "  • Is photography PROMINENT — large, full-bleed, dominant in key sections?\n"
-        "  • Are hero headings MASSIVE — viewport-spanning, not small centered text?\n"
-        "  • Does the navigation feel invented for THIS brand, not generic?\n"
-        "  • npx next build succeeds with zero errors\n"
-        "  • Real Unsplash images in every image slot\n"
-        "  • Brand name is text only — no icon logos\n"
-        "  • No two page heroes look the same\n"
-        "  • Hero and CTA content is vertically centered, not pushed to bottom\n"
-        "  • No section is just text on flat solid background\n"
-        "  • ScrollToTop component exists and resets scroll on route change\n"
-        "  • At least 3 ambitious techniques used (glass, shaders, tilt, clip-path, etc.)\n"
-        "  • superpower_review_build PASSED on every page (grade B+, no D/F sections)\n"
-        "If any fails — go back and fix it. Do not declare complete."
+        "\n### What award-winning sites never do:"
+        "\n  Award-winning sites avoid same-sized card grids repeated across sections,"
+        "\n  generic heroes (just a headline + subheadline + button on flat background),"
+        "\n  icon grids where every icon sits in an identical rounded rectangle,"
+        "\n  raw CSS linear-gradients without texture or filtering,"
+        "\n  content pushed to the bottom of full-viewport sections,"
+        "\n  the same background approach on adjacent sections,"
+        "\n  and any section that is just text on a flat solid color."
+        "\n  If you catch yourself doing any of these — stop and redesign."
     )
 
     return "\n".join(lines)
