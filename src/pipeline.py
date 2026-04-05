@@ -465,9 +465,33 @@ PHASE 2 — DESIGN BRIEF (the most important step):
   text-[12vw] spanning full width, 10% opacity rocket photo behind it, thin \
   ruled line beneath, stats strip reading 'VEHICLE CLASS: LEO · GTO · SSO' \
   in monospace tracking-widest."
-  Plan multiple pages (not home+pricing+about but pages that FIT the \
-  industry — aerospace: vehicles, missions, facilities; restaurant: menu, \
-  story, reservations). Home page needs 8-12+ substantial sections.
+
+  VOLUME REQUIREMENTS — this is enterprise-grade work:
+  - Home page: 10-15 substantial sections minimum
+  - Each sub-page: 8-12 sections minimum
+  - Total across ALL pages: 30+ sections
+  - Plan 3-5 pages that FIT the industry (not home+pricing+about but \
+    pages native to the business — aerospace: vehicles, missions, \
+    facilities; restaurant: menu, story, reservations; electrician: \
+    services, projects, about, emergency)
+  - A page with fewer than 8 sections is UNFINISHED. The design review \
+    will reject it.
+
+  THEME — match the business, not your default:
+  - Community/local businesses (electricians, restaurants, clinics): warm, \
+    light, approachable. Dark themes feel cold and wrong.
+  - Tech/aerospace/gaming: dark themes work. They signal precision.
+  - Luxury/fashion: light with restrained palette. Dark only if editorial.
+  - Choose the theme that a CUSTOMER of this business would feel \
+    comfortable with. An electrician's customer is a homeowner — they \
+    want warmth and trust, not a cyberpunk dashboard.
+
+  IMAGE VARIETY — every image must be unique:
+  - Call superpower_images enough times to get a UNIQUE image for every \
+    section that needs one. Budget 20-30 images for a full site.
+  - NEVER reuse an image URL. If a section needs a photo, it gets its \
+    own. Reusing the same photo across pages looks lazy and cheap.
+  - Assign specific image URLs to specific sections in the brief.
 
 PHASE 3 — VALIDATE:
   Call superpower_design_review with your brief. A critic sub-agent reviews \
@@ -665,6 +689,11 @@ def build_section_builder_prompt(
         "- Each section has a DIFFERENT layout approach from its neighbors.",
         "- Real content — specific names, numbers, dates. No lorem ipsum. No emojis.",
         "- 'use client' on all components using framer-motion.",
+        "- EVERY IMAGE URL MUST BE UNIQUE. Never reuse an image across sections.",
+        "  If your brief specifies an image for a section, use ONLY that URL.",
+        "  Duplicate images make the site look cheap and lazy.",
+        "- Each section should be SUBSTANTIAL — not a thin wrapper with a heading",
+        "  and three lines of text. Aim for 80-150+ lines per section component.",
         "",
         "## TOOLKIT",
         primitive_toolkit,

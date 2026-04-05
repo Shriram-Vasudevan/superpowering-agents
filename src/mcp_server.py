@@ -721,32 +721,47 @@ Overall verdict: PASS, NEEDS WORK, or FAIL."""
         # Brief review — pre-build creative quality check
         critic_prompt = f"""You are a ruthlessly honest creative director reviewing a design brief BEFORE any code is written.
 
-Your job: catch boring, safe, template-grade thinking before it becomes wasted work.
+Your job: catch boring, thin, and misguided thinking before it becomes wasted work.
 
 The designer's planned sections:
 {section_block}
 {industry_vocab}
+
+## HARD REQUIREMENTS — instant FAIL if any are violated:
+
+1. **VOLUME**: Count the sections PER PAGE. Home page needs 10-15 sections. Every sub-page needs 8-12 sections. Total across all pages must be 30+. A page with fewer than 8 sections is UNFINISHED — this is enterprise-grade work, not a quick landing page. If the brief doesn't meet these minimums, verdict is FAIL.
+
+2. **THEME FIT**: Is the color/mood appropriate for this business's CUSTOMERS? A community electrician's customers are homeowners — they want warmth and trust, not a dark cyberpunk dashboard. A restaurant wants warmth, not corporate blue. If the theme feels wrong for who will visit this site, verdict is FAIL.
+
+3. **IMAGE PLAN**: Does the brief mention enough UNIQUE images? A 30+ section site needs 20-30 unique images. If the brief reuses images or doesn't plan enough variety, flag it.
+
+## PER-SECTION EVALUATION:
+
 For EACH section, evaluate:
 
-1. **Does it have a CONCEPT?** Not "hero with heading and CTA" but a visual METAPHOR. "The features section is a flight manifest." "The menu uses actual menu typography with dot leaders." A section without a concept is just layout.
+1. **Does it have a CONCEPT?** Not "hero with heading and CTA" but a visual METAPHOR. A section without a concept is just layout.
 
-2. **Would this turn heads on Awwwards?** If someone scrolled past this, would they stop?
+2. **Would this turn heads?** If someone scrolled past this on Awwwards, would they stop?
 
-3. **Is it structurally surprising?** Does the layout break expectations or is it the predictable grid-and-columns approach?
+3. **Is it structurally surprising?** Does the layout break expectations or is it predictable grids?
 
-4. **Can you imagine the sensory quality?** Texture, depth, light, motion. Great sections layer: background treatment + surface depth + interaction + typographic drama. If you can't visualize it being remarkable, it won't be.
+4. **Sensory quality** — Can you imagine the texture, depth, light? Or flat shapes on flat colors?
 
-5. **Could any AI have generated this?** The harshest test. What makes this SPECIFIC to this brand and industry?
+5. **Specificity** — Could any AI have generated this? What makes it specific to THIS brand?
 
 Grade each section:
-- **STRONG**: Has a creative concept that would look distinctive on Awwwards
+- **STRONG**: Distinctive creative concept, would stand out on Awwwards
 - **ADEQUATE**: Competent but safe. One bolder choice would elevate it
 - **NEEDS WORK**: Generic. Content without design thinking
 - **TEMPLATE-GRADE**: What a free website builder produces
 
-For every section below STRONG, say SPECIFICALLY what would elevate it — not "be more creative" but WHAT creative idea, WHAT technique, WHAT metaphor would transform it.
+For sections below STRONG: say SPECIFICALLY what technique or metaphor would transform it.
 
-Overall verdict: PASS (no template-grade, majority strong, 2+ genuinely exciting), NEEDS WORK, or FAIL.
+Overall verdict:
+- **PASS**: Meets volume minimums (30+ sections, 8+ per page), theme fits the audience, no template-grade sections, majority strong, 2+ genuinely exciting
+- **NEEDS WORK**: Close but missing volume, theme is questionable, or too many adequate sections
+- **FAIL**: Under volume minimums, wrong theme for audience, or most sections are generic
+
 End your response with exactly one of: PASS, NEEDS WORK, or FAIL."""
 
     return {
