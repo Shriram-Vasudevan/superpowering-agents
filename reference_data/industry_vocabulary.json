@@ -607,40 +607,6 @@
       ]
     },
 
-    "trades": {
-      "native_vocabulary": [
-        "service call tickets", "work orders", "permit documents",
-        "electrical panels", "circuit diagrams", "inspection reports",
-        "before/after photography", "tool belts", "safety certifications",
-        "license numbers", "service trucks", "emergency dispatch",
-        "wiring schematics", "load calculations", "code compliance badges"
-      ],
-      "section_concepts": {
-        "hero": "The work speaks — a dramatic before/after or a beautifully lit shot of precision craftsmanship. Not a stock photo of a smiling person in a hard hat, but the ACTUAL work: a clean panel install, perfect wiring, a lit-up renovation. The company name bold and confident, the phone number impossible to miss",
-        "features": "Service menu styled like work orders — each service with a job code, scope description, and typical timeline. Not icon cards but structured rows that feel like the real paperwork this company uses. Clean, organized, trustworthy",
-        "about": "The shop story — founded date, license number displayed prominently like a badge of authority. The owner's photo in their element (at a job site, not in a studio). Years of experience as a massive number. Certifications displayed like credentials on a wall",
-        "team": "The crew — team members shown on job sites with their specializations and years of experience. Not corporate headshots but real people doing real work. Certifications and licenses visible like name badges",
-        "pricing": "Service guide — not exact prices but service tiers with scope descriptions. Emergency, standard, planned. Each with response time guarantees and what's included. Styled like a professional estimate sheet",
-        "cta": "Emergency call-out — the CTA should feel urgent and reliable. A phone number so large you can read it from across the room. 'Available 24/7' with a status indicator. The confidence of calling someone who will actually show up",
-        "testimonials": "Job reports — customer reviews styled as completed work orders. The address (neighborhood only), the work done, the customer's verdict. Before/after photos where possible. Five-star ratings displayed like inspection grades"
-      },
-      "premium_signals": [
-        "license and certification badges displayed prominently",
-        "before/after project photography",
-        "clean typography that signals professionalism",
-        "service area maps", "response time guarantees",
-        "phone number always visible and large"
-      ],
-      "provocations": [
-        "What if the hero showed a split before/after of their best work — dramatic transformation?",
-        "What if services were presented like work orders with job codes and scope descriptions?",
-        "What if the about section displayed the license number like a badge of authority — massive, proud, unmissable?",
-        "What if the CTA was an emergency dispatch panel with a phone number so large it dominates the viewport?",
-        "What if testimonials were styled as completed job reports with neighborhood, work done, and inspection grade?",
-        "What if the site felt like the most organized, professional version of what this company actually does?"
-      ]
-    },
-
     "biotech": {
       "native_vocabulary": [
         "molecular structures", "research pipelines", "clinical trials",
@@ -729,18 +695,6 @@
     "dating": "saas",
     "social_media": "saas",
     "defense": "aerospace",
-    "engineering": "aerospace",
-    "electrician": "trades",
-    "plumber": "trades",
-    "plumbing": "trades",
-    "hvac": "trades",
-    "contractor": "trades",
-    "construction": "trades",
-    "roofing": "trades",
-    "landscaping": "trades",
-    "home_services": "trades",
-    "handyman": "trades",
-    "cleaning": "trades",
-    "painting": "trades"
+    "engineering": "aerospace"
   }
 }
