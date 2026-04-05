@@ -44,6 +44,7 @@ from src.retrieval import get_corpus_coverage, load_industry_profiles
 from src.layout_checker import check_layout, _is_local_url
 from src.primitives import (
     build_manual_primitive_bundle,
+    build_primitive_bundle,
     build_primitive_prompt_addendum,
     find_provider,
     get_discovery_highlights,
@@ -142,6 +143,20 @@ class _WorkflowState:
                     "Call superpower_context first. Section context builds on "
                     "the references and primitives from context."
                 )
+            if not self.design_reviewed or not self.design_review_passed:
+                return (
+                    "Your design brief must pass superpower_design_review BEFORE "
+                    "you can get section builder context. Write a section-by-section "
+                    "design brief with concepts and metaphors, then call "
+                    "superpower_design_review to validate it. The toolkit (npm packages, "
+                    "imports, fonts) is only released after the brief passes review."
+                )
+            if self.images_called < 2:
+                return (
+                    f"Call superpower_images at least 2 more times (called {self.images_called}x). "
+                    "You need hero backgrounds, team photos, and industry imagery before "
+                    "section builders can start."
+                )
         elif step == "build":
             missing: list[str] = []
             if not self.context_called:
@@ -180,30 +195,30 @@ def superpower_context(
     style_profile: str | None = None,
     top_k: int = 5,
     no_vector: bool = False,
-    auto_primitives: bool = False,
-    include_catalog: bool = False,
 ) -> list | dict:
-    """Get design references, industry vocabulary, and creative provocations for building websites.
+    """Get design references, industry vocabulary, and creative provocations.
 
-    This is the starting point. Returns:
-    - Award-winning reference screenshots (study them deeply)
-    - Visual specs extracted from each reference (CSS parameters, typography, color)
-    - Industry-specific design vocabulary and creative provocations
-    - Primitive toolkit (packages available for this project)
+    This is Step 1. It does NOT give you packages or code tools — those come
+    later via superpower_section_context, AFTER your design brief passes review.
 
-    After calling this, follow the multi-agent workflow in the system_prompt:
-    1. Study references and industry vocabulary
-    2. Call superpower_images 3+ times for real Unsplash photos
-    3. Write a design brief (section-by-section concepts with visual metaphors)
-    4. Call superpower_design_review to validate the brief
-    5. Spawn section-builder sub-agents (call superpower_section_context for each)
-    6. Assemble, review with superpower_review_build, iterate
+    Returns:
+    - system_prompt: Your creative disposition (internalize this)
+    - Reference screenshots + visual specs (study these deeply)
+    - Industry vocabulary and creative provocations (think in these metaphors)
 
-    The system_prompt contains your creative disposition — internalize it.
-    The industry_vocabulary and creative_provocations give you industry-native
-    metaphors to think in. Use them as starting points, then go further.
+    YOUR NEXT STEPS after calling this:
+    1. Study every reference image — extract color, typography, density, texture
+    2. Call superpower_images 3+ times (hero backgrounds, team photos, industry imagery)
+    3. WRITE A DESIGN BRIEF — for each section, describe the CONCEPT (visual metaphor),
+       LAYOUT, INTERACTION, and MOOD. Plan multiple pages that fit the industry.
+       This is the most important step. Think in metaphors, not layouts.
+    4. Call superpower_design_review with your brief — a critic validates it
+    5. ONLY AFTER the brief passes: call superpower_section_context to get the
+       build toolkit (npm packages, fonts, imports) for each sub-agent
+
+    DO NOT start writing code until your design brief passes review.
+    DO NOT install npm packages yet — the toolkit comes from superpower_section_context.
     """
-    # Reset workflow for new context call (new project)
     _workflow.reset()
 
     intent, results = run_retrieval(prompt, page_type, industry, business_model, brand_tier, top_k, no_vector)
@@ -211,33 +226,29 @@ def superpower_context(
         intent.industry_style_profile = style_profile
     corpus_coverage = get_corpus_coverage(intent)
 
-    # Track workflow state
     _workflow.context_called = True
     _workflow.context_domains = [r.domain for r in results]
 
-    # Build the system prompt (disposition + industry context + primitives if auto)
+    # Build the system prompt: disposition + peer evidence + industry vocab + provocations
+    # NOTE: No primitive toolkit here — that's gated behind design review
     from src.pipeline import CONTEXT_SYSTEM_PROMPT
 
-    primitive_bundle = None
-    if auto_primitives:
-        system_prompt, primitive_bundle = build_context_system_prompt(prompt, intent, results)
-    else:
-        # Industry context, peer evidence, and provocations are always included
-        industry_context = format_industry_context(intent.industry)
-        provocations = generate_creative_provocations(intent.industry, results)
-        corpus_evidence = format_corpus_peer_evidence()
-        parts = [CONTEXT_SYSTEM_PROMPT]
-        if corpus_evidence:
-            parts.append(corpus_evidence)
-        if industry_context:
-            parts.append(f"## INDUSTRY DESIGN VOCABULARY\n\n{industry_context}")
-        if provocations:
-            parts.append(
-                "## CREATIVE PROVOCATIONS\n\n"
-                "Use these as starting points — then go further:\n"
-                + "\n".join(f"- {p}" for p in provocations)
-            )
-        system_prompt = "\n\n".join(parts)
+    industry_context = format_industry_context(intent.industry)
+    provocations = generate_creative_provocations(intent.industry, results)
+    corpus_evidence = format_corpus_peer_evidence()
+
+    parts = [CONTEXT_SYSTEM_PROMPT]
+    if corpus_evidence:
+        parts.append(corpus_evidence)
+    if industry_context:
+        parts.append(f"## INDUSTRY DESIGN VOCABULARY\n\n{industry_context}")
+    if provocations:
+        parts.append(
+            "## CREATIVE PROVOCATIONS\n\n"
+            "Use these as starting points — then go further:\n"
+            + "\n".join(f"- {p}" for p in provocations)
+        )
+    system_prompt = "\n\n".join(parts)
 
     # Build aggregate DOM surface analysis
     ref_domains = [r.domain for r in results]
@@ -248,30 +259,36 @@ def superpower_context(
 
     # Industry vocabulary for the response
     vocab = get_industry_vocab(intent.industry)
-    provocations_list = generate_creative_provocations(intent.industry, results)
 
-    # Store rich context for section builders (superpower_section_context)
+    # INTERNALLY compute and store primitive bundle for later release
+    # via superpower_section_context (after design review passes)
+    primitive_bundle = build_primitive_bundle(prompt, intent, results)
     _workflow.industry = intent.industry
     _workflow.vision_specs = vision_specs
-    if primitive_bundle:
-        _workflow.primitive_bundle = primitive_bundle
-        _workflow.font_pair = primitive_bundle.get("font_pair", {})
-        _workflow.primitive_addendum = build_primitive_prompt_addendum(primitive_bundle)
-        # Extract color palette from vision specs
-        colors = set()
-        for spec in vision_specs:
-            vs = spec.get("visual_spec", {})
-            palette = vs.get("color_palette", "")
-            if palette:
-                colors.add(palette)
-        if colors:
-            _workflow.color_palette = " | ".join(list(colors)[:3])
+    _workflow.primitive_bundle = primitive_bundle
+    _workflow.font_pair = primitive_bundle.get("font_pair", {})
+    _workflow.primitive_addendum = build_primitive_prompt_addendum(primitive_bundle)
+    # Extract color palette from vision specs
+    colors = set()
+    for spec in vision_specs:
+        vs = spec.get("visual_spec", {})
+        palette = vs.get("color_palette", "")
+        if palette:
+            colors.add(palette)
+    if colors:
+        _workflow.color_palette = " | ".join(list(colors)[:3])
 
     instructions = (
-        "Read the system_prompt — it contains your creative disposition and the "
-        "multi-agent build workflow. Study every reference image. Use the "
-        "industry_vocabulary and creative_provocations to think in industry-native "
-        "metaphors when writing your design brief."
+        "DO NOT START BUILDING YET. Read the system_prompt — it contains your "
+        "creative disposition. Study every reference image. Then:\n\n"
+        "1. Call superpower_images 3+ times for real Unsplash photos\n"
+        "2. Write a DESIGN BRIEF — section-by-section concepts with visual metaphors, "
+        "not 'hero with heading' but 'mission control screen with telemetry readouts'\n"
+        "3. Call superpower_design_review with your brief sections\n"
+        "4. After the brief PASSES review, call superpower_section_context to get "
+        "the build toolkit (npm packages, fonts, imports) for each sub-agent\n\n"
+        "The toolkit is NOT available until your design brief passes review. "
+        "This is structural — the server will block you. Plan first, build second."
     )
 
     if _remote_mode:
@@ -285,8 +302,7 @@ def superpower_context(
             "reference_visual_specs": vision_specs,
             "reference_surface_analysis": surface_analysis,
             "industry_vocabulary": vocab,
-            "creative_provocations": provocations_list,
-            "primitives": primitive_bundle,
+            "creative_provocations": provocations,
             "instructions": instructions,
         }
         content: list = [json.dumps(payload)]
@@ -304,8 +320,7 @@ def superpower_context(
         "reference_visual_specs": vision_specs,
         "reference_surface_analysis": surface_analysis,
         "industry_vocabulary": vocab,
-        "creative_provocations": provocations_list,
-        "primitives": primitive_bundle,
+        "creative_provocations": provocations,
         "instructions": instructions,
     }
 
