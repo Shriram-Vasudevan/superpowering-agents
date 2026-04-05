@@ -243,6 +243,89 @@ def build_reference_surface_analysis(
     }
 
 
+# ── Corpus-wide statistics (peer evidence) ────────────────────────────────
+
+@lru_cache(maxsize=1)
+def _compute_corpus_stats() -> dict[str, Any]:
+    """Aggregate design technique usage across the entire DOM corpus.
+
+    Returns top primitives and surface techniques with percentages.
+    Cached — computed once per server lifetime.
+    """
+    summaries = _load_dom_summaries()
+    if not summaries:
+        return {"total": 0, "techniques": [], "primitives": []}
+
+    total = len(summaries)
+    prim_counts: Counter[str] = Counter()
+    tech_counts: Counter[str] = Counter()
+
+    # Framework-level signals to filter out (not design choices)
+    skip = {"tailwind", "bootstrap", "webflow", "wordpress", "shopify",
+            "squarespace", "wix", "elementor", "gatsby", "nuxt"}
+
+    for data in summaries.values():
+        for p in data.get("detected_primitives", []):
+            if p not in skip:
+                prim_counts[p] += 1
+        for t in data.get("surface_techniques", []):
+            tech_counts[t] += 1
+
+    techniques = [
+        {"name": name, "count": count, "pct": round(count / total * 100, 1)}
+        for name, count in tech_counts.most_common(10)
+        if count / total >= 0.01
+    ]
+    primitives = [
+        {"name": name, "count": count, "pct": round(count / total * 100, 1)}
+        for name, count in prim_counts.most_common(15)
+        if count / total >= 0.05
+    ]
+    return {"total": total, "techniques": techniques, "primitives": primitives}
+
+
+def format_corpus_peer_evidence() -> str:
+    """Format corpus statistics as peer evidence for the disposition prompt.
+
+    Returns a short section showing what award-winning sites actually use,
+    framed as peer behavior rather than rules.
+    """
+    stats = _compute_corpus_stats()
+    if not stats["total"]:
+        return ""
+
+    total = stats["total"]
+    lines = [
+        f"## WHAT {total:,} AWARD-WINNING SITES ACTUALLY USE",
+        "",
+        "This data comes from analyzing the DOM of every site in the reference corpus.",
+        "These are the techniques that separate award-winning work from templates:",
+        "",
+    ]
+
+    # Design techniques
+    techniques = stats["techniques"]
+    if techniques:
+        lines.append("Surface techniques (% of award-winning sites that use them):")
+        for t in techniques:
+            lines.append(f"  - {t['name']}: {t['pct']}%")
+        lines.append("")
+
+    # Design-relevant primitives
+    primitives = stats["primitives"]
+    if primitives:
+        lines.append("Packages and patterns used by top sites:")
+        for p in primitives:
+            lines.append(f"  - {p['name']}: {p['pct']}%")
+        lines.append("")
+
+    lines.append(
+        "Sites that DON'T use these techniques are the ones that look generic. "
+        "Layer 3-5 of these simultaneously for visual richness."
+    )
+    return "\n".join(lines)
+
+
 # ── Industry vocabulary ────────────────────────────────────────────────────
 
 @lru_cache(maxsize=1)
@@ -439,6 +522,11 @@ def build_context_system_prompt(
 
     parts = [CONTEXT_SYSTEM_PROMPT]
 
+    # Corpus-wide peer evidence (what award-winning sites actually use)
+    corpus_evidence = format_corpus_peer_evidence()
+    if corpus_evidence:
+        parts.append(corpus_evidence)
+
     if industry_context:
         parts.append(f"## INDUSTRY DESIGN VOCABULARY\n\n{industry_context}")
 
@@ -451,6 +539,81 @@ def build_context_system_prompt(
 
     parts.append(addendum)
     return "\n\n".join(parts), bundle
+
+
+def build_assembler_prompt(
+    pages: list[dict],
+    font_spec: dict,
+    color_palette: str,
+    company_name: str = "",
+) -> str:
+    """Build a focused prompt for the assembler sub-agent.
+
+    The assembler stitches approved section components into a working multi-page
+    Next.js App Router application. It handles: page files, routing, shared layout,
+    navbar/footer, ScrollToTop, and visual consistency.
+
+    Each page dict has: name, route, sections (list of component names in order).
+    """
+    lines = [
+        "You are the assembler. Section builders have already created the individual "
+        "section components. Your job is to stitch them into a working multi-page "
+        "Next.js App Router application.",
+        "",
+        "## PAGES TO ASSEMBLE",
+        "",
+    ]
+    for page in pages:
+        route = page.get("route", "/")
+        name = page.get("name", "Page")
+        sections = page.get("sections", [])
+        lines.append(f"### {name} ({route})")
+        lines.append(f"  Sections in order: {', '.join(sections)}")
+        lines.append("")
+
+    lines.extend([
+        "## YOUR RESPONSIBILITIES",
+        "",
+        "1. **app/layout.tsx** — Root layout with:",
+        f"   - Font imports (next/font/google) for {font_spec.get('display', 'display')} + {font_spec.get('body', 'body')} fonts",
+        "   - Shared Navbar and Footer components",
+        "   - ScrollToTop component (usePathname + window.scrollTo on route change)",
+        "   - If using Lenis: initialize in layout, use lenis.scrollTo(0, {immediate: true}) in ScrollToTop",
+        "",
+        "2. **Page files** — Each route's page.tsx imports and renders its sections in order",
+        "",
+        "3. **Navbar** — INVENT navigation native to this brand. Not the default",
+        "   'logo left, links center, CTA right' pattern unless it genuinely serves the brand.",
+        f"   Company name '{company_name}' as bold text — no icon logo.",
+        "",
+        "4. **Footer** — Substantial, not an afterthought. Match the site's design language.",
+        "",
+        "5. **Visual consistency** — Ensure:",
+        "   - Same font variables applied everywhere",
+        f"   - Color palette: {color_palette}" if color_palette else "   - Consistent color palette from the design brief",
+        "   - No two adjacent sections share the same background",
+        "   - All section transitions feel intentional",
+        "",
+        "6. **globals.css** — Tailwind v4 setup:",
+        "   - @import 'tailwindcss';",
+        "   - @theme inline { } block for all custom colors (NOT :root)",
+        "   - Any global styles (smooth scroll, selection color, etc.)",
+        "",
+        "## TECH REQUIREMENTS",
+        "- Next.js App Router (app/ directory)",
+        "- Tailwind CSS v4 (@theme inline, not :root)",
+        "- 'use client' on all components with framer-motion or hooks",
+        "- next/image for all images with explicit container heights",
+        "- NODE_OPTIONS='--localstorage-file=/tmp/nextls' in package.json scripts",
+        "- npx next build must succeed with zero errors",
+        "",
+        "## WHAT YOU DON'T DO",
+        "- Don't redesign sections — they're already approved",
+        "- Don't add new sections — the brief is final",
+        "- Don't change section internals — only import and render them",
+        "- Focus on: routing, layout, consistency, and making the app work",
+    ])
+    return "\n".join(lines)
 
 
 def build_section_builder_prompt(

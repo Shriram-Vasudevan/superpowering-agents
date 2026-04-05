@@ -24,10 +24,12 @@ from starlette.responses import Response
 
 from src.pipeline import (
     analyze_all_references,
+    build_assembler_prompt,
     build_context_system_prompt,
     build_reference_images_for_remote,
     build_reference_surface_analysis,
     build_section_builder_prompt,
+    format_corpus_peer_evidence,
     format_industry_context,
     generate_creative_provocations,
     get_dom_summaries_for_domains,
@@ -220,10 +222,13 @@ def superpower_context(
     if auto_primitives:
         system_prompt, primitive_bundle = build_context_system_prompt(prompt, intent, results)
     else:
-        # Industry context and provocations are always included
+        # Industry context, peer evidence, and provocations are always included
         industry_context = format_industry_context(intent.industry)
         provocations = generate_creative_provocations(intent.industry, results)
+        corpus_evidence = format_corpus_peer_evidence()
         parts = [CONTEXT_SYSTEM_PROMPT]
+        if corpus_evidence:
+            parts.append(corpus_evidence)
         if industry_context:
             parts.append(f"## INDUSTRY DESIGN VOCABULARY\n\n{industry_context}")
         if provocations:
@@ -895,6 +900,52 @@ def superpower_section_context(
         result["reference_visual_specs"] = _workflow.vision_specs[:2]
 
     return result
+
+
+@mcp.tool()
+def superpower_assemble_context(
+    pages: list[dict],
+    company_name: str = "",
+) -> dict:
+    """Get focused context for the assembler sub-agent.
+
+    Call this after all section builders have delivered approved sections.
+    The assembler stitches sections into a working multi-page Next.js app
+    with routing, shared layout, navbar/footer, and visual consistency.
+
+    Each page dict should have:
+      - name: Page name (e.g. "Home", "About", "Services")
+      - route: URL route (e.g. "/", "/about", "/services")
+      - sections: List of component names in render order
+                  (e.g. ["Hero", "Features", "TeamSection", "CTA"])
+
+    Returns an assembler_prompt to pass to the assembler sub-agent.
+
+    Args:
+        pages: List of page definitions with name, route, and sections.
+        company_name: The company name for navbar/branding.
+    """
+    prereq_error = _workflow.check_prerequisite("section_context")
+    if prereq_error:
+        return {"workflow_error": prereq_error}
+
+    assembler_prompt = build_assembler_prompt(
+        pages=pages,
+        font_spec=_workflow.font_pair,
+        color_palette=_workflow.color_palette,
+        company_name=company_name,
+    )
+
+    return {
+        "assembler_prompt": assembler_prompt,
+        "num_pages": len(pages),
+        "instructions": (
+            "Pass the assembler_prompt to a sub-agent. The assembler creates "
+            "the app shell: layout.tsx, page files, navbar, footer, ScrollToTop, "
+            "and globals.css. It imports the already-built section components "
+            "and renders them in the correct order on each page."
+        ),
+    }
 
 
 @mcp.tool()
