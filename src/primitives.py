@@ -246,11 +246,14 @@ def choose_archetype(
         for part in arch_id.split("-"):
             if part in tags:
                 score += 2.0
-        # Match description keywords against tags
-        desc = _safe_slug(arch.get("description", ""))
+        # Tokenize description into words for matching (handle commas, periods)
+        raw_desc = arch.get("description", "").lower()
+        desc_words = set(
+            w.strip(".,;:()") for w in raw_desc.replace("/", " ").replace("-", " ").split()
+        )
         for tag in tags:
-            if tag != "default" and tag in desc:
-                score += 1.0
+            if tag != "default" and tag in desc_words:
+                score += 1.5
         # Match signature_moves — bonus if tags overlap
         for move in arch.get("signature_moves", []):
             if _safe_slug(move) in tags:

@@ -3164,7 +3164,8 @@
         "large-pull-quotes",
         "mixed-type-weights",
         "thin-ruled-lines"
-      ]
+      ],
+      "description": "Editorial magazine aesthetic. For creative agency, media, publishing, fashion brands that want sophisticated asymmetric layouts with pull quotes and mixed typography."
     },
     {
       "id": "immersive-story",
@@ -3177,7 +3178,8 @@
         "parallax-depth",
         "minimal-copy-max-impact",
         "dissolve-transitions"
-      ]
+      ],
+      "description": "Cinematic storytelling with full-bleed media. For luxury, travel, hospitality, entertainment brands that tell a visual narrative through parallax and dissolve transitions."
     },
     {
       "id": "product-precision",
@@ -3190,7 +3192,8 @@
         "feature-comparison-table",
         "metric-callouts",
         "tight-grid-cards"
-      ]
+      ],
+      "description": "Information-dense product showcase. For saas, technology, developer tools, fintech brands that need feature comparison, metrics, and precise data presentation."
     },
     {
       "id": "branded-minimal",
@@ -3203,7 +3206,8 @@
         "single-color-accent",
         "extreme-whitespace",
         "one-striking-image"
-      ]
+      ],
+      "description": "Extreme minimalism with one bold accent. For startup, technology, saas brands that communicate confidence through restraint and massive headlines."
     },
     {
       "id": "bento-gallery",
@@ -3216,7 +3220,8 @@
         "spotlight-hover-cards",
         "icon-in-tile-corner",
         "alternating-dark-light-tiles"
-      ]
+      ],
+      "description": "Asymmetric grid mosaic for portfolio and showcase. For creative agency, design studio, photography, ecommerce brands with strong visual content."
     },
     {
       "id": "dark-cinematic",
@@ -3229,7 +3234,8 @@
         "warm-amber-accent-on-dark",
         "film-still-imagery",
         "oversized-outlined-type"
-      ]
+      ],
+      "description": "Moody dark theme with warm accents and film grain. For aerospace, gaming, entertainment, luxury, cinematic brands that want dramatic atmosphere and depth."
     },
     {
       "id": "brutalist-editorial",
@@ -3243,7 +3249,8 @@
         "raw-image-no-rounding",
         "bold-accent-color-single",
         "grid-exposed-structure"
-      ]
+      ],
+      "description": "Raw experimental typography with thick borders and rules. For creative agency, design studio, architecture brands that embrace bold unconventional aesthetics."
     },
     {
       "id": "soft-luxury",
@@ -3257,7 +3264,8 @@
         "muted-earthy-palette",
         "full-bleed-lifestyle-photography",
         "no-strong-shadows"
-      ]
+      ],
+      "description": "Refined warmth with delicate serif typography. For fashion, luxury, beauty, hospitality, restaurant brands that convey premium quality through restraint."
     },
     {
       "id": "data-dashboard",
@@ -3270,7 +3278,8 @@
         "nivo-area-charts",
         "skeleton-loading-states",
         "cmdk-search"
-      ]
+      ],
+      "description": "Data-rich interface with charts and tables. For saas, fintech, analytics, devops, developer tools brands that surface metrics and operational data."
     },
     {
       "id": "developer-docs",
@@ -3283,7 +3292,8 @@
         "sticky-toc-sidebar",
         "cmdk-search",
         "copy-to-clipboard-buttons"
-      ]
+      ],
+      "description": "Technical documentation with code blocks and syntax highlighting. For developer tools, open source, devops brands with technical audiences."
     }
   ],
   "critique_rubric": [
