@@ -3,12 +3,18 @@
   "recent_layout_patterns": [
     "hero_cta",
     "fullscreen_media",
-    "card_grid",
     "single_column",
+    "card_grid",
     "split_screen",
     "form_centered"
   ],
   "recent_domains": [
+    "25.hgcapital.com",
+    "casamon.it",
+    "mallardandclaret.com",
+    "ironclad.com",
+    "milkshake.studio",
+    "learn.forgooddesignlab.com",
     "luziaconzeta.net",
     "bejamas.com",
     "xfiner.com",
@@ -42,13 +48,7 @@
     "ladernieredanse.ronin161.com",
     "jonathangrado.com",
     "bourdin.tilda.ws",
-    "lawted.tech",
-    "ahshotelassets.com",
-    "beat.noomoagency.com",
-    "jasonbergh.com",
-    "dulcedo.com",
-    "towaie.org",
-    "mfisher.com"
+    "lawted.tech"
   ],
-  "updated_at": "2026-04-05T18:49:46.215670+00:00"
+  "updated_at": "2026-04-05T22:19:39.436514+00:00"
 }
